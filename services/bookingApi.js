@@ -90,6 +90,17 @@ export const changeBookingStatus = async (payload) => {
 };
 
 /**
+ * Update an existing booking by ID
+ * @param {number} bookingId - Booking ID
+ * @param {Object} updates - Booking updates
+ * @returns {Promise} Updated booking data
+ */
+export const updateBooking = async (bookingId, updates) => {
+  const response = await ApiClient.put(`/booking/${bookingId}`, updates);
+  return response.data;
+};
+
+/**
  * Get available tables for a restaurant
  * @param {number} restaurantId - Restaurant ID
  * @returns {Promise} Array of tables

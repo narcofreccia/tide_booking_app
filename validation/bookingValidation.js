@@ -1,7 +1,11 @@
 import * as yup from 'yup';
 
-// Helpers for HH:mm parsing
-const isHhmm = (value) => typeof value === 'string' && /^\d{2}:\d{2}$/.test(value);
+// Helpers for HH:mm or HH:mm:ss parsing
+const isValidTime = (value) => {
+  if (typeof value !== 'string') return false;
+  // Accept both HH:mm and HH:mm:ss formats
+  return /^\d{2}:\d{2}(:\d{2})?$/.test(value);
+};
 
 const bookingSchema = yup.object({
   restaurant_id: yup.number().typeError('Invalid restaurant').required('Restaurant required'),
@@ -47,7 +51,7 @@ const bookingSchema = yup.object({
 
   arrival_time: yup
     .string()
-    .test('hhmm', 'Invalid time format (HH:mm)', (v) => isHhmm(v))
+    .test('valid-time', 'Invalid time format (HH:mm or HH:mm:ss)', (v) => isValidTime(v))
     .required('Arrival time required'),
 
   status: yup

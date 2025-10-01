@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteBooking } from '../../services/api';
 import { isAdmin, isOwner } from '../../services/getUserRole';
 import { ChangeBookingStatus } from './ChangeBookingStatus';
+import { EditBookingModal } from './EditBookingModal';
 
 export const BookingRowActions = ({ booking, onActionComplete }) => {
   const theme = useTheme();
@@ -15,6 +16,7 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
   const queryClient = useQueryClient();
   const styles = createStyles(theme);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const isUserAdminOrOwner = isAdmin(currentUser) || isOwner(currentUser);
 
@@ -86,15 +88,11 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
   };
 
   const handleEdit = () => {
-    // TODO: Implement edit booking functionality
-    dispatch({
-      type: 'UPDATE_ALERT',
-      payload: {
-        open: true,
-        severity: 'info',
-        message: 'Edit booking - Coming soon',
-      },
-    });
+    setShowEditModal(true);
+  };
+
+  const handleEditModalClose = () => {
+    setShowEditModal(false);
     onActionComplete?.();
   };
 
@@ -132,6 +130,12 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
         booking={booking}
         visible={showStatusModal}
         onClose={handleStatusModalClose}
+      />
+
+      <EditBookingModal
+        booking={booking}
+        visible={showEditModal}
+        onClose={handleEditModalClose}
       />
     </>
   );

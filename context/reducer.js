@@ -4,6 +4,7 @@ const initialState = {
   dialog: { open: false, close: false, title: '', message: '', onSubmit: undefined },
   loading: false,
   selectedRestaurant: { id: null, name: null, public_key: null },
+  selectedBookingDate: new Date(),
 };
 
 const reducer = (state = initialState, action) => {
@@ -34,6 +35,9 @@ const reducer = (state = initialState, action) => {
     
     case 'RESET_SELECTED_RESTAURANT':
       return { ...state, selectedRestaurant: { id: null, name: null, public_key: null } };
+    
+    case 'UPDATE_SELECTED_BOOKING_DATE':
+      return { ...state, selectedBookingDate: action.payload };
     
     default:
       console.log('Unhandled action:', action);

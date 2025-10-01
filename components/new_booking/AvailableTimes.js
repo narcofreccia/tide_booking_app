@@ -36,11 +36,33 @@ export const AvailableTimes = ({ name = 'arrival_time', label = 'Time' }) => {
 
   const times = data?.available_times || [];
 
-  // Clear selected time if it's not in the new available times
+  // Normalize time format to HH:mm for comparison
+  const normalizeTime = (time) => {
+    if (!time) return '';
+    // If time is HH:mm:ss, convert to HH:mm
+    if (time.length === 8) return time.substring(0, 5);
+    return time;
+  };
+
+  // Ensure the form value is set when times load (for edit mode)
   useEffect(() => {
     const currentValue = watch(name);
-    if (currentValue && times.length > 0 && !times.includes(currentValue)) {
-      setValue(name, '', { shouldValidate: true });
+    const normalizedValue = normalizeTime(currentValue);
+    
+    if (times.length > 0 && currentValue) {
+      // Find matching time in available times
+      const matchingTime = times.find(t => normalizeTime(t) === normalizedValue);
+      
+      if (matchingTime) {
+        // Set the value to match the format from available times
+        setValue(name, matchingTime, { shouldValidate: true, shouldDirty: false });
+      } else {
+        // Time not available, clear it after a delay
+        const timer = setTimeout(() => {
+          setValue(name, '', { shouldValidate: true });
+        }, 500);
+        return () => clearTimeout(timer);
+      }
     }
   }, [times, name, watch, setValue]);
 
@@ -68,23 +90,29 @@ export const AvailableTimes = ({ name = 'arrival_time', label = 'Time' }) => {
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}
               >
-                {times.map((time) => (
-                  <TouchableOpacity
-                    key={time}
-                    style={[
-                      styles.timeButton,
-                      value === time && styles.timeButtonActive
-                    ]}
-                    onPress={() => onChange(time)}
-                  >
-                    <Text style={[
-                      styles.timeText,
-                      value === time && styles.timeTextActive
-                    ]}>
-                      {time}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                {times.map((time) => {
+                  const normalizedTime = normalizeTime(time);
+                  const normalizedValue = normalizeTime(value);
+                  const isSelected = normalizedTime === normalizedValue;
+                  
+                  return (
+                    <TouchableOpacity
+                      key={time}
+                      style={[
+                        styles.timeButton,
+                        isSelected && styles.timeButtonActive
+                      ]}
+                      onPress={() => onChange(time)}
+                    >
+                      <Text style={[
+                        styles.timeText,
+                        isSelected && styles.timeTextActive
+                      ]}>
+                        {time}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </ScrollView>
             )}
             {error && (

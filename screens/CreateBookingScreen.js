@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createBooking } from '../services/api';
+import { createBooking, updateBooking } from '../services/api';
 import bookingSchema from '../validation/bookingValidation';
 import { SimpleField } from '../components/SimpleField';
 import { NewBookingDatePicker } from '../components/new_booking/NewBookingDatePicker';
@@ -16,14 +16,49 @@ import { AccessibilityOptions } from '../components/new_booking/AccessibilityOpt
 import { Pax } from '../components/new_booking/Pax';
 import { TideLogo } from '../components/TideLogo';
 
-export default function CreateBookingScreen() {
+export default function CreateBookingScreen({ route, onSuccess }) {
   const theme = useTheme();
   const { selectedRestaurant } = useStateContext();
   const dispatch = useDispatchContext();
   const queryClient = useQueryClient();
   const styles = createStyles(theme);
+  
+  // Store the booking data for setting the date after success
+  const [lastBookingDate, setLastBookingDate] = React.useState(null);
 
-  const defaultValues = useMemo(() => ({
+  // Get booking from route params if editing
+  const editingBooking = route?.params?.booking;
+  const isEditMode = !!editingBooking;
+
+  const defaultValues = useMemo(() => {
+    if (isEditMode && editingBooking) {
+      // Parse the date string to Date object
+      const reservationDate = editingBooking.reservation_date 
+        ? new Date(editingBooking.reservation_date) 
+        : new Date();
+      
+      return {
+        restaurant_id: editingBooking.restaurant_id,
+        auto_table_selection: editingBooking.auto_table_selection ?? true,
+        table_ids: editingBooking.table_ids || [],
+        user_id: editingBooking.user_id,
+        name: editingBooking.name || '',
+        surname: editingBooking.surname || '',
+        phone: editingBooking.phone || '',
+        email: editingBooking.email || '',
+        arrival_time: editingBooking.arrival_time || '',
+        status: editingBooking.status || 'confirmed',
+        reservation_date: reservationDate,
+        adults: editingBooking.adults || 2,
+        children: editingBooking.children || 0,
+        highchair_number: editingBooking.highchair_number || 0,
+        wheelchair_number: editingBooking.wheelchair_number || 0,
+        costumer_notes: editingBooking.costumer_notes || '',
+        restaurant_notes: editingBooking.restaurant_notes || '',
+      };
+    }
+    
+    return ({
     restaurant_id: selectedRestaurant?.id,
     auto_table_selection: true,
     table_ids: [],
@@ -41,7 +76,8 @@ export default function CreateBookingScreen() {
     wheelchair_number: 0,
     costumer_notes: '',
     restaurant_notes: '',
-  }), [selectedRestaurant?.id]);
+  });
+  }, [selectedRestaurant?.id, isEditMode, editingBooking]);
 
   const methods = useForm({
     mode: 'onChange',
@@ -49,8 +85,18 @@ export default function CreateBookingScreen() {
     resolver: yupResolver(bookingSchema),
   });
 
+  // Reset form when defaultValues change (switching between create/edit)
+  useEffect(() => {
+    methods.reset(defaultValues);
+  }, [defaultValues, methods]);
+
   const mutation = useMutation({
-    mutationFn: (payload) => createBooking(selectedRestaurant?.id, payload),
+    mutationFn: (payload) => {
+      if (isEditMode) {
+        return updateBooking(editingBooking.id, payload);
+      }
+      return createBooking(selectedRestaurant?.id, payload);
+    },
     onMutate: () => dispatch({ type: 'START_LOADING' }),
     onError: (error) => {
       dispatch({
@@ -58,7 +104,7 @@ export default function CreateBookingScreen() {
         payload: {
           open: true,
           severity: 'error',
-          message: error?.message || 'Error creating booking',
+          message: error?.message || `Error ${isEditMode ? 'updating' : 'creating'} booking`,
         },
       });
       dispatch({ type: 'END_LOADING' });
@@ -69,12 +115,23 @@ export default function CreateBookingScreen() {
         payload: {
           open: true,
           severity: 'success',
-          message: 'Booking created successfully!',
+          message: `Booking ${isEditMode ? 'updated' : 'created'} successfully!`,
         },
       });
       dispatch({ type: 'END_LOADING' });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      methods.reset(defaultValues);
+      
+      // Update the selected booking date to the booking's date
+      if (lastBookingDate) {
+        dispatch({ type: 'UPDATE_SELECTED_BOOKING_DATE', payload: lastBookingDate });
+      }
+      
+      if (!isEditMode) {
+        methods.reset(defaultValues);
+      }
+      
+      // Close modal/screen after successful create or update
+      onSuccess?.();
     },
   });
 
@@ -96,6 +153,9 @@ export default function CreateBookingScreen() {
       const day = String(d.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     };
+
+    // Store the booking date for later use
+    setLastBookingDate(form.reservation_date);
 
     const payload = {
       restaurant_id: form.restaurant_id,
@@ -125,8 +185,10 @@ export default function CreateBookingScreen() {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.title}>Create New Booking</Text>
-            <Text style={styles.subtitle}>Fill in the booking details</Text>
+            <Text style={styles.title}>{isEditMode ? 'Edit Booking' : 'Create New Booking'}</Text>
+            <Text style={styles.subtitle}>
+              {isEditMode ? 'Update booking details' : 'Fill in the booking details'}
+            </Text>
           </View>
           <TideLogo size={32} />
         </View>
@@ -193,7 +255,10 @@ export default function CreateBookingScreen() {
               disabled={mutation.isPending}
             >
               <Text style={styles.buttonText}>
-                {mutation.isPending ? 'Creating...' : 'Create Booking'}
+                {mutation.isPending 
+                  ? (isEditMode ? 'Updating...' : 'Creating...') 
+                  : (isEditMode ? 'Update Booking' : 'Create Booking')
+                }
               </Text>
             </TouchableOpacity>
           </View>

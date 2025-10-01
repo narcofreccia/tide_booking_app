@@ -13,6 +13,11 @@ export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState('bookings');
   const styles = createStyles(theme);
 
+  const handleCreateBookingSuccess = () => {
+    // Switch to bookings tab after successful booking creation
+    setActiveTab('bookings');
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'bookings':
@@ -20,7 +25,7 @@ export default function HomeScreen() {
       case 'calendar':
         return <CalendarScreen />;
       case 'create':
-        return <CreateBookingScreen />;
+        return <CreateBookingScreen onSuccess={handleCreateBookingSuccess} />;
       case 'customers':
         return <CustomersScreen />;
       case 'settings':

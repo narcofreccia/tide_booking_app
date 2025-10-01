@@ -16,7 +16,8 @@ export { getRestaurants, getRestaurant, getRestaurantsNames } from './restaurant
 export { 
   listBookings,
   getBookings, 
-  createBooking, 
+  createBooking,
+  updateBooking,
   cancelBooking,
   deleteBooking,
   changeBookingStatus,

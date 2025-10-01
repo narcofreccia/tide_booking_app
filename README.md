@@ -157,7 +157,8 @@ npm start
 │   ├── bookings/          # Bookings components
 │   │   ├── BookingRow.js  # Swipeable booking card
 │   │   ├── BookingRowActions.js # Swipe actions (Move, Update Status, Edit, Delete)
-│   │   └── ChangeBookingStatus.js # Status change modal
+│   │   ├── ChangeBookingStatus.js # Status change modal
+│   │   └── EditBookingModal.js # Edit booking modal wrapper
 │   └── new_booking/       # Booking form components
 │       ├── NewBookingDatePicker.js
 │       ├── AvailableTimes.js

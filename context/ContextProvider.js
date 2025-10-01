@@ -28,13 +28,16 @@ export const ContextProvider = ({ children }) => {
         }
 
         const storedSelectedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
-  
-
         if (storedSelectedRestaurant) {
           const selectedRestaurant = JSON.parse(storedSelectedRestaurant);
           dispatch({ type: 'UPDATE_SELECTED_RESTAURANT', payload: selectedRestaurant });
         }
 
+        const storedBookingDate = await AsyncStorage.getItem('selectedBookingDate');
+        if (storedBookingDate) {
+          const selectedBookingDate = new Date(storedBookingDate);
+          dispatch({ type: 'UPDATE_SELECTED_BOOKING_DATE', payload: selectedBookingDate });
+        }
       } catch (error) {
         console.error('Error loading persisted data from AsyncStorage:', error);
       }
@@ -74,6 +77,21 @@ export const ContextProvider = ({ children }) => {
 
     persistSelectedRestaurant();
   }, [state.selectedRestaurant]);
+
+  // Persist selectedBookingDate to AsyncStorage whenever it changes
+  useEffect(() => {
+    const persistSelectedBookingDate = async () => {
+      try {
+        if (state.selectedBookingDate) {
+          await AsyncStorage.setItem('selectedBookingDate', state.selectedBookingDate.toISOString());
+        }
+      } catch (error) {
+        console.error('Error persisting selectedBookingDate to AsyncStorage:', error);
+      }
+    };
+
+    persistSelectedBookingDate();
+  }, [state.selectedBookingDate]);
 
   return (
     <StateContext.Provider value={state}>

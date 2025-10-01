@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from '../theme';
-import { useStateContext } from '../context/ContextProvider';
+import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useQuery } from '@tanstack/react-query';
 import { listBookings } from '../services/api';
 import { DateSelector } from '../components/DateSelector';
@@ -12,10 +12,11 @@ import { BookingRow } from '../components/bookings/BookingRow';
 
 export default function BookingsScreen() {
   const theme = useTheme();
-  const { selectedRestaurant, currentUser } = useStateContext();
+  const { selectedRestaurant, currentUser, selectedBookingDate } = useStateContext();
+  const dispatch = useDispatchContext();
   const styles = createStyles(theme);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(selectedBookingDate || new Date());
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 20;
@@ -67,6 +68,7 @@ export default function BookingsScreen() {
           selectedDate={selectedDate}
           onDateChange={(date) => {
             setSelectedDate(date);
+            dispatch({ type: 'UPDATE_SELECTED_BOOKING_DATE', payload: date });
             setCurrentPage(1); // Reset to first page on date change
           }}
           format="day"
