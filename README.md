@@ -81,24 +81,53 @@ This opens the Expo Developer Tools in your browser.
   - Secure token storage (SecureStore on native, AsyncStorage on web)
   - User data persistence
   - Restaurant ID and public key management
-- **LoginScreen** (`screens/LoginScreen.js`)
-  - Email/password validation with Yup
-  - Optional public key field for restaurant-specific login
-  - Error handling for backend responses
-  - Loading states and accessibility
+- **Global Context** (`context/`)
+  - ContextProvider with useReducer for global state management
+  - Reducer with currentUser, alert, dialog, and loading state
+  - Integrated with login/logout flow
+  - Auto-persists currentUser to AsyncStorage
+  - Custom hooks: `useStateContext()` and `useDispatchContext()`
+- **Theme System** (`theme/`)
+  - ThemeProvider for centralized styling
+  - Modern dark theme with comprehensive design tokens
+  - Includes colors, typography, spacing, shadows, and component styles
+  - Custom hook: `useTheme()`
+  - Easily customizable and extendable
+- **UI Components** (`components/`)
+  - Notification component with animated alerts (success, error, warning, info)
+  - ConfirmDialog component for confirmation dialogs
+  - Loading component with animated dots for global loading state
+  - LoadingState component with pulse animations
+  - SelectRestaurant component for restaurant selection dropdown
+  - All integrated with global context
+- **API Services** (`services/`)
+  - Organized by domain for separation of concerns
+  - **apiClient.js**: Axios configuration with interceptors
+  - **authApi.js**: Login and user profile endpoints
+  - **restaurantApi.js**: Restaurant data and selection
+  - **bookingApi.js**: Bookings, tables, and availability
+  - Centralized error handling and token management
+- **Screens** (`screens/`)
+  - **LoginScreen**: Email/password validation with Yup, themed UI
+  - **HomeScreen**: Main app screen with bottom navigation
+  - **BookingsScreen**: View and manage restaurant bookings
+  - **CalendarScreen**: Calendar view with booking indicators
+  - **CreateBookingScreen**: Form to create new bookings
+  - **CustomersScreen**: Customer database with search
+  - **SettingsScreen**: Restaurant selection, user profile with features/business ID, app settings
+  - All screens use theme system for consistent styling
 
 🚧 **In Progress / TODO**
-- Navigation structure (Auth stack, Restaurant selector, App tabs)
-- Additional screen components (Profile, Bookings, Create Booking)
+- Backend integration for all screens
+- Real-time booking updates
 - Restaurant selection flow
-- Auth context/state management
-- Logout functionality
+- Advanced filtering and search
 📦 Project Structure
 
 **Current Structure:**
 ```
 .
-├── App.js                 # Entry point with QueryClientProvider
+├── App.js                 # Entry point with ContextProvider & QueryClientProvider
 ├── app.json               # Expo configuration with env variables
 ├── babel.config.js        # Babel config with reanimated plugin
 ├── package.json           # Dependencies and scripts
@@ -107,36 +136,275 @@ This opens the Expo Developer Tools in your browser.
 ├── assets/                # Static images, icons
 ├── config/
 │   └── env.js             # Environment configuration handler
+├── components/
+│   ├── Notification.js    # Animated alert notifications
+│   ├── ConfirmDialog.js   # Confirmation dialog modal
+│   ├── Loading.js         # Global loading overlay
+│   ├── LoadingState.js    # Animated loading dots
+│   └── SelectRestaurant.js # Restaurant selection dropdown
+├── context/
+│   ├── ContextProvider.js # Global state provider with React Context
+│   └── reducer.js         # Reducer for global state management
+├── hooks/
+│   └── useAuth.js         # Authentication hooks (login, logout, currentUser)
+├── theme/
+│   ├── ThemeProvider.js   # Theme provider component
+│   ├── darkTheme.js       # Dark theme configuration
+│   ├── index.js           # Theme exports
+│   └── README.md          # Theme documentation
 ├── services/
-│   └── api.js             # Axios client + all API endpoints
+│   ├── api.js             # Central API exports
+│   ├── apiClient.js       # Axios client configuration
+│   ├── authApi.js         # Authentication endpoints
+│   ├── restaurantApi.js   # Restaurant endpoints
+│   └── bookingApi.js      # Booking & availability endpoints
 ├── utils/
 │   └── storage.js         # Auth & data persistence utilities
 ├── screens/
-│   └── LoginScreen.js     # Login with form validation
+│   ├── LoginScreen.js         # Login with form validation
+│   ├── HomeScreen.js          # Main app with bottom navigation
+│   ├── BookingsScreen.js      # Bookings list and management
+│   ├── CalendarScreen.js      # Calendar view
+│   ├── CreateBookingScreen.js # Create new booking form
+│   ├── CustomersScreen.js     # Customer database
+│   └── SettingsScreen.js      # Settings and profile
 └── README.md              # This file
 ```
 
 **Planned Structure:**
 ```
 .
-├── App.js                 # Entry point with QueryClientProvider
-├── components/            # Reusable UI components
+├── App.js                 # Entry point with ContextProvider & QueryClientProvider
+├── components/            # ✅ Reusable UI components
+│   ├── Notification.js    # ✅ Alert notifications
+│   ├── ConfirmDialog.js   # ✅ Confirmation dialogs
+│   ├── Loading.js         # ✅ Global loading overlay
+│   ├── LoadingState.js    # ✅ Animated loading dots
+│   └── SelectRestaurant.js # ✅ Restaurant dropdown
+├── context/               # ✅ Global state management with React Context
+│   ├── ContextProvider.js # ✅ Context provider
+│   └── reducer.js         # ✅ State reducer
+├── hooks/                 # ✅ Custom React hooks
+│   └── useAuth.js         # ✅ Authentication hooks
+├── theme/                 # ✅ Theme system
+│   ├── ThemeProvider.js   # ✅ Theme provider
+│   ├── darkTheme.js       # ✅ Dark theme config
+│   └── index.js           # ✅ Theme exports
 ├── navigation/            # React Navigation setup
 │   ├── RootNavigator.js
 │   ├── AuthNavigator.js
 │   └── AppNavigator.js
 ├── screens/               # Application Screens
-│   ├── LoginScreen.js
-│   ├── RestaurantSelectorScreen.js
-│   ├── ProfileScreen.js
-│   ├── BookingsScreen.js
-│   └── CreateBookingScreen.js
-├── services/              
-│   └── api.js             # Axios client for FastAPI endpoints
-├── utils/                 
-│   └── storage.js         # Auth & restaurant storage helpers
-└── context/               # React Context for global state (optional)
+│   ├── LoginScreen.js         # ✅ Completed
+│   ├── HomeScreen.js          # ✅ Completed
+│   ├── BookingsScreen.js      # ✅ Completed
+│   ├── CalendarScreen.js      # ✅ Completed
+│   ├── CreateBookingScreen.js # ✅ Completed
+│   ├── CustomersScreen.js     # ✅ Completed
+│   └── SettingsScreen.js      # ✅ Completed
+├── services/              # ✅ API layer (organized by domain)
+│   ├── api.js             # ✅ Central exports
+│   ├── apiClient.js       # ✅ Axios configuration
+│   ├── authApi.js         # ✅ Auth endpoints
+│   ├── restaurantApi.js   # ✅ Restaurant endpoints
+│   └── bookingApi.js      # ✅ Booking endpoints
+└── utils/                 
+    └── storage.js         # ✅ Auth & restaurant storage helpers
 ```
+🌐 Global Context (State Management)
+
+The app uses React Context API with `useReducer` for global state management.
+
+### Usage
+
+**Accessing State:**
+```javascript
+import { useStateContext } from '../context/ContextProvider';
+
+function MyComponent() {
+  const { currentUser } = useStateContext();
+  
+  return <Text>Welcome, {currentUser?.name}</Text>;
+}
+```
+
+**Dispatching Actions:**
+```javascript
+import { useDispatchContext } from '../context/ContextProvider';
+
+function MyComponent() {
+  const dispatch = useDispatchContext();
+  
+  // Update current user
+  dispatch({ 
+    type: 'UPDATE_CURRENT_USER', 
+    payload: { id: 1, name: 'John', email: 'john@example.com' } 
+  });
+  
+  // Reset current user (on logout)
+  dispatch({ type: 'RESET_CURRENT_USER' });
+}
+```
+
+### Available Actions
+
+**User Management:**
+- **`UPDATE_CURRENT_USER`** - Set the current logged-in user
+  - Payload: User object `{ id, business_id, name, email, role, features }`
+- **`RESET_CURRENT_USER`** - Clear the current user (logout)
+  - Payload: None
+
+**Notifications:**
+- **`UPDATE_ALERT`** - Show/hide alert notification
+  - Payload: `{ open: boolean, severity: 'success'|'error'|'warning'|'info', message: string }`
+
+**Dialogs:**
+- **`OPEN_DIALOG`** - Open confirmation dialog
+  - Payload: `{ title: string, message: string, onSubmit: function }`
+- **`CLOSE_DIALOG`** - Close confirmation dialog
+  - Payload: None
+
+**Loading:**
+- **`START_LOADING`** - Show global loading overlay
+  - Payload: None
+- **`END_LOADING`** - Hide global loading overlay
+  - Payload: None
+
+**Restaurant Selection:**
+- **`UPDATE_SELECTED_RESTAURANT`** - Set the selected restaurant
+  - Payload: `{ id: number, name: string, public_key: string }`
+- **`RESET_SELECTED_RESTAURANT`** - Clear the selected restaurant
+  - Payload: None
+
+### State Structure
+
+```javascript
+{
+  currentUser: null | {
+    id: number,
+    business_id: number,
+    name: string,
+    email: string,
+    role: string,
+    features: string[]
+  },
+  alert: {
+    open: boolean,
+    severity: 'success' | 'error' | 'warning' | 'info',
+    message: string
+  },
+  dialog: {
+    open: boolean,
+    close: boolean,
+    title: string,
+    message: string,
+    onSubmit: function | undefined
+  },
+  loading: boolean,
+  selectedRestaurant: {
+    id: number | null,
+    name: string | null,
+    public_key: string | null
+  }
+}
+```
+
+### Integration with Authentication
+
+The context is automatically updated by the `useLogin` and `useLogout` hooks:
+- **Login**: Sets `currentUser` with user data from the API
+- **Logout**: Resets `currentUser` to `null`
+
+### UI Components
+
+**Notification Component:**
+```javascript
+// Show success notification
+dispatch({ 
+  type: 'UPDATE_ALERT', 
+  payload: { 
+    open: true, 
+    severity: 'success', 
+    message: 'Operation completed successfully!' 
+  } 
+});
+```
+
+**ConfirmDialog Component:**
+```javascript
+// Show confirmation dialog
+dispatch({
+  type: 'OPEN_DIALOG',
+  payload: {
+    title: 'Confirm Action',
+    message: 'Are you sure you want to proceed?',
+    onSubmit: () => {
+      // Execute action when user confirms
+      performAction();
+    }
+  }
+});
+```
+
+**Loading Component:**
+```javascript
+// Show global loading
+dispatch({ type: 'START_LOADING' });
+
+// Perform async operation
+await someAsyncOperation();
+
+// Hide loading
+dispatch({ type: 'END_LOADING' });
+```
+
+## 📱 Bottom Navigation
+
+The HomeScreen features a bottom navigation bar with 5 tabs:
+
+1. **Bookings** (📋) - View and manage all restaurant bookings
+2. **Calendar** (📅) - Calendar view with booking indicators
+3. **Create** (+) - Center floating action button to create new bookings
+4. **Customers** (👥) - Customer database with search functionality
+5. **Settings** (⚙️) - App settings, profile, and logout
+
+All screens are fully themed and include mock data for demonstration.
+
+## 🎨 Theme System
+
+The app uses a centralized theme system for consistent styling across all components.
+
+### Usage
+
+```javascript
+import { useTheme } from '../theme';
+
+function MyComponent() {
+  const theme = useTheme();
+
+  return (
+    <View style={{ backgroundColor: theme.palette.background.paper }}>
+      <Text style={{ color: theme.palette.text.primary }}>
+        Themed Text
+      </Text>
+    </View>
+  );
+}
+```
+
+### Theme Features
+
+- **Colors**: Primary, secondary, error, warning, info, success palettes
+- **Typography**: Font families, sizes, weights, line heights
+- **Spacing**: Consistent spacing scale (xs, sm, md, lg, xl, xxl)
+- **Border Radius**: Predefined border radius values
+- **Shadows**: Platform-specific shadow configurations
+- **Component Styles**: Pre-configured styles for buttons, inputs, cards
+
+### Customization
+
+Edit `/theme/darkTheme.js` to customize the theme. See `/theme/README.md` for detailed documentation.
+
 🔗 Backend Endpoints
 
 The app interacts with the following FastAPI endpoints:

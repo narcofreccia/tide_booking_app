@@ -17,6 +17,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useLogin } from '../hooks/useAuth';
 import { SvgUri } from 'react-native-svg';
+import { useTheme } from '../theme';
 
 // Validation schema
 const loginSchema = yup.object().shape({
@@ -31,6 +32,7 @@ const loginSchema = yup.object().shape({
 });
 
 export default function LoginScreen({ navigation }) {
+  const theme = useTheme();
   // Use TanStack Query mutation for login
   const loginMutation = useLogin();
 
@@ -73,12 +75,14 @@ export default function LoginScreen({ navigation }) {
             errorMessage = error.message;
           }
           
-          // Show error to user
+          // Show error to user using Alert (could be replaced with Notification component)
           Alert.alert('Login Error', errorMessage);
         },
       }
     );
   };
+
+  const styles = createStyles(theme);
 
   return (
     <KeyboardAvoidingView
@@ -109,7 +113,7 @@ export default function LoginScreen({ navigation }) {
                 <TextInput
                   style={[styles.input, errors.email && styles.inputError]}
                   placeholder="Enter your email"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={theme.palette.text.hint}
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
@@ -135,7 +139,7 @@ export default function LoginScreen({ navigation }) {
                 <TextInput
                   style={[styles.input, errors.password && styles.inputError]}
                   placeholder="Enter your password"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={theme.palette.text.hint}
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
@@ -158,7 +162,7 @@ export default function LoginScreen({ navigation }) {
             disabled={loginMutation.isPending}
           >
             {loginMutation.isPending ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={theme.palette.primary.contrastText} />
             ) : (
               <Text style={styles.buttonText}>Sign In</Text>
             )}
@@ -177,28 +181,28 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.palette.background.default,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: theme.spacing.lg,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: theme.spacing.xxl,
   },
   logo: {
     width: 200,
     height: 80,
-    marginBottom: 16,
+    marginBottom: theme.spacing.md,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: theme.typography.fontSize.md,
+    color: theme.palette.text.secondary,
   },
   form: {
     width: '100%',
@@ -206,52 +210,57 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: theme.spacing.lg,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.palette.text.primary,
+    marginBottom: theme.spacing.sm,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.palette.background.paper,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    fontSize: 16,
-    color: '#333',
+    borderColor: theme.palette.border,
+    borderRadius: theme.components.input.borderRadius,
+    padding: theme.spacing.md,
+    fontSize: theme.typography.fontSize.md,
+    color: theme.palette.text.primary,
+    minHeight: theme.components.input.minHeight,
   },
   inputError: {
-    borderColor: '#ff3b30',
+    borderColor: theme.palette.error.main,
   },
   errorText: {
-    color: '#ff3b30',
-    fontSize: 12,
-    marginTop: 4,
+    color: theme.palette.error.main,
+    fontSize: theme.typography.fontSize.xs,
+    marginTop: theme.spacing.xs,
   },
   button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: theme.palette.primary.main,
+    borderRadius: theme.components.button.borderRadius,
+    paddingVertical: theme.components.button.paddingVertical,
+    paddingHorizontal: theme.components.button.paddingHorizontal,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: theme.spacing.md,
+    minHeight: theme.components.button.minHeight,
+    ...theme.shadows.sm,
   },
   buttonDisabled: {
-    backgroundColor: '#99c9ff',
+    backgroundColor: theme.palette.primary.light,
+    opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: theme.palette.primary.contrastText,
+    fontSize: theme.typography.fontSize.md,
+    fontWeight: theme.typography.fontWeight.semibold,
   },
   forgotPassword: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: theme.spacing.md,
   },
   forgotPasswordText: {
-    color: '#007AFF',
-    fontSize: 14,
+    color: theme.palette.primary.main,
+    fontSize: theme.typography.fontSize.sm,
   },
 });

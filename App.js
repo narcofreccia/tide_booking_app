@@ -3,8 +3,13 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LoginScreen from './screens/LoginScreen';
-import WelcomeScreen from './screens/WelcomeScreen';
+import HomeScreen from './screens/HomeScreen';
 import { getAuthToken } from './utils/storage';
+import { ContextProvider } from './context/ContextProvider';
+import { Notification } from './components/Notification';
+import { ConfirmDialog } from './components/ConfirmDialog';
+import { Loading } from './components/Loading';
+import { ThemeProvider } from './theme';
 
 // Create a client for TanStack Query
 const queryClient = new QueryClient({
@@ -55,15 +60,22 @@ function AppContent() {
     );
   }
 
-  return isAuthenticated ? <WelcomeScreen /> : <LoginScreen />;
+  return isAuthenticated ? <HomeScreen /> : <LoginScreen />;
 }
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppContent />
-      <StatusBar style="auto" />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <ContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppContent />
+          <Notification />
+          <ConfirmDialog />
+          <Loading />
+          <StatusBar style="auto" />
+        </QueryClientProvider>
+      </ContextProvider>
+    </ThemeProvider>
   );
 }
 

@@ -47,6 +47,7 @@ export const getAuthToken = async () => {
  * Remove auth token
  */
 export const removeAuthToken = async () => {
+  console.log('Removing auth token');
   try {
     if (Platform.OS === 'web') {
       await AsyncStorage.removeItem(KEYS.AUTH_TOKEN);

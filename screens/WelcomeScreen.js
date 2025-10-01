@@ -5,41 +5,54 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Image,
 } from 'react-native';
-import { useStoredUser, useLogout } from '../hooks/useAuth';
+import { useLogout } from '../hooks/useAuth';
+import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 
 export default function WelcomeScreen() {
-  const { data: userData, isLoading } = useStoredUser();
+  const { currentUser } = useStateContext();
   const logoutMutation = useLogout();
+  const dispatch = useDispatchContext();
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: () => {
-            logoutMutation.mutate(undefined, {
-              onSuccess: () => {
-                console.log('Logout successful');
-              },
-              onError: (error) => {
-                console.error('Logout error:', error);
-                Alert.alert('Error', 'Failed to logout. Please try again.');
-              },
-            });
-          },
+    console.log('handleLogout called');
+    dispatch({
+      type: 'OPEN_DIALOG',
+      payload: {
+        title: 'Logout',
+        message: 'Are you sure you want to logout?',
+        onSubmit: () => {
+          logoutMutation.mutate(undefined, {
+            onSuccess: () => {
+              console.log('Logout successful');
+              dispatch({
+                type: 'UPDATE_ALERT',
+                payload: {
+                  open: true,
+                  severity: 'success',
+                  message: 'Logged out successfully'
+                }
+              });
+            },
+            onError: (error) => {
+              console.error('Logout error:', error);
+              dispatch({
+                type: 'UPDATE_ALERT',
+                payload: {
+                  open: true,
+                  severity: 'error',
+                  message: 'Failed to logout. Please try again.'
+                }
+              });
+            },
+          });
         },
-      ]
-    );
+      },
+    });
   };
 
-  if (isLoading) {
+  if (!currentUser) {
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Loading...</Text>
@@ -57,42 +70,42 @@ export default function WelcomeScreen() {
         />
       </View>
 
-      {userData && (
+      {currentUser && (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>User Information</Text>
           
           <View style={styles.infoRow}>
             <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>{userData.name}</Text>
+            <Text style={styles.value}>{currentUser.name}</Text>
           </View>
 
           <View style={styles.infoRow}>
             <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{userData.email}</Text>
+            <Text style={styles.value}>{currentUser.email}</Text>
           </View>
 
           <View style={styles.infoRow}>
             <Text style={styles.label}>Role:</Text>
-            <Text style={[styles.value, styles.roleBadge]}>{userData.role}</Text>
+            <Text style={[styles.value, styles.roleBadge]}>{currentUser.role}</Text>
           </View>
 
           <View style={styles.infoRow}>
             <Text style={styles.label}>User ID:</Text>
-            <Text style={styles.value}>{userData.id}</Text>
+            <Text style={styles.value}>{currentUser.id}</Text>
           </View>
 
-          {userData.business_id && (
+          {currentUser.business_id && (
             <View style={styles.infoRow}>
               <Text style={styles.label}>Business ID:</Text>
-              <Text style={styles.value}>{userData.business_id}</Text>
+              <Text style={styles.value}>{currentUser.business_id}</Text>
             </View>
           )}
 
-          {userData.features && userData.features.length > 0 && (
+          {currentUser.features && currentUser.features.length > 0 && (
             <View style={styles.featuresContainer}>
               <Text style={styles.label}>Features:</Text>
               <View style={styles.featuresList}>
-                {userData.features.map((feature, index) => (
+                {currentUser.features.map((feature, index) => (
                   <View key={index} style={styles.featureBadge}>
                     <Text style={styles.featureText}>{feature}</Text>
                   </View>
