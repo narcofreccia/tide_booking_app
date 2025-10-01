@@ -27,11 +27,14 @@ export const ContextProvider = ({ children }) => {
           dispatch({ type: 'UPDATE_CURRENT_USER', payload: currentUser });
         }
 
-        const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
-        if (storedRestaurant) {
-          const selectedRestaurant = JSON.parse(storedRestaurant);
+        const storedSelectedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
+  
+
+        if (storedSelectedRestaurant) {
+          const selectedRestaurant = JSON.parse(storedSelectedRestaurant);
           dispatch({ type: 'UPDATE_SELECTED_RESTAURANT', payload: selectedRestaurant });
         }
+
       } catch (error) {
         console.error('Error loading persisted data from AsyncStorage:', error);
       }
@@ -63,8 +66,6 @@ export const ContextProvider = ({ children }) => {
       try {
         if (state.selectedRestaurant && state.selectedRestaurant.id) {
           await AsyncStorage.setItem('selectedRestaurant', JSON.stringify(state.selectedRestaurant));
-        } else {
-          await AsyncStorage.removeItem('selectedRestaurant');
         }
       } catch (error) {
         console.error('Error persisting selectedRestaurant to AsyncStorage:', error);

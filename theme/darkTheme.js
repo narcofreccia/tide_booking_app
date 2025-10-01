@@ -1,58 +1,58 @@
-// Modern Dark Theme Configuration
+// Modern Dark Theme Configuration (Updated with new palette)
 const darkTheme = {
   mode: 'dark',
   
   // Color Palette
   palette: {
     primary: {
-      main: '#00D4FF',      // Bright cyan
-      light: '#5DDFFF',     // Lighter cyan
-      dark: '#00A8CC',      // Darker cyan
-      contrastText: '#000000',
+      main: '#4A90E2',      // Primary blue
+      light: '#7AB4ED',     // Lighter blue
+      dark: '#357ABD',      // Darker blue
+      contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#BB86FC',      // Purple
-      light: '#E7B9FF',     // Light purple
-      dark: '#9965F4',      // Dark purple
+      main: '#50E3C2',      // Teal-mint
+      light: '#7FF0D7',     // Lighter teal
+      dark: '#3BB69B',      // Darker teal
       contrastText: '#000000',
     },
     error: {
       main: '#CF6679',      // Soft red
-      light: '#FF9AA2',     // Light red
-      dark: '#B00020',      // Dark red
+      light: '#FF9AA2',
+      dark: '#B00020',
       contrastText: '#FFFFFF',
     },
     warning: {
-      main: '#FFB74D',      // Orange
-      light: '#FFE97D',     // Light orange
-      dark: '#F57C00',      // Dark orange
+      main: '#FFB74D',
+      light: '#FFE97D',
+      dark: '#F57C00',
       contrastText: '#000000',
     },
     info: {
-      main: '#64B5F6',      // Blue
-      light: '#9BE7FF',     // Light blue
-      dark: '#2286C3',      // Dark blue
+      main: '#64B5F6',
+      light: '#9BE7FF',
+      dark: '#2286C3',
       contrastText: '#000000',
     },
     success: {
-      main: '#81C784',      // Green
-      light: '#B2FAB4',     // Light green
-      dark: '#519657',      // Dark green
+      main: '#81C784',
+      light: '#B2FAB4',
+      dark: '#519657',
       contrastText: '#000000',
     },
     background: {
-      default: '#121212',   // Main background
-      paper: '#1E1E1E',     // Card/surface background
-      elevated: '#2C2C2C',  // Elevated surfaces
+      default: '#121212',
+      paper: '#1E1E1E',
+      elevated: '#2C2C2C',
     },
     text: {
-      primary: '#FFFFFF',   // Primary text
-      secondary: '#B3B3B3', // Secondary text
-      disabled: '#6B6B6B',  // Disabled text
-      hint: '#808080',      // Hint text
+      primary: '#FFFFFF',
+      secondary: '#B3B3B3',
+      disabled: '#6B6B6B',
+      hint: '#808080',
     },
-    divider: '#2C2C2C',     // Divider color
-    border: '#3C3C3C',      // Border color
+    divider: '#2C2C2C',
+    border: '#3C3C3C',
   },
 
   // Typography

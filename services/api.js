@@ -17,7 +17,9 @@ export {
   listBookings,
   getBookings, 
   createBooking, 
-  cancelBooking, 
+  cancelBooking,
+  deleteBooking,
+  changeBookingStatus,
   getTables, 
   getAvailability,
   getAvailableTimes

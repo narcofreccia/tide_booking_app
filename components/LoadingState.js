@@ -55,15 +55,7 @@ const LoadingState = ({ size = 12, spacing = 12 }) => {
     ],
     opacity: animValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [0.2, 1],
-    }),
-    width: animValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [size * 0.8, size * 1.1],
-    }),
-    height: animValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [size * 0.8, size * 1.1],
+      outputRange: [0.3, 1],
     }),
   });
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from '../theme';
 import { useStateContext } from '../context/ContextProvider';
 import { useQuery } from '@tanstack/react-query';
@@ -7,6 +8,7 @@ import { listBookings } from '../services/api';
 import { DateSelector } from '../components/DateSelector';
 import { Pagination } from '../components/Pagination';
 import { TideLogo } from '../components/TideLogo';
+import { BookingRow } from '../components/bookings/BookingRow';
 
 export default function BookingsScreen() {
   const theme = useTheme();
@@ -22,47 +24,32 @@ export default function BookingsScreen() {
   const formatDate = (date) => {
     return date.toISOString().split('T')[0];
   };
-
+  const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id;
   // Fetch bookings
   const { data, isLoading, error } = useQuery({
-    queryKey: ['bookings', selectedRestaurant?.id , formatDate(selectedDate), searchQuery, currentPage],
+    queryKey: ['bookings', restaurantId , formatDate(selectedDate), searchQuery, currentPage],
     queryFn: () => listBookings({
-      restaurant_id: selectedRestaurant?.id || currentUser?.id,
+      restaurant_id: restaurantId,
       startDate: formatDate(selectedDate),
       endDate: formatDate(selectedDate),
       search: searchQuery,
       page: currentPage - 1, // Backend uses 0-indexed pages
       limit: limit,
     }),
-    enabled: !!selectedRestaurant?.id || !!currentUser?.id,
+    enabled: !!restaurantId,
   });
 
   const bookings = data?.bookings || [];
   const totalCount = data?.bookingsCount || 0;
   const totalPages = data?.pageCount || 1;
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmed':
-        return theme.palette.success.main;
-      case 'seated':
-        return theme.palette.info.main;
-      case 'completed':
-        return theme.palette.success.dark;
-      case 'cancelled_by_user':
-      case 'cancelled_by_restaurant':
-        return theme.palette.error.main;
-      default:
-        return theme.palette.text.secondary;
-    }
-  };
-
-  const formatStatus = (status) => {
-    return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const handleBookingPress = (booking) => {
+    // TODO: Navigate to booking details or open edit modal
+    console.log('Booking pressed:', booking);
   };
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -97,7 +84,7 @@ export default function BookingsScreen() {
         />
       </View>
 
-      {!selectedRestaurant?.id ? (
+      {!restaurantId ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>Please select a restaurant from Settings</Text>
         </View>
@@ -122,40 +109,11 @@ export default function BookingsScreen() {
         <>
           <ScrollView style={styles.content}>
             {bookings.map((booking) => (
-              <TouchableOpacity key={booking.id} style={styles.bookingCard}>
-                <View style={styles.bookingHeader}>
-                  <Text style={styles.customerName}>
-                    {booking.name} {booking.surname || ''}
-                  </Text>
-                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
-                    <Text style={styles.statusText}>{formatStatus(booking.status)}</Text>
-                  </View>
-                </View>
-                <View style={styles.bookingDetails}>
-                  <Text style={styles.detailText}>🕐 {booking.arrival_time.substring(0, 5)}</Text>
-                  <Text style={styles.detailText}>
-                    👥 {booking.adults + booking.children} guests
-                  </Text>
-                  {booking.table_ids && booking.table_ids.length > 0 && (
-                    <Text style={styles.detailText}>
-                      🪑 Table {booking.table_ids.join(', ')}
-                    </Text>
-                  )}
-                </View>
-                {(booking.email || booking.phone) && (
-                  <View style={styles.contactInfo}>
-                    {booking.email && (
-                      <Text style={styles.contactText}>📧 {booking.email}</Text>
-                    )}
-                    {booking.phone && (
-                      <Text style={styles.contactText}>📞 {booking.phone}</Text>
-                    )}
-                  </View>
-                )}
-                {booking.costumer_notes && (
-                  <Text style={styles.notes}>💬 {booking.costumer_notes}</Text>
-                )}
-              </TouchableOpacity>
+              <BookingRow 
+                key={booking.id} 
+                booking={booking} 
+                onPress={handleBookingPress}
+              />
             ))}
           </ScrollView>
 
@@ -169,7 +127,7 @@ export default function BookingsScreen() {
           )}
         </>
       )}
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -246,63 +204,5 @@ const createStyles = (theme) => StyleSheet.create({
   content: {
     flex: 1,
     padding: theme.spacing.md,
-  },
-  bookingCard: {
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    ...theme.shadows.md,
-  },
-  bookingHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
-  },
-  customerName: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.palette.text.primary,
-  },
-  statusBadge: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.full,
-  },
-  statusText: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.palette.background.default,
-    textTransform: 'uppercase',
-  },
-  bookingDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: theme.spacing.sm,
-  },
-  detailText: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.palette.text.secondary,
-  },
-  contactInfo: {
-    marginTop: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: theme.palette.divider,
-  },
-  contactText: {
-    fontSize: theme.typography.fontSize.xs,
-    color: theme.palette.text.secondary,
-    marginBottom: 2,
-  },
-  notes: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.palette.text.primary,
-    fontStyle: 'italic',
-    marginTop: theme.spacing.sm,
-    paddingTop: theme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: theme.palette.divider,
   },
 });

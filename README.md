@@ -154,6 +154,10 @@ npm start
 │   ├── Pagination.js      # Reusable pagination controls
 │   ├── SimpleField.js     # Reusable form input field
 │   ├── TideLogo.js        # Tide logo component
+│   ├── bookings/          # Bookings components
+│   │   ├── BookingRow.js  # Swipeable booking card
+│   │   ├── BookingRowActions.js # Swipe actions (Move, Update Status, Edit, Delete)
+│   │   └── ChangeBookingStatus.js # Status change modal
 │   └── new_booking/       # Booking form components
 │       ├── NewBookingDatePicker.js
 │       ├── AvailableTimes.js
@@ -176,7 +180,8 @@ npm start
 │   ├── apiClient.js       # Axios client configuration
 │   ├── authApi.js         # Authentication endpoints
 │   ├── restaurantApi.js   # Restaurant endpoints
-│   └── bookingApi.js      # Booking & availability endpoints
+│   ├── bookingApi.js      # Booking & availability endpoints
+│   └── getUserRole.js     # User role utilities (isAdmin, isOwner, etc.)
 ├── utils/
 │   └── storage.js         # Auth & data persistence utilities
 ├── validation/

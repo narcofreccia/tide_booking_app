@@ -65,6 +65,31 @@ export const cancelBooking = async (restaurantId, bookingId) => {
 };
 
 /**
+ * Delete a booking by ID
+ * @param {Object} params - Parameters
+ * @param {number} params.id - Booking ID
+ * @returns {Promise} Response data
+ */
+export const deleteBooking = async ({ id }) => {
+  const response = await ApiClient.delete(`/booking/${id}`);
+  return response.data;
+};
+
+/**
+ * Change booking status
+ * @param {Object} payload - Payload
+ * @param {number} payload.reservation_id - Booking ID
+ * @param {string} payload.status - New status
+ * @returns {Promise} Response data
+ */
+export const changeBookingStatus = async (payload) => {
+  if (!payload.reservation_id) throw new Error('reservation_id is required');
+  if (!payload.status) throw new Error('status is required');
+  const response = await ApiClient.post('/booking/change_reservation_status', payload);
+  return response.data;
+};
+
+/**
  * Get available tables for a restaurant
  * @param {number} restaurantId - Restaurant ID
  * @returns {Promise} Array of tables
