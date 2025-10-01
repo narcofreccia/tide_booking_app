@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { listBookings } from '../services/api';
 import { DateSelector } from '../components/DateSelector';
 import { Pagination } from '../components/Pagination';
+import { TideLogo } from '../components/TideLogo';
 
 export default function BookingsScreen() {
   const theme = useTheme();
@@ -63,10 +64,15 @@ export default function BookingsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Bookings</Text>
-        <Text style={styles.subtitle}>
-          {selectedRestaurant?.name || 'Select a restaurant'}
-        </Text>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.title}>Bookings</Text>
+            <Text style={styles.subtitle}>
+              {selectedRestaurant?.name || 'Select a restaurant'}
+            </Text>
+          </View>
+          <TideLogo size={32} />
+        </View>
       </View>
 
       <View style={styles.filtersContainer}>
@@ -177,6 +183,11 @@ const createStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.palette.background.paper,
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: theme.typography.fontSize.xxl,

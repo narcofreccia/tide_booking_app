@@ -19,7 +19,8 @@ export {
   createBooking, 
   cancelBooking, 
   getTables, 
-  getAvailability 
+  getAvailability,
+  getAvailableTimes
 } from './bookingApi';
 
 // Default export

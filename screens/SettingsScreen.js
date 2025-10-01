@@ -4,6 +4,7 @@ import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useLogout } from '../hooks/useAuth';
 import { SelectRestaurant } from '../components/SelectRestaurant';
+import { TideLogo } from '../components/TideLogo';
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -64,8 +65,13 @@ export default function SettingsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
-        <Text style={styles.subtitle}>Manage your account and preferences</Text>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.title}>Settings</Text>
+            <Text style={styles.subtitle}>Manage your account and preferences</Text>
+          </View>
+          <TideLogo size={32} />
+        </View>
       </View>
 
       <ScrollView style={styles.content}>
@@ -215,6 +221,11 @@ const createStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.palette.background.paper,
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: theme.typography.fontSize.xxl,

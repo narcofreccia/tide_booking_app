@@ -45,7 +45,7 @@ export const getBookings = async (restaurantId) => {
  */
 export const createBooking = async (restaurantId, bookingData) => {
   const response = await ApiClient.post(
-    `/restaurants/${restaurantId}/bookings`,
+    `/booking/restaurant/${restaurantId}`,
     bookingData
   );
   return response.data;
@@ -85,5 +85,19 @@ export const getAvailability = async (restaurantId, params = {}) => {
     `/restaurants/${restaurantId}/availability`,
     { params }
   );
+  return response.data;
+};
+
+/**
+ * Get available times for a restaurant on a specific date
+ * @param {number} restaurantId - Restaurant ID
+ * @param {string} date - Date in YYYY-MM-DD format
+ * @param {string} serviceType - Service type (e.g., 'booking')
+ * @returns {Promise} Object with available_times array
+ */
+export const getAvailableTimes = async (restaurantId, date, serviceType = 'booking') => {
+  const response = await ApiClient.get(`/calendar-rules/available-times-by-id/${restaurantId}`, {
+    params: { selected_date: date, service_type: serviceType }
+  });
   return response.data;
 };

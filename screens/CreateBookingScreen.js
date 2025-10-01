@@ -1,158 +1,204 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
-import { useDispatchContext } from '../context/ContextProvider';
+import { useStateContext, useDispatchContext } from '../context/ContextProvider';
+import { useForm, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createBooking } from '../services/api';
+import bookingSchema from '../validation/bookingValidation';
+import { SimpleField } from '../components/SimpleField';
+import { NewBookingDatePicker } from '../components/new_booking/NewBookingDatePicker';
+import { AvailableTimes } from '../components/new_booking/AvailableTimes';
+import { SimplePhoneField } from '../components/new_booking/SimplePhoneField';
+import { BookingStatus } from '../components/new_booking/BookingStatus';
+import { AccessibilityOptions } from '../components/new_booking/AccessibilityOptions';
+import { Pax } from '../components/new_booking/Pax';
+import { TideLogo } from '../components/TideLogo';
 
-export default function CreateBookingScreen({ onClose }) {
+export default function CreateBookingScreen() {
   const theme = useTheme();
+  const { selectedRestaurant } = useStateContext();
   const dispatch = useDispatchContext();
+  const queryClient = useQueryClient();
   const styles = createStyles(theme);
 
-  const [formData, setFormData] = useState({
-    customerName: '',
-    email: '',
+  const defaultValues = useMemo(() => ({
+    restaurant_id: selectedRestaurant?.id,
+    auto_table_selection: true,
+    table_ids: [],
+    user_id: null,
+    name: '',
+    surname: '',
     phone: '',
-    date: '',
-    time: '',
-    guests: '',
-    notes: '',
+    email: '',
+    arrival_time: '',
+    status: 'confirmed',
+    reservation_date: new Date(),
+    adults: 2,
+    children: 0,
+    highchair_number: 0,
+    wheelchair_number: 0,
+    costumer_notes: '',
+    restaurant_notes: '',
+  }), [selectedRestaurant?.id]);
+
+  const methods = useForm({
+    mode: 'onChange',
+    defaultValues,
+    resolver: yupResolver(bookingSchema),
   });
 
-  const handleSubmit = () => {
-    // Validate form
-    if (!formData.customerName || !formData.date || !formData.time || !formData.guests) {
+  const mutation = useMutation({
+    mutationFn: (payload) => createBooking(selectedRestaurant?.id, payload),
+    onMutate: () => dispatch({ type: 'START_LOADING' }),
+    onError: (error) => {
       dispatch({
         type: 'UPDATE_ALERT',
         payload: {
           open: true,
           severity: 'error',
-          message: 'Please fill in all required fields',
+          message: error?.message || 'Error creating booking',
         },
       });
-      return;
-    }
+      dispatch({ type: 'END_LOADING' });
+    },
+    onSuccess: () => {
+      dispatch({
+        type: 'UPDATE_ALERT',
+        payload: {
+          open: true,
+          severity: 'success',
+          message: 'Booking created successfully!',
+        },
+      });
+      dispatch({ type: 'END_LOADING' });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      methods.reset(defaultValues);
+    },
+  });
 
-    // Show success message
-    dispatch({
-      type: 'UPDATE_ALERT',
-      payload: {
-        open: true,
-        severity: 'success',
-        message: 'Booking created successfully!',
-      },
-    });
+  const onSubmit = (form) => {
+    // Normalize time to HH:mm:ss
+    const normalizeTime = (value) => {
+      if (!value || typeof value !== 'string') return null;
+      if (/^\d{2}:\d{2}:\d{2}$/.test(value)) return value;
+      if (/^\d{2}:\d{2}$/.test(value)) return `${value}:00`;
+      return null;
+    };
 
-    // Reset form
-    setFormData({
-      customerName: '',
-      email: '',
-      phone: '',
-      date: '',
-      time: '',
-      guests: '',
-      notes: '',
-    });
+    // Format date to YYYY-MM-DD (local timezone)
+    const formatDate = (date) => {
+      if (!date) return null;
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const payload = {
+      restaurant_id: form.restaurant_id,
+      auto_table_selection: form.auto_table_selection ?? true,
+      table_ids: Array.isArray(form.table_ids) && form.table_ids.length ? form.table_ids : null,
+      user_id: form.user_id || null,
+      name: form.name || null,
+      surname: form.surname || null,
+      phone: form.phone?.trim() || null,
+      email: form.email || null,
+      arrival_time: normalizeTime(form.arrival_time),
+      status: form.status || null,
+      reservation_date: formatDate(form.reservation_date),
+      adults: Number(form.adults ?? 1),
+      children: Number(form.children ?? 0),
+      highchair_number: form.highchair_number != null ? Number(form.highchair_number) : 0,
+      wheelchair_number: form.wheelchair_number != null ? Number(form.wheelchair_number) : 0,
+      costumer_notes: form.costumer_notes || null,
+      restaurant_notes: form.restaurant_notes || null,
+    };
+
+    mutation.mutate(payload);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Create New Booking</Text>
-        <Text style={styles.subtitle}>Fill in the booking details</Text>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.title}>Create New Booking</Text>
+            <Text style={styles.subtitle}>Fill in the booking details</Text>
+          </View>
+          <TideLogo size={32} />
+        </View>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Customer Name *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter customer name"
-              placeholderTextColor={theme.palette.text.hint}
-              value={formData.customerName}
-              onChangeText={(text) => setFormData({ ...formData, customerName: text })}
-            />
-          </View>
+      <FormProvider {...methods}>
+        <ScrollView style={styles.content}>
+          <View style={styles.form}>
+            {/* Date and Time */}
+            <NewBookingDatePicker name="reservation_date" label="Date" />
+            <AvailableTimes name="arrival_time" label="Arrival Time" />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="customer@example.com"
-              placeholderTextColor={theme.palette.text.hint}
-              value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Phone</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="+1 234 567 8900"
-              placeholderTextColor={theme.palette.text.hint}
-              value={formData.phone}
-              onChangeText={(text) => setFormData({ ...formData, phone: text })}
-              keyboardType="phone-pad"
-            />
-          </View>
-
-          <View style={styles.row}>
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <Text style={styles.label}>Date *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor={theme.palette.text.hint}
-                value={formData.date}
-                onChangeText={(text) => setFormData({ ...formData, date: text })}
-              />
+            {/* Customer Info */}
+            <View style={styles.row}>
+              <View style={styles.halfWidth}>
+                <SimpleField field="name" label="Name" type="text" />
+              </View>
+              <View style={styles.halfWidth}>
+                <SimpleField field="surname" label="Surname" type="text" />
+              </View>
             </View>
 
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <Text style={styles.label}>Time *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="19:00"
-                placeholderTextColor={theme.palette.text.hint}
-                value={formData.time}
-                onChangeText={(text) => setFormData({ ...formData, time: text })}
-              />
+            <View style={styles.row}>
+              <View style={styles.halfWidth}>
+                <SimplePhoneField name="phone" label="Phone" />
+              </View>
+              <View style={styles.halfWidth}>
+                <SimpleField field="email" label="Email" type="email" />
+              </View>
             </View>
-          </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Number of Guests *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="2"
-              placeholderTextColor={theme.palette.text.hint}
-              value={formData.guests}
-              onChangeText={(text) => setFormData({ ...formData, guests: text })}
-              keyboardType="number-pad"
+            {/* Guest Count */}
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>Guests</Text>
+              <Pax />
+            </View>
+
+            {/* Accessibility */}
+            <AccessibilityOptions collapsed={true} disableCollapse={false} />
+
+            {/* Status */}
+            <BookingStatus name="status" label="Status" />
+
+            {/* Notes */}
+            <SimpleField 
+              field="costumer_notes" 
+              label="Customer Notes" 
+              multiline 
+              rows={4}
+              placeholder="Special requests, dietary requirements..."
             />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Special Notes</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Any special requests or dietary requirements..."
-              placeholderTextColor={theme.palette.text.hint}
-              value={formData.notes}
-              onChangeText={(text) => setFormData({ ...formData, notes: text })}
-              multiline
-              numberOfLines={4}
+            
+            <SimpleField 
+              field="restaurant_notes" 
+              label="Restaurant Notes" 
+              multiline 
+              rows={4}
+              placeholder="Internal notes..."
             />
-          </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Create Booking</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            <TouchableOpacity 
+              style={[styles.button, mutation.isPending && styles.buttonDisabled]} 
+              onPress={methods.handleSubmit(onSubmit)}
+              disabled={mutation.isPending}
+            >
+              <Text style={styles.buttonText}>
+                {mutation.isPending ? 'Creating...' : 'Create Booking'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </FormProvider>
     </View>
   );
 }
@@ -167,6 +213,11 @@ const createStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.palette.background.paper,
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: theme.typography.fontSize.xxl,
@@ -184,42 +235,34 @@ const createStyles = (theme) => StyleSheet.create({
   form: {
     padding: theme.spacing.lg,
   },
-  inputGroup: {
-    marginBottom: theme.spacing.lg,
-  },
-  label: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.palette.text.primary,
-    marginBottom: theme.spacing.sm,
-  },
-  input: {
-    backgroundColor: theme.palette.background.paper,
-    borderWidth: 1,
-    borderColor: theme.palette.border,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    fontSize: theme.typography.fontSize.md,
-    color: theme.palette.text.primary,
-  },
-  textArea: {
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: theme.spacing.md,
   },
   halfWidth: {
-    width: '48%',
+    flex: 1,
+  },
+  section: {
+    marginBottom: theme.spacing.md,
+  },
+  sectionLabel: {
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.palette.text.secondary,
+    marginBottom: theme.spacing.sm,
   },
   button: {
     backgroundColor: theme.palette.primary.main,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     alignItems: 'center',
-    marginTop: theme.spacing.md,
+    marginTop: theme.spacing.lg,
+    minHeight: 48,
     ...theme.shadows.md,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: theme.palette.primary.contrastText,

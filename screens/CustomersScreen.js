@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useTheme } from '../theme';
+import { TideLogo } from '../components/TideLogo';
 
 export default function CustomersScreen() {
   const theme = useTheme();
@@ -24,8 +25,13 @@ export default function CustomersScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Customers</Text>
-        <Text style={styles.subtitle}>Manage your customer database</Text>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.title}>Customers</Text>
+            <Text style={styles.subtitle}>Manage your customer database</Text>
+          </View>
+          <TideLogo size={32} />
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -70,6 +76,11 @@ const createStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.palette.background.paper,
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontSize: theme.typography.fontSize.xxl,
