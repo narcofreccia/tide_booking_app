@@ -1,6 +1,33 @@
 import { ApiClient } from './apiClient';
 
 /**
+ * List bookings with filtering and pagination
+ * @param {Object} params - Query parameters
+ * @param {number} params.restaurant_id - Restaurant ID
+ * @param {string} params.startDate - Start date (YYYY-MM-DD)
+ * @param {string} params.endDate - End date (YYYY-MM-DD)
+ * @param {string} params.search - Search query
+ * @param {string} params.orderByColumn - Column to order by
+ * @param {string} params.orderByType - Order type (asc/desc)
+ * @param {number} params.limit - Results per page
+ * @param {number} params.page - Page number
+ * @returns {Promise} Object with bookingsCount, pageCount, and bookings array
+ */
+export const listBookings = async (params = {}) => {
+  // Pass through only defined params to avoid sending undefineds
+  const cleanedParams = {};
+  const keys = ['restaurant_id', 'startDate', 'endDate', 'search', 'orderByColumn', 'orderByType', 'limit', 'page'];
+  for (const k of keys) {
+    if (params[k] !== undefined && params[k] !== null && params[k] !== '') {
+      cleanedParams[k] = params[k];
+    }
+  }
+
+  const response = await ApiClient.get('/booking/', { params: cleanedParams });
+  return response.data;
+};
+
+/**
  * Get bookings for a restaurant
  * @param {number} restaurantId - Restaurant ID
  * @returns {Promise} Array of bookings

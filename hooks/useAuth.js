@@ -26,6 +26,7 @@ export const useLogin = () => {
       const userData = {
         id: data.id,
         business_id: data.business_id,
+        restaurant_id: data.restaurant_id,
         name: data.name,
         email: data.email,
         role: data.role,
@@ -34,6 +35,7 @@ export const useLogin = () => {
 
       // Update global context with current user (will auto-persist to AsyncStorage)
       dispatch({ type: 'UPDATE_CURRENT_USER', payload: userData });
+      dispatch({ type: 'UPDATE_SELECTED_RESTAURANT', payload: userData.restaurant_id });
 
       // Invalidate and refetch user query
       queryClient.invalidateQueries({ queryKey: ['user'] });

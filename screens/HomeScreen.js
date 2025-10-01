@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import BookingsScreen from './BookingsScreen';
 import CalendarScreen from './CalendarScreen';
@@ -29,7 +30,7 @@ export default function HomeScreen() {
     }
   };
 
-  const TabButton = ({ id, icon, label, isCenter }) => {
+  const TabButton = ({ id, iconName, label, isCenter }) => {
     const isActive = activeTab === id;
     
     if (isCenter) {
@@ -39,7 +40,7 @@ export default function HomeScreen() {
           onPress={() => setActiveTab(id)}
         >
           <View style={styles.centerTabIcon}>
-            <Text style={styles.centerTabIconText}>{icon}</Text>
+            <Ionicons name={iconName} size={28} color={theme.palette.primary.contrastText} />
           </View>
         </TouchableOpacity>
       );
@@ -50,9 +51,11 @@ export default function HomeScreen() {
         style={styles.tabButton}
         onPress={() => setActiveTab(id)}
       >
-        <Text style={[styles.tabIcon, isActive && styles.tabIconActive]}>
-          {icon}
-        </Text>
+        <Ionicons 
+          name={iconName} 
+          size={24} 
+          color={isActive ? theme.palette.primary.main : theme.palette.text.secondary}
+        />
         <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
           {label}
         </Text>
@@ -67,11 +70,11 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.bottomNav}>
-        <TabButton id="bookings" icon="📋" label="Bookings" />
-        <TabButton id="calendar" icon="📅" label="Calendar" />
-        <TabButton id="create" icon="+" isCenter />
-        <TabButton id="customers" icon="👥" label="Customers" />
-        <TabButton id="settings" icon="⚙️" label="Settings" />
+        <TabButton id="bookings" iconName="list" label="Bookings" />
+        <TabButton id="calendar" iconName="calendar" label="Calendar" />
+        <TabButton id="create" iconName="add" isCenter />
+        <TabButton id="customers" iconName="people" label="Customers" />
+        <TabButton id="settings" iconName="settings" label="Settings" />
       </View>
     </SafeAreaView>
   );
@@ -98,15 +101,8 @@ const createStyles = (theme) => StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: theme.spacing.xs,
-  },
-  tabIcon: {
-    fontSize: 24,
-    marginBottom: theme.spacing.xs,
-    opacity: 0.5,
-  },
-  tabIconActive: {
-    opacity: 1,
+    paddingVertical: theme.spacing.sm,
+    gap: 4,
   },
   tabLabel: {
     fontSize: theme.typography.fontSize.xs,
@@ -131,10 +127,5 @@ const createStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...theme.shadows.xl,
-  },
-  centerTabIconText: {
-    fontSize: 32,
-    color: theme.palette.primary.contrastText,
-    fontWeight: theme.typography.fontWeight.bold,
   },
 });

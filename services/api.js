@@ -14,6 +14,7 @@ export { getRestaurants, getRestaurant, getRestaurantsNames } from './restaurant
 
 // Export Booking API functions
 export { 
+  listBookings,
   getBookings, 
   createBooking, 
   cancelBooking, 

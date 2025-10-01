@@ -99,6 +99,8 @@ This opens the Expo Developer Tools in your browser.
   - Loading component with animated dots for global loading state
   - LoadingState component with pulse animations
   - SelectRestaurant component for restaurant selection dropdown
+  - DateSelector component for date navigation with arrows
+  - Pagination component for paginated data (reusable)
   - All integrated with global context
 - **API Services** (`services/`)
   - Organized by domain for separation of concerns
@@ -110,7 +112,7 @@ This opens the Expo Developer Tools in your browser.
 - **Screens** (`screens/`)
   - **LoginScreen**: Email/password validation with Yup, themed UI
   - **HomeScreen**: Main app screen with bottom navigation
-  - **BookingsScreen**: View and manage restaurant bookings
+  - **BookingsScreen**: Real-time bookings with date selector, search, pagination, and status indicators
   - **CalendarScreen**: Calendar view with booking indicators
   - **CreateBookingScreen**: Form to create new bookings
   - **CustomersScreen**: Customer database with search
@@ -141,7 +143,9 @@ This opens the Expo Developer Tools in your browser.
 │   ├── ConfirmDialog.js   # Confirmation dialog modal
 │   ├── Loading.js         # Global loading overlay
 │   ├── LoadingState.js    # Animated loading dots
-│   └── SelectRestaurant.js # Restaurant selection dropdown
+│   ├── SelectRestaurant.js # Restaurant selection dropdown
+│   ├── DateSelector.js    # Date navigation with arrows
+│   └── Pagination.js      # Reusable pagination controls
 ├── context/
 │   ├── ContextProvider.js # Global state provider with React Context
 │   └── reducer.js         # Reducer for global state management
@@ -180,7 +184,9 @@ This opens the Expo Developer Tools in your browser.
 │   ├── ConfirmDialog.js   # ✅ Confirmation dialogs
 │   ├── Loading.js         # ✅ Global loading overlay
 │   ├── LoadingState.js    # ✅ Animated loading dots
-│   └── SelectRestaurant.js # ✅ Restaurant dropdown
+│   ├── SelectRestaurant.js # ✅ Restaurant dropdown
+│   ├── DateSelector.js    # ✅ Date navigation
+│   └── Pagination.js      # ✅ Pagination controls
 ├── context/               # ✅ Global state management with React Context
 │   ├── ContextProvider.js # ✅ Context provider
 │   └── reducer.js         # ✅ State reducer
@@ -283,6 +289,7 @@ function MyComponent() {
   currentUser: null | {
     id: number,
     business_id: number,
+    restaurant_id: number,
     name: string,
     email: string,
     role: string,
@@ -312,8 +319,8 @@ function MyComponent() {
 ### Integration with Authentication
 
 The context is automatically updated by the `useLogin` and `useLogout` hooks:
-- **Login**: Sets `currentUser` with user data from the API
-- **Logout**: Resets `currentUser` to `null`
+- **Login**: Sets `currentUser` with user data from the API and automatically sets `selectedRestaurant` if user has a restaurant_id
+- **Logout**: Resets `currentUser` to `null` and clears `selectedRestaurant`
 
 ### UI Components
 
@@ -360,15 +367,15 @@ dispatch({ type: 'END_LOADING' });
 
 ## 📱 Bottom Navigation
 
-The HomeScreen features a bottom navigation bar with 5 tabs:
+The HomeScreen features a bottom navigation bar with 5 tabs using professional Ionicons:
 
-1. **Bookings** (📋) - View and manage all restaurant bookings
-2. **Calendar** (📅) - Calendar view with booking indicators
-3. **Create** (+) - Center floating action button to create new bookings
-4. **Customers** (👥) - Customer database with search functionality
-5. **Settings** (⚙️) - App settings, profile, and logout
+1. **Bookings** - View and manage all restaurant bookings
+2. **Calendar** - Calendar view with booking indicators
+3. **Create** - Center floating action button to create new bookings
+4. **Customers** - Customer database with search functionality
+5. **Settings** - App settings, profile, and logout
 
-All screens are fully themed and include mock data for demonstration.
+Icons are provided by `@expo/vector-icons` (Ionicons) for a professional, native look. All screens are fully themed.
 
 ## 🎨 Theme System
 
