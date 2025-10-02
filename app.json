@@ -4,8 +4,8 @@
     "slug": "tide-booking-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/favicon.png",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -16,14 +16,16 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tide.bookingapp"
+      "bundleIdentifier": "com.tideexperience.bookingapp",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.tide.bookingapp"
+      "package": "com.tideexperience.bookingapp",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,7 +36,7 @@
     "extra": {
       "environment": "development",
       "devServerUrl": "http://localhost:8000",
-      "prodServerUrl": "https://api.yourdomain.com"
+      "prodServerUrl": "https://lofficinasirolo-85a0da8063ad.herokuapp.com/"
     }
   }
 }
