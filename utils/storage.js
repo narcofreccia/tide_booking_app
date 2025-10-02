@@ -15,14 +15,44 @@ const KEYS = {
  * Uses SecureStore on native platforms, AsyncStorage on web
  */
 export const storeAuthToken = async (token) => {
+  const callStack = new Error().stack;
   try {
+    console.log('=== STORE AUTH TOKEN ===');
+    console.log('Called from:', callStack);
+    console.log('Received token:', token);
+    console.log('Token type:', typeof token);
+    console.log('Token is null?', token === null);
+    console.log('Token is undefined?', token === undefined);
+    console.log('Platform:', Platform.OS);
+    
+    // Ensure token is a string
+    if (!token || typeof token !== 'string') {
+      const errorMsg = `Invalid token: expected string, got ${typeof token}, value: ${JSON.stringify(token)}`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    
+    console.log('Token validation passed. Length:', token.length);
+    console.log('First 20 chars:', token.substring(0, 20));
+    
     if (Platform.OS === 'web') {
+      console.log('Using AsyncStorage (web)');
       await AsyncStorage.setItem(KEYS.AUTH_TOKEN, token);
     } else {
+      console.log('Using SecureStore (native)');
+      console.log('Calling SecureStore.setItemAsync with key:', KEYS.AUTH_TOKEN);
       await SecureStore.setItemAsync(KEYS.AUTH_TOKEN, token);
     }
+    
+    console.log('Token stored successfully!');
+    console.log('=== END STORE AUTH TOKEN ===');
   } catch (error) {
-    console.error('Error storing auth token:', error);
+    console.error('=== STORE AUTH TOKEN ERROR ===');
+    console.error('Error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Call stack was:', callStack);
+    console.error('=== END STORE AUTH TOKEN ERROR ===');
     throw error;
   }
 };
@@ -32,13 +62,27 @@ export const storeAuthToken = async (token) => {
  */
 export const getAuthToken = async () => {
   try {
+    console.log('=== GET AUTH TOKEN ===');
+    console.log('Platform:', Platform.OS);
+    console.log('Key:', KEYS.AUTH_TOKEN);
+    
+    let token;
     if (Platform.OS === 'web') {
-      return await AsyncStorage.getItem(KEYS.AUTH_TOKEN);
+      console.log('Reading from AsyncStorage...');
+      token = await AsyncStorage.getItem(KEYS.AUTH_TOKEN);
     } else {
-      return await SecureStore.getItemAsync(KEYS.AUTH_TOKEN);
+      console.log('Reading from SecureStore...');
+      token = await SecureStore.getItemAsync(KEYS.AUTH_TOKEN);
     }
+    
+    console.log('Retrieved token:', token ? `${token.substring(0, 20)}...` : 'null');
+    console.log('=== END GET AUTH TOKEN ===');
+    return token;
   } catch (error) {
+    console.error('=== GET AUTH TOKEN ERROR ===');
     console.error('Error getting auth token:', error);
+    console.error('Error message:', error.message);
+    console.error('=== END GET AUTH TOKEN ERROR ===');
     return null;
   }
 };

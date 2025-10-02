@@ -19,29 +19,63 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: authLogin,
     onSuccess: async (data) => {
-      // Store auth token
-      await storeAuthToken(data.accessToken);
+      console.log('=== LOGIN SUCCESS ===');
+      console.log('Login response:', JSON.stringify(data, null, 2));
+      console.log('Response type:', typeof data);
+      console.log('Response keys:', Object.keys(data));
+      console.log('data.access_token:', data.access_token, 'type:', typeof data.access_token);
+      console.log('data.accessToken:', data.accessToken, 'type:', typeof data.accessToken);
       
-      // Prepare user data
-      const userData = {
-        id: data.id,
-        business_id: data.business_id,
-        restaurant_id: data.restaurant_id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        features: data.features,
-      };
+      try {
+        // Store auth token - handle both snake_case and camelCase
+        const token = data.access_token || data.accessToken;
+        console.log('Selected token:', token, 'type:', typeof token);
+        
+        if (!token) {
+          const errorMsg = `No access token received from server. Response keys: ${Object.keys(data).join(', ')}. Full response: ${JSON.stringify(data)}`;
+          console.error(errorMsg);
+          throw new Error(errorMsg);
+        }
+        
+        console.log('About to store token...');
+        await storeAuthToken(token);
+        console.log('Token stored successfully');
+        
+        // Prepare user data
+        const userData = {
+          id: data.id,
+          business_id: data.business_id,
+          restaurant_id: data.restaurant_id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          features: data.features,
+        };
 
-      // Update global context with current user (will auto-persist to AsyncStorage)
-      dispatch({ type: 'UPDATE_CURRENT_USER', payload: userData });
-      dispatch({ type: 'UPDATE_SELECTED_RESTAURANT', payload: userData.restaurant_id });
+        // Update global context with current user (will auto-persist to AsyncStorage)
+        dispatch({ type: 'UPDATE_CURRENT_USER', payload: userData });
+        dispatch({ type: 'UPDATE_SELECTED_RESTAURANT', payload: userData.restaurant_id });
 
-      // Invalidate and refetch user query
-      queryClient.invalidateQueries({ queryKey: ['user'] });
+        // Invalidate and refetch user query
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+      } catch (error) {
+        console.error('Error in onSuccess:', error);
+        // Re-throw so it's caught by onError
+        throw error;
+      }
     },
     onError: (error) => {
       console.error('Login error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      
+      // Show detailed error to user
+      const errorDetails = {
+        message: error.message || 'Unknown error',
+        status: error.status || 'N/A',
+        response: error.response ? JSON.stringify(error.response) : 'No response',
+        stack: error.stack || 'No stack trace'
+      };
+      console.error('Full error details:', errorDetails);
     },
     onMutate: (variables) => {
       dispatch({ type: 'START_LOADING' });

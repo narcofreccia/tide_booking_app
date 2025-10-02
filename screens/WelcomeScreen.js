@@ -64,7 +64,7 @@ export default function WelcomeScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Image
-          source={require('../assets/logo/tide_teal.svg')}
+          source={require('../assets/tide_favicon_apple.png')}
           style={styles.logo}
           resizeMode="contain"
         />

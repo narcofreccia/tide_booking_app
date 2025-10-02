@@ -66,24 +66,28 @@ export default function LoginScreen({ navigation }) {
           
           // Handle specific error messages from backend
           let errorMessage = 'Login failed. Please try again.';
+          let debugInfo = '';
           
-          if (error.message === 'wrong_credentials') {
+          if (error.status === 401) {
             errorMessage = 'Invalid email or password';
-          } else if (error.message === 'Verifica la tua email') {
-            errorMessage = 'Please verify your email address';
           } else if (error.message) {
             errorMessage = error.message;
           }
           
-          // Show error to user using Alert (could be replaced with Notification component)
-          Alert.alert('Login Error', errorMessage);
+          // Add debug info
+          debugInfo = `\n\nDebug Info:\n`;
+          debugInfo += `Error: ${error.message || 'Unknown'}\n`;
+          debugInfo += `Status: ${error.status || 'N/A'}\n`;
+          debugInfo += `Response: ${error.response ? JSON.stringify(error.response).substring(0, 200) : 'No response'}\n`;
+          
+          // Show error to user using Alert with debug info
+          Alert.alert('Login Error', errorMessage + debugInfo);
         },
-      }
+      },
     );
   };
 
   const styles = createStyles(theme);
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -95,7 +99,7 @@ export default function LoginScreen({ navigation }) {
       >
         <View style={styles.header}>
           <Image
-            source={require('../assets/logo/tide_teal.svg')}
+            source={require('../assets/favicon.png')}
             style={styles.logo}
             resizeMode="contain"
           />

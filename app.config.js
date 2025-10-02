@@ -1,0 +1,45 @@
+export default {
+  expo: {
+    name: "Tide Booking App",
+    slug: "tide-booking-app",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/tide_favicon_apple.png",
+    userInterfaceStyle: "automatic",
+    splash: {
+      image: "./assets/tide_splash.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff"
+    },
+    assetBundlePatterns: [
+      "**/*"
+    ],
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "com.tideexperience.bookingapp",
+      buildNumber: "3",
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false
+      }
+    },
+    android: {
+      package: "com.tideexperience.bookingapp",
+      versionCode: 3
+    },
+    web: {
+      favicon: "./assets/tide_favicon_apple.png"
+    },
+    plugins: [
+      "expo-secure-store"
+    ],
+    extra: {
+      // Use environment variable or default to development
+      environment: process.env.APP_ENV || 'development',
+      devServerUrl: process.env.DEV_SERVER_URL || "http://localhost:8000",
+      prodServerUrl: process.env.PROD_SERVER_URL || "https://lofficinasirolo-85a0da8063ad.herokuapp.com/",
+      eas: {
+        projectId: "a47117ba-73d5-414c-a3c0-9689c5dac633"
+      }
+    }
+  }
+};

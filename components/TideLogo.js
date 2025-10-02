@@ -4,7 +4,7 @@ import { Image, StyleSheet } from 'react-native';
 export const TideLogo = ({ size = 32, style }) => {
   return (
     <Image
-      source={require('../assets/logo/tide_teal.svg')}
+      source={require('../assets/favicon.png')}
       style={[styles.logo, { width: size, height: size }, style]}
       resizeMode="contain"
     />
