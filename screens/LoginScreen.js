@@ -66,7 +66,6 @@ export default function LoginScreen({ navigation }) {
           
           // Handle specific error messages from backend
           let errorMessage = 'Login failed. Please try again.';
-          let debugInfo = '';
           
           if (error.status === 401) {
             errorMessage = 'Invalid email or password';
@@ -74,14 +73,8 @@ export default function LoginScreen({ navigation }) {
             errorMessage = error.message;
           }
           
-          // Add debug info
-          debugInfo = `\n\nDebug Info:\n`;
-          debugInfo += `Error: ${error.message || 'Unknown'}\n`;
-          debugInfo += `Status: ${error.status || 'N/A'}\n`;
-          debugInfo += `Response: ${error.response ? JSON.stringify(error.response).substring(0, 200) : 'No response'}\n`;
-          
-          // Show error to user using Alert with debug info
-          Alert.alert('Login Error', errorMessage + debugInfo);
+          // Show error to user using Alert
+          Alert.alert('Login Error', errorMessage);
         },
       },
     );
@@ -192,17 +185,18 @@ const createStyles = (theme) => StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    padding: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
   },
   header: {
     alignItems: 'center',
-    marginBottom: theme.spacing.xxl,
+    marginBottom: theme.spacing.lg,
   },
   logo: {
-    width: 200,
-    height: 80,
-    marginBottom: theme.spacing.md,
+    width: 120,
+    height: 48,
+    marginBottom: theme.spacing.sm,
   },
   subtitle: {
     fontSize: theme.typography.fontSize.md,

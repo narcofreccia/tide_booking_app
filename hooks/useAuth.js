@@ -19,27 +19,15 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: authLogin,
     onSuccess: async (data) => {
-      console.log('=== LOGIN SUCCESS ===');
-      console.log('Login response:', JSON.stringify(data, null, 2));
-      console.log('Response type:', typeof data);
-      console.log('Response keys:', Object.keys(data));
-      console.log('data.access_token:', data.access_token, 'type:', typeof data.access_token);
-      console.log('data.accessToken:', data.accessToken, 'type:', typeof data.accessToken);
-      
       try {
         // Store auth token - handle both snake_case and camelCase
         const token = data.access_token || data.accessToken;
-        console.log('Selected token:', token, 'type:', typeof token);
         
         if (!token) {
-          const errorMsg = `No access token received from server. Response keys: ${Object.keys(data).join(', ')}. Full response: ${JSON.stringify(data)}`;
-          console.error(errorMsg);
-          throw new Error(errorMsg);
+          throw new Error('No access token received from server');
         }
         
-        console.log('About to store token...');
         await storeAuthToken(token);
-        console.log('Token stored successfully');
         
         // Prepare user data
         const userData = {
@@ -66,16 +54,6 @@ export const useLogin = () => {
     },
     onError: (error) => {
       console.error('Login error:', error);
-      console.error('Error details:', JSON.stringify(error, null, 2));
-      
-      // Show detailed error to user
-      const errorDetails = {
-        message: error.message || 'Unknown error',
-        status: error.status || 'N/A',
-        response: error.response ? JSON.stringify(error.response) : 'No response',
-        stack: error.stack || 'No stack trace'
-      };
-      console.error('Full error details:', errorDetails);
     },
     onMutate: (variables) => {
       dispatch({ type: 'START_LOADING' });
