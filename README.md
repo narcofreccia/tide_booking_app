@@ -70,7 +70,8 @@ npm start
 - Modern dark theme with comprehensive design system
 - **Proper SafeAreaView implementation** for iOS notch/rounded corners on all screens
 - Global state management with React Context + useReducer
-- Authentication flow with login/logout
+- **Authentication flow** with login/logout and silent token refresh
+- **Refresh token support** for mobile with automatic token rotation
 - Form validation with React Hook Form + Yup
 - API integration with Axios and TanStack Query
 - Reusable UI components (Notification, ConfirmDialog, Loading, LoadingState, SelectRestaurant, DateSelector, Pagination, OrderingList, TideLogo)
@@ -114,8 +115,14 @@ npm start
   - All CRUD endpoints for restaurants, bookings, tables, availability
 - **Storage Utilities** (`utils/storage.js`)
   - Secure token storage (SecureStore on native, AsyncStorage on web)
+  - **Refresh token storage** for silent token refresh
   - User data persistence
   - Restaurant ID and public key management
+- **Token Refresh System**
+  - Automatic silent token refresh on 401 errors
+  - Request queuing during token refresh
+  - Token rotation with new refresh tokens
+  - Secure storage of refresh tokens
 - **Global Context** (`context/`)
   - ContextProvider with useReducer for global state management
   - Reducer with currentUser, alert, dialog, and loading state

@@ -7,7 +7,7 @@
 export { ApiClient, AuthApi } from './apiClient';
 
 // Export Auth API functions
-export { authLogin, getMe } from './authApi';
+export { authLogin, getMe, refreshAccessToken } from './authApi';
 
 // Export Restaurant API functions
 export { getRestaurants, getRestaurant, getRestaurantsNames } from './restaurantApi';

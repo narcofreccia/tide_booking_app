@@ -36,6 +36,26 @@ export const authLogin = async ({ form_data, public_key, email, password }) => {
 };
 
 /**
+ * Refresh access token using refresh token (mobile flow)
+ * @param {string} refreshToken - The refresh token
+ * @returns {Promise} New access token and rotated refresh token
+ */
+export const refreshAccessToken = async (refreshToken) => {
+  const response = await AuthApi.post('/auth/refresh-token', {
+    token: refreshToken,
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      // Explicitly remove Authorization for this request
+      'Authorization': undefined,
+    },
+  });
+
+  return response.data;
+};
+
+/**
  * Get current user profile
  * @returns {Promise} User profile data
  */

@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authLogin, getMe } from '../services/api';
+import { authLogin, getMe, refreshAccessToken } from '../services/api';
 import { 
   storeAuthToken, 
+  storeRefreshToken,
   storeUserData, 
   removeAuthToken,
-  getUserData 
+  removeRefreshToken,
+  getUserData,
+  getRefreshToken
 } from '../utils/storage';
 import { useDispatchContext } from '../context/ContextProvider';
 
@@ -22,12 +25,18 @@ export const useLogin = () => {
       try {
         // Store auth token - handle both snake_case and camelCase
         const token = data.access_token || data.accessToken;
+        const refreshToken = data.refresh_token || data.refreshToken;
         
         if (!token) {
           throw new Error('No access token received from server');
         }
         
         await storeAuthToken(token);
+        
+        // Store refresh token if provided (mobile flow)
+        if (refreshToken) {
+          await storeRefreshToken(refreshToken);
+        }
         
         // Prepare user data
         const userData = {
@@ -82,14 +91,14 @@ export const useCurrentUser = () => {
  * @returns {Object} Mutation object
  */
 export const useLogout = () => {
-  console.log('useLogout hook called');
   const queryClient = useQueryClient();
   const dispatch = useDispatchContext();
 
   return useMutation({
     mutationFn: async () => {
-      // Only remove auth token - this will trigger App.js to switch to LoginScreen
+      // Remove both auth and refresh tokens
       await removeAuthToken();
+      await removeRefreshToken();
       return true;
     },
     onSuccess: () => {

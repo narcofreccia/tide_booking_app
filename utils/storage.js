@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 // Storage keys
 const KEYS = {
   AUTH_TOKEN: 'auth_token',
+  REFRESH_TOKEN: 'refresh_token',
   USER_DATA: 'user_data',
   RESTAURANT_ID: 'restaurant_id',
   PUBLIC_KEY: 'public_key',
@@ -61,6 +62,60 @@ export const removeAuthToken = async () => {
     }
   } catch (error) {
     console.error('Error removing auth token:', error);
+  }
+};
+
+/**
+ * Store refresh token securely
+ * Uses SecureStore on native platforms, AsyncStorage on web
+ */
+export const storeRefreshToken = async (token) => {
+  try {
+    // Ensure token is a string
+    if (!token || typeof token !== 'string') {
+      throw new Error(`Invalid refresh token: expected string, got ${typeof token}`);
+    }
+    
+    if (Platform.OS === 'web') {
+      await AsyncStorage.setItem(KEYS.REFRESH_TOKEN, token);
+    } else {
+      await SecureStore.setItemAsync(KEYS.REFRESH_TOKEN, token);
+    }
+  } catch (error) {
+    console.error('Error storing refresh token:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get refresh token
+ */
+export const getRefreshToken = async () => {
+  try {
+    if (Platform.OS === 'web') {
+      return await AsyncStorage.getItem(KEYS.REFRESH_TOKEN);
+    } else {
+      return await SecureStore.getItemAsync(KEYS.REFRESH_TOKEN);
+    }
+  } catch (error) {
+    console.error('Error getting refresh token:', error);
+    return null;
+  }
+};
+
+/**
+ * Remove refresh token
+ */
+export const removeRefreshToken = async () => {
+  console.log('Removing refresh token');
+  try {
+    if (Platform.OS === 'web') {
+      await AsyncStorage.removeItem(KEYS.REFRESH_TOKEN);
+    } else {
+      await SecureStore.deleteItemAsync(KEYS.REFRESH_TOKEN);
+    }
+  } catch (error) {
+    console.error('Error removing refresh token:', error);
   }
 };
 
@@ -167,6 +222,7 @@ export const clearAllData = async () => {
   try {
     await Promise.all([
       removeAuthToken(),
+      removeRefreshToken(),
       removeUserData(),
       removeRestaurantId(),
       AsyncStorage.removeItem(KEYS.PUBLIC_KEY),
