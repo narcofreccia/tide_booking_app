@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useForm, FormProvider } from 'react-hook-form';
@@ -7,6 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createBooking, updateBooking } from '../services/api';
 import bookingSchema from '../validation/bookingValidation';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 import { SimpleField } from '../components/SimpleField';
 import { NewBookingDatePicker } from '../components/new_booking/NewBookingDatePicker';
 import { AvailableTimes } from '../components/new_booking/AvailableTimes';
@@ -181,8 +182,7 @@ export default function CreateBookingScreen({ route, onSuccess }) {
   };
 
   return (
-    <View style={styles.outerContainer}>
-      <SafeAreaView style={styles.container}>
+    <ScreenWrapper headerColor={theme.palette.background.paper}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -265,8 +265,7 @@ export default function CreateBookingScreen({ route, onSuccess }) {
           </View>
         </ScrollView>
       </FormProvider>
-      </SafeAreaView>
-    </View>
+    </ScreenWrapper>
   );
 }
 

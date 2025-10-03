@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useLogout } from '../hooks/useAuth';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 import { SelectRestaurant } from '../components/SelectRestaurant';
 import { TideLogo } from '../components/TideLogo';
 import { getIcon, getIconSize } from '../config/icons';
@@ -76,8 +77,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <View style={styles.outerContainer}>
-      <SafeAreaView style={styles.container}>
+    <ScreenWrapper headerColor={theme.palette.background.paper}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -225,8 +225,7 @@ export default function SettingsScreen() {
           danger
         />
       </ScrollView>
-      </SafeAreaView>
-    </View>
+    </ScreenWrapper>
   );
 }
 

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, SafeAreaView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useQuery } from '@tanstack/react-query';
 import { listBookings } from '../services/api';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 import { DateSelector } from '../components/DateSelector';
 import { Pagination } from '../components/Pagination';
 import { TideLogo } from '../components/TideLogo';
@@ -52,10 +53,9 @@ export default function BookingsScreen() {
   };
 
   return (
-    <View style={styles.outerContainer}>
-      <SafeAreaView style={styles.container}>
-        <GestureHandlerRootView style={styles.gestureContainer}>
-      <View style={styles.header}>
+    <ScreenWrapper headerColor={theme.palette.background.paper}>
+      <GestureHandlerRootView style={styles.gestureContainer}>
+        <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
             <Text style={styles.title}>Bookings</Text>
@@ -165,9 +165,8 @@ export default function BookingsScreen() {
           )}
         </>
       )}
-        </GestureHandlerRootView>
-      </SafeAreaView>
-    </View>
+      </GestureHandlerRootView>
+    </ScreenWrapper>
   );
 }
 

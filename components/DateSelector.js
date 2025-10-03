@@ -74,6 +74,7 @@ const createStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.sm,
+    minHeight: 56, // Standardized height
     ...theme.shadows.sm,
   },
   arrowButton: {

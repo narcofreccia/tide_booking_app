@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { useTheme } from '../theme'
 import { useStateContext } from '../context/ContextProvider'
 import { useQueryClient } from '@tanstack/react-query'
+import { ScreenWrapper } from '../components/ScreenWrapper'
 import { DateSelector } from '../components/DateSelector'
 import { SectionIntervalBar } from '../components/booking_manager/SectionIntervalBar'
 import { BookingsCanvas } from '../components/booking_manager/BookingsCanvas'
@@ -102,11 +103,11 @@ export default function BookingsMapScreen() {
 
   return (
     <>
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper headerColor={theme.palette.background.paper}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <View style={styles.headerText}>
+          <View>
             <Text style={styles.title}>Mappa Prenotazioni</Text>
             <Text style={styles.subtitle}>
               {selectedRestaurant?.name || 'Seleziona un ristorante'}
@@ -161,9 +162,9 @@ export default function BookingsMapScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
 
-    {/* Table Switching Drawer - Outside SafeAreaView to cover navigation */}
+    {/* Table Switching Drawer - Outside ScreenWrapper to cover navigation */}
     {switchDrawerOpen && (
       <SwitchBookingPositionDrawer
         open={switchDrawerOpen}
@@ -194,9 +195,6 @@ const createStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  headerText: {
-    flex: 1,
   },
   title: {
     fontSize: theme.typography.fontSize.xl,

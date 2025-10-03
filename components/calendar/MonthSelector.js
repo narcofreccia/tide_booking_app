@@ -49,22 +49,29 @@ const createStyles = (theme) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.sm,
+    minHeight: 56, // Match DateSelector height
     ...theme.shadows.sm,
   },
   button: {
-    padding: theme.spacing.xs,
-    borderRadius: theme.borderRadius.sm,
+    width: 40,
+    height: 40,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.palette.background.elevated,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   dateDisplay: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: theme.spacing.md,
   },
   monthText: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.md,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.palette.text.primary,
   },

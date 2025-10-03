@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../theme';
 import { useStateContext } from '../context/ContextProvider';
 import { getMonthlyBookings } from '../services/api';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 import { TideLogo } from '../components/TideLogo';
 import { MonthSelector } from '../components/calendar/MonthSelector';
 import { DayCard } from '../components/calendar/DayCard';
@@ -87,8 +88,7 @@ export default function CalendarScreen() {
   };
 
   return (
-    <View style={styles.outerContainer}>
-      <SafeAreaView style={styles.container}>
+    <ScreenWrapper headerColor={theme.palette.background.paper}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={{ flex: 1 }}>
@@ -165,8 +165,7 @@ export default function CalendarScreen() {
         date={selectedDay?.date}
         daySummary={getDaySummary(selectedDay?.day)}
       />
-      </SafeAreaView>
-    </View>
+    </ScreenWrapper>
   );
 }
 
