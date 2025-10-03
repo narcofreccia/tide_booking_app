@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '../../theme'
 import { getBookingStatusColor, getBookingStatusLabel } from '../../constants/bookingStatusColors'
+import { ChangeBookingStatus } from '../bookings/ChangeBookingStatus'
 
 /**
  * BookingDetailsModal
@@ -13,8 +14,10 @@ import { getBookingStatusColor, getBookingStatusLabel } from '../../constants/bo
  * - tableName: string
  * - onClose: () => void
  */
-export const BookingDetailsModal = ({ visible, bookings = [], tableName, onClose }) => {
+export const BookingDetailsModal = ({ visible, bookings = [], tableName, onClose, onSwitchBooking }) => {
   const theme = useTheme()
+  const [changeStatusModalVisible, setChangeStatusModalVisible] = useState(false)
+  const [selectedBooking, setSelectedBooking] = useState(null)
 
   const formatTime = (timeStr) => {
     if (!timeStr) return '-'
@@ -184,6 +187,49 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, onClose
                     )}
                   </View>
 
+                  {/* Action Buttons */}
+                  <View style={styles.actionsSection}>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.actionButtonHalf, { 
+                        backgroundColor: theme.palette.primary.main,
+                        borderColor: theme.palette.primary.main 
+                      }]}
+                      onPress={() => {
+                        onSwitchBooking?.(booking)
+                        onClose()
+                      }}
+                    >
+                      <MaterialCommunityIcons 
+                        name="swap-horizontal" 
+                        size={16} 
+                        color="#FFFFFF" 
+                      />
+                      <Text style={styles.actionButtonText}>
+                        Sposta
+                      </Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.actionButtonHalf, { 
+                        backgroundColor: theme.palette.secondary?.main || theme.palette.info.main,
+                        borderColor: theme.palette.secondary?.main || theme.palette.info.main
+                      }]}
+                      onPress={() => {
+                        setSelectedBooking(booking)
+                        setChangeStatusModalVisible(true)
+                      }}
+                    >
+                      <MaterialCommunityIcons 
+                        name="checkbox-marked-circle-outline" 
+                        size={16} 
+                        color="#FFFFFF" 
+                      />
+                      <Text style={styles.actionButtonText}>
+                        Stato
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
                   {/* Notes */}
                   {booking.costumer_notes && (
                     <View style={[styles.notesSection, { borderTopColor: theme.palette.divider }]}>
@@ -212,6 +258,20 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, onClose
           </ScrollView>
         </TouchableOpacity>
       </TouchableOpacity>
+
+      {/* Change Status Modal */}
+      {selectedBooking && (
+        <ChangeBookingStatus
+          booking={selectedBooking}
+          visible={changeStatusModalVisible}
+          onClose={() => {
+            setChangeStatusModalVisible(false)
+            setSelectedBooking(null)
+            // Close the BookingDetailsModal after status change
+            onClose()
+          }}
+        />
+      )}
     </Modal>
   )
 }
@@ -313,5 +373,29 @@ const styles = StyleSheet.create({
   notesText: {
     fontSize: 12,
     lineHeight: 18,
+  },
+  actionsSection: {
+    marginTop: 12,
+    paddingTop: 12,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 6,
+  },
+  actionButtonHalf: {
+    flex: 1,
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
   },
 })

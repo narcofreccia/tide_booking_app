@@ -16,7 +16,17 @@ import { BookingDetailsModal } from './BookingDetailsModal'
  * - date: string (YYYY-MM-DD)
  * - interval: { start_time: string, end_time: string }|null
  */
-export const BookingsCanvas = ({ restaurantId, sectionId, floorId, date, interval }) => {
+export const BookingsCanvas = ({ 
+  restaurantId, 
+  sectionId, 
+  floorId, 
+  date, 
+  interval, 
+  onSwitchBooking,
+  switchingMode,
+  onTableSelect,
+  selectedTableId
+}) => {
   const theme = useTheme()
   const [selectedTable, setSelectedTable] = React.useState(null)
   const [selectedBookings, setSelectedBookings] = React.useState([])
@@ -73,6 +83,13 @@ export const BookingsCanvas = ({ restaurantId, sectionId, floorId, date, interva
   }, [bookings])
 
   const handleTablePress = (tableId, bookings) => {
+    // If in switching mode, just select the table
+    if (switchingMode) {
+      onTableSelect?.(tableId)
+      return
+    }
+    
+    // Otherwise, show the booking details modal
     const table = tables.find(t => t.id === tableId)
     setSelectedTable(table)
     setSelectedBookings(bookings)
@@ -113,6 +130,7 @@ export const BookingsCanvas = ({ restaurantId, sectionId, floorId, date, interva
         tables={tables}
         bookingsByTable={bookingsByTable}
         onTablePress={handleTablePress}
+        selectedTableId={selectedTableId}
       />
 
       <BookingDetailsModal
@@ -120,6 +138,7 @@ export const BookingsCanvas = ({ restaurantId, sectionId, floorId, date, interva
         bookings={selectedBookings}
         tableName={selectedTable?.number || selectedTable?.name || selectedTable?.id}
         onClose={handleCloseModal}
+        onSwitchBooking={onSwitchBooking}
       />
     </View>
   )

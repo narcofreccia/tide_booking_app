@@ -27,9 +27,9 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import { CreateNewBooking } from 'src/features/admin/booking/components/CreateNewBooking'
 import { WalkInReservation } from 'src/features/admin/booking/components/WalkInReservation'
 import { BookingList } from 'src/features/admin/booking/components/BookingList'
-import { SwitchBookingPositionDrawer } from 'src/features/admin/booking/components/SwitchBookingPositionDrawer'
+import { SwitchBookingPositionDrawer } from '../components/booking_manager/SwitchBookingPositionDrawer'
 import { BookingStatusLegend } from 'src/features/admin/booking/components/BookingStatusLegend'
-import { switchTablePosition } from 'src/features/admin/booking/BookingApi'
+import { switchTablePosition } from '../services/bookingApi'
 import { useQueryClient } from '@tanstack/react-query'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import ListIcon from '@mui/icons-material/List'
@@ -796,8 +796,12 @@ export const BookingManager = () => {
             onClose={handleCancelSwitch}
             sourceBooking={switchingBooking}
             selectedTableId={selectedTargetTable}
+            onTableSelect={handleTableSwitch}
             onConfirm={handleConfirmSwitch}
             onCancel={handleCancelSwitch}
+            floor={selectedFloorId ? { id: selectedFloorId } : null}
+            tables={tables}
+            bookingsByTable={{}}
           />
 
         

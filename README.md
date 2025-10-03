@@ -27,7 +27,7 @@ cd tide_booking_app
 
 ## 🗺️ Bookings Map Screen
 
-The app includes a new read-only map view of tables with live booking overlays.
+The app includes an interactive map view of tables with live booking overlays and management features.
 
 - **Location**: Bottom nav → Map tab (MaterialCommunityIcons `map-outline`)
 - **File**: `screens/BookingsMapScreen.js`
@@ -36,14 +36,22 @@ The app includes a new read-only map view of tables with live booking overlays.
   - `components/booking_manager/TablesMapReadOnly.js` (SVG-based)
   - `components/booking_manager/SectionIntervalBar.js` (compact Section/Interval pickers)
   - `components/booking_manager/BookingDetailsModal.js`
+  - `components/booking_manager/SwitchBookingPositionDrawer.js` (NEW)
 
-### How it works
-- Fetches floor, tables, and bookings via React Query.
-- Renders a performant SVG canvas scaled to screen width.
-- Click/tap on a table to open a bottom-sheet with booking details.
-- Color-coded booking status overlays (see `constants/bookingStatusColors.js`).
-- Supports multiple bookings per table with a diagonal split overlay.
-- Section and Interval pickers are compact chips matching the app's theme.
+### Features
+- **Interactive Table Map**: Fetches floor, tables, and bookings via React Query
+- **Performant SVG Rendering**: Scaled to screen width with smooth interactions
+- **Booking Details**: Tap on a table to open bottom-sheet with full booking information
+- **Table Switching**: Move bookings between tables with visual feedback
+  - Tap "Sposta" button to enter switching mode
+  - Select target table on map (highlighted in orange)
+  - Confirm to move/swap bookings
+- **Quick Status Changes**: Update booking status directly from map
+  - Tap "Stato" button to open status selector
+  - Instant map refresh with new status color
+- **Color-Coded Overlays**: Visual status indicators (see `constants/bookingStatusColors.js`)
+- **Multi-Booking Support**: Diagonal split overlay for tables with multiple bookings
+- **Compact Controls**: Section and Interval pickers as themed chips
 
 ### Navigation changes
 - Bottom tabs: `Bookings | Map | Create | Calendar | Settings`.
@@ -51,15 +59,24 @@ The app includes a new read-only map view of tables with live booking overlays.
 - Customers moved into Settings under "Restaurant Details" as a dedicated entry.
 
 ### Implementation notes
-- Uses `react-native-svg` (no native rebuild required; works in Expo Go).
+- Uses `react-native-svg` (no native rebuild required; works in Expo Go)
+- Smart query invalidation ensures instant UI updates after changes
+- Minimal drawer design (~80-90px height) to maximize map visibility
+- Table highlighting with orange border (#ff6b35) for visual feedback
 - We evaluated `@shopify/react-native-skia` for even higher performance but it currently requires React 18. This project uses React 19, so Skia is not installed to avoid dependency conflicts.
 
 ### Theming & typography
-- Map labels use the platform `System` font with increased sizes for legibility.
+- Map labels use the platform `System` font with increased sizes for legibility
   - Table number/pax: 12px, semibold
   - Time: 11px, medium
   - Customer name: 10px, regular
-- Pickers are compact chips, primary-colored when active.
+- Pickers are compact chips, primary-colored when active
+- Action buttons: 36x36px with subtle shadows for modern appearance
+
+### API Integration
+- `POST /booking/switch_table_position` - Move/swap bookings between tables
+- Automatic query invalidation for `bookings-by-date` and `tables-by-restaurant`
+- See `TABLE_SWITCHING_IMPLEMENTATION.md` for detailed documentation
 
 ## 🔧 Icon Mapping
 

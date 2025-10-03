@@ -2,20 +2,31 @@ import React, { useState } from 'react'
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native'
 import { useTheme } from '../theme'
 import { useStateContext } from '../context/ContextProvider'
+import { useQueryClient } from '@tanstack/react-query'
 import { DateSelector } from '../components/DateSelector'
 import { SectionIntervalBar } from '../components/booking_manager/SectionIntervalBar'
 import { BookingsCanvas } from '../components/booking_manager/BookingsCanvas'
+import { SwitchBookingPositionDrawer } from '../components/booking_manager/SwitchBookingPositionDrawer'
 import { TideLogo } from '../components/TideLogo'
+import { switchTablePosition } from '../services/bookingApi'
 
 export default function BookingsMapScreen() {
   const theme = useTheme()
   const { selectedRestaurant, currentUser } = useStateContext()
+  const queryClient = useQueryClient()
   const styles = createStyles(theme)
 
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [selectedSectionId, setSelectedSectionId] = useState(null)
   const [selectedFloorId, setSelectedFloorId] = useState(null)
   const [selectedInterval, setSelectedInterval] = useState(null)
+  
+  // Table switching state
+  const [switchDrawerOpen, setSwitchDrawerOpen] = useState(false)
+  const [switchingBooking, setSwitchingBooking] = useState(null)
+  const [selectedTargetTable, setSelectedTargetTable] = useState(null)
+  const [selectedTargetTableName, setSelectedTargetTableName] = useState(null)
+  const [tables, setTables] = useState([])
 
   const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id
   
@@ -34,7 +45,63 @@ export default function BookingsMapScreen() {
     setSelectedInterval(interval)
   }
 
+  // Handle switching booking position
+  const handleSwitchBooking = (booking) => {
+    setSwitchingBooking(booking)
+    setSwitchDrawerOpen(true)
+    setSelectedTargetTable(null)
+  }
+
+  const handleTableSwitch = (targetTableId) => {
+    setSelectedTargetTable(targetTableId)
+    // Find the table name/number from the tables array
+    const table = tables.find(t => t.id === targetTableId)
+    setSelectedTargetTableName(table?.number || table?.name || targetTableId)
+  }
+  
+  // Callback to receive tables from BookingsCanvas
+  const handleTablesLoaded = (loadedTables) => {
+    setTables(loadedTables)
+  }
+
+  const handleConfirmSwitch = async () => {
+    if (!switchingBooking || !selectedTargetTable) return
+
+    try {
+      const result = await switchTablePosition({
+        source_booking_id: switchingBooking.id,
+        target_table_id: selectedTargetTable
+      })
+      
+      // Invalidate bookings queries to refresh the data
+      await queryClient.invalidateQueries({
+        queryKey: ['bookings-by-date', restaurantId, dateStr]
+      })
+      
+      // Also invalidate tables query to refresh table states
+      await queryClient.invalidateQueries({
+        queryKey: ['tables-by-restaurant', restaurantId]
+      })
+      
+      // Close drawer and reset state
+      handleCancelSwitch()
+      
+      // Show success message (you might want to add a toast/alert system)
+      console.log(result.length > 1 ? 'Prenotazioni scambiate con successo' : 'Prenotazione spostata con successo')
+    } catch (error) {
+      console.error('Errore durante lo spostamento della prenotazione:', error)
+    }
+  }
+
+  const handleCancelSwitch = () => {
+    setSwitchDrawerOpen(false)
+    setSwitchingBooking(null)
+    setSelectedTargetTable(null)
+    setSelectedTargetTableName(null)
+  }
+
   return (
+    <>
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -87,10 +154,28 @@ export default function BookingsMapScreen() {
             floorId={selectedFloorId}
             date={dateStr}
             interval={selectedInterval}
+            onSwitchBooking={handleSwitchBooking}
+            switchingMode={switchDrawerOpen}
+            onTableSelect={handleTableSwitch}
+            selectedTableId={selectedTargetTable}
           />
         )}
       </View>
     </SafeAreaView>
+
+    {/* Table Switching Drawer - Outside SafeAreaView to cover navigation */}
+    {switchDrawerOpen && (
+      <SwitchBookingPositionDrawer
+        open={switchDrawerOpen}
+        onClose={handleCancelSwitch}
+        sourceBooking={switchingBooking}
+        selectedTableId={selectedTargetTable}
+        selectedTableName={selectedTargetTableName}
+        onConfirm={handleConfirmSwitch}
+        onCancel={handleCancelSwitch}
+      />
+    )}
+    </>
   )
 }
 

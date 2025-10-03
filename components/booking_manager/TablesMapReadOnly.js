@@ -13,7 +13,7 @@ import { getBookingStatusColor } from '../../constants/bookingStatusColors'
  * - bookingsByTable: Object mapping table_id to array of bookings
  * - onTablePress: (tableId, bookings) => void - Called when table is clicked
  */
-export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, onTablePress }) => {
+export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, onTablePress, selectedTableId }) => {
   const theme = useTheme()
   const [containerWidth, setContainerWidth] = React.useState(Dimensions.get('window').width - 48)
 
@@ -70,12 +70,24 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
 
     // Determine table fill color
     let tableFill = tableFillColor
+    let strokeColor = "#424242"
+    let strokeWidth = 1
+    
+    // Check if this table is selected
+    const isSelected = selectedTableId === t.id
+    
     if (t.enabled === false) {
       tableFill = '#424242' // Blocked
     } else if (t.enabled_online === false) {
       tableFill = '#bdbdbd' // Online blocked
     } else if (hasBookings) {
       tableFill = getBookingStatusColor(tableBookings[0].status)
+    }
+    
+    // Highlight selected table
+    if (isSelected) {
+      strokeColor = "#ff6b35" // Orange highlight
+      strokeWidth = 3
     }
 
     const textColor = getContrastColor(tableFill)
@@ -89,8 +101,8 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
               cy={y + th / 2}
               r={tw / 2}
               fill={tableFill}
-              stroke="#424242"
-              strokeWidth={1}
+              stroke={strokeColor}
+              strokeWidth={strokeWidth}
             />
             {hasMultipleBookings && (
               <>
@@ -113,8 +125,8 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
               height={th}
               rx={2}
               fill={tableFill}
-              stroke="#424242"
-              strokeWidth={1}
+              stroke={strokeColor}
+              strokeWidth={strokeWidth}
             />
             {hasMultipleBookings && (
               <>

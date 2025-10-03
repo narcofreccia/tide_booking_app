@@ -158,3 +158,19 @@ export const getBookingsByDate = async (restaurant_id, { reservation_date, start
   const response = await ApiClient.get(`/booking/restaurant/${restaurant_id}/bookings/by-date`, { params })
   return response.data
 };
+
+/**
+ * Switch table position between bookings
+ * Move source booking to target table. If target table has overlapping booking, swap their table_ids.
+ * Otherwise, assign source booking to target table.
+ * @param {Object} payload - Payload
+ * @param {number} payload.source_booking_id - Source booking ID
+ * @param {number} payload.target_table_id - Target table ID
+ * @returns {Promise} Array of updated bookings [updated_source] or [updated_source, updated_target_if_swapped]
+ */
+export const switchTablePosition = async (payload) => {
+  if (!payload.source_booking_id) throw new Error('source_booking_id is required')
+  if (!payload.target_table_id) throw new Error('target_table_id is required')
+  const response = await ApiClient.post('/booking/switch_table_position', payload)
+  return response.data
+};

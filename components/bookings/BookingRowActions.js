@@ -99,19 +99,23 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
   return (
     <>
       <View style={styles.actionsContainer}>
-      {/* Move */}
-      <TouchableOpacity style={[styles.actionButton, styles.moveButton]} onPress={handleMove}>
-        <MaterialCommunityIcons name="swap-horizontal" size={20} color={theme.palette.primary.contrastText} />
-      </TouchableOpacity>
 
       {/* Update Status */}
-      <TouchableOpacity style={[styles.actionButton, styles.statusButton]} onPress={handleUpdateStatus}>
-        <MaterialCommunityIcons name="check-circle" size={20} color={theme.palette.primary.contrastText} />
+      <TouchableOpacity 
+        style={[styles.actionButton, styles.statusButton]} 
+        onPress={handleUpdateStatus}
+        activeOpacity={0.7}
+      >
+        <MaterialCommunityIcons name="check-circle" size={18} color="#FFFFFF" />
       </TouchableOpacity>
 
       {/* Edit */}
-      <TouchableOpacity style={[styles.actionButton, styles.editButton]} onPress={handleEdit}>
-        <MaterialCommunityIcons name="pencil" size={20} color={theme.palette.primary.contrastText} />
+      <TouchableOpacity 
+        style={[styles.actionButton, styles.editButton]} 
+        onPress={handleEdit}
+        activeOpacity={0.7}
+      >
+        <MaterialCommunityIcons name="pencil" size={18} color="#FFFFFF" />
       </TouchableOpacity>
 
       {/* Delete - Only for admin/owner */}
@@ -120,8 +124,9 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
           style={[styles.actionButton, styles.deleteButton]} 
           onPress={handleDelete}
           disabled={deleteMutation.isPending}
+          activeOpacity={0.7}
         >
-          <MaterialCommunityIcons name="delete" size={20} color={theme.palette.primary.contrastText} />
+          <MaterialCommunityIcons name="delete" size={18} color="#FFFFFF" />
         </TouchableOpacity>
       )}
       </View>
@@ -148,26 +153,28 @@ const createStyles = (theme) => StyleSheet.create({
     justifyContent: 'flex-end',
     height: '100%',
     paddingRight: theme.spacing.md,
-    gap: theme.spacing.sm,
+    gap: 6,
   },
   actionButton: {
-    width: 48,
-    height: 48,
-    borderRadius: theme.borderRadius.md,
+    width: 36,
+    height: 36,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    ...theme.shadows.md,
-  },
-  moveButton: {
-    backgroundColor: theme.palette.info.main,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   statusButton: {
-    backgroundColor: theme.palette.success.main,
+    backgroundColor: theme.palette.success?.main || '#4caf50',
   },
   editButton: {
     backgroundColor: theme.palette.primary.main,
   },
   deleteButton: {
     backgroundColor: theme.palette.error.main,
+    opacity: 0.9,
   },
 });

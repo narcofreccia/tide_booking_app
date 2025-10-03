@@ -70,7 +70,10 @@ export const ChangeBookingStatus = ({ booking, visible, onClose, statusOptions }
           message: `Status updated to: ${BOOKING_STATUS_LABELS[newStatus] || newStatus}`,
         },
       });
+      // Invalidate all booking-related queries
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings-by-date'] });
+      queryClient.invalidateQueries({ queryKey: ['tables-by-restaurant'] });
       onClose?.();
     },
     onError: (error) => {
