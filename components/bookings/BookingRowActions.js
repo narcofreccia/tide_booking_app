@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useStateContext, useDispatchContext } from '../../context/ContextProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -101,17 +101,17 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
       <View style={styles.actionsContainer}>
       {/* Move */}
       <TouchableOpacity style={[styles.actionButton, styles.moveButton]} onPress={handleMove}>
-        <Ionicons name="swap-horizontal" size={20} color={theme.palette.primary.contrastText} />
+        <MaterialCommunityIcons name="swap-horizontal" size={20} color={theme.palette.primary.contrastText} />
       </TouchableOpacity>
 
       {/* Update Status */}
       <TouchableOpacity style={[styles.actionButton, styles.statusButton]} onPress={handleUpdateStatus}>
-        <Ionicons name="checkmark-circle" size={20} color={theme.palette.primary.contrastText} />
+        <MaterialCommunityIcons name="check-circle" size={20} color={theme.palette.primary.contrastText} />
       </TouchableOpacity>
 
       {/* Edit */}
       <TouchableOpacity style={[styles.actionButton, styles.editButton]} onPress={handleEdit}>
-        <Ionicons name="create" size={20} color={theme.palette.primary.contrastText} />
+        <MaterialCommunityIcons name="pencil" size={20} color={theme.palette.primary.contrastText} />
       </TouchableOpacity>
 
       {/* Delete - Only for admin/owner */}
@@ -121,7 +121,7 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
           onPress={handleDelete}
           disabled={deleteMutation.isPending}
         >
-          <Ionicons name="trash" size={20} color={theme.palette.primary.contrastText} />
+          <MaterialCommunityIcons name="delete" size={20} color={theme.palette.primary.contrastText} />
         </TouchableOpacity>
       )}
       </View>

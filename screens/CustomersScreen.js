@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView } from 'react-native';
 import { useTheme } from '../theme';
 import { TideLogo } from '../components/TideLogo';
 
@@ -23,7 +23,8 @@ export default function CustomersScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.outerContainer}>
+      <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -62,14 +63,18 @@ export default function CustomersScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+      </SafeAreaView>
     </View>
   );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
     backgroundColor: theme.palette.background.default,
+  },
+  container: {
+    flex: 1,
   },
   header: {
     padding: theme.spacing.lg,

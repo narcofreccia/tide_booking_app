@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useDispatchContext } from '../../context/ContextProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -107,7 +107,7 @@ export const ChangeBookingStatus = ({ booking, visible, onClose, statusOptions }
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Change Booking Status</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color={theme.palette.text.primary} />
+              <MaterialCommunityIcons name="close" size={24} color={theme.palette.text.primary} />
             </TouchableOpacity>
           </View>
 
@@ -148,7 +148,7 @@ export const ChangeBookingStatus = ({ booking, visible, onClose, statusOptions }
                     </Text>
                   </View>
                   {isCurrentStatus && (
-                    <Ionicons name="checkmark-circle" size={24} color={statusColor} />
+                    <MaterialCommunityIcons name="check-circle" size={24} color={statusColor} />
                   )}
                 </TouchableOpacity>
               );

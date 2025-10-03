@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import CreateBookingScreen from '../../screens/CreateBookingScreen';
 
@@ -18,7 +18,7 @@ export const EditBookingModal = ({ booking, visible, onClose }) => {
       <View style={styles.container}>
         <View style={styles.closeButtonContainer}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={28} color={theme.palette.text.primary} />
+            <MaterialCommunityIcons name="close" size={28} color={theme.palette.text.primary} />
           </TouchableOpacity>
         </View>
         <CreateBookingScreen 

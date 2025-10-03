@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, SafeAreaView } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
@@ -50,7 +50,9 @@ export default function BookingsScreen() {
   };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View style={styles.outerContainer}>
+      <SafeAreaView style={styles.container}>
+        <GestureHandlerRootView style={styles.gestureContainer}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -129,14 +131,22 @@ export default function BookingsScreen() {
           )}
         </>
       )}
-    </GestureHandlerRootView>
+        </GestureHandlerRootView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
     backgroundColor: theme.palette.background.default,
+  },
+  container: {
+    flex: 1,
+  },
+  gestureContainer: {
+    flex: 1,
   },
   header: {
     padding: theme.spacing.lg,

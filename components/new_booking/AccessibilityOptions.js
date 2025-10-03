@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useFormContext, Controller } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
+import { getIcon, getIconSize } from '../../config/icons';
 
 export const AccessibilityOptions = ({ collapsed = true, disableCollapse = false }) => {
   const { control } = useFormContext();
@@ -10,10 +11,10 @@ export const AccessibilityOptions = ({ collapsed = true, disableCollapse = false
   const styles = createStyles(theme);
   const [isExpanded, setIsExpanded] = useState(!collapsed);
 
-  const NumberInput = ({ name, label, icon }) => (
+  const NumberInput = ({ name, label, iconKey }) => (
     <View style={styles.numberInputContainer}>
       <View style={styles.numberInputLabel}>
-        <Text style={styles.numberInputIcon}>{icon}</Text>
+        <MaterialCommunityIcons name={getIcon(iconKey)} size={getIconSize('lg')} color={theme.palette.text.primary} />
         <Text style={styles.numberInputText}>{label}</Text>
       </View>
       <Controller
@@ -27,14 +28,14 @@ export const AccessibilityOptions = ({ collapsed = true, disableCollapse = false
                 style={styles.counterButton}
                 onPress={() => onChange(Math.max(0, numValue - 1))}
               >
-                <Ionicons name="remove" size={20} color={theme.palette.text.primary} />
+                <MaterialCommunityIcons name="minus" size={20} color={theme.palette.text.primary} />
               </TouchableOpacity>
               <Text style={styles.counterValue}>{numValue}</Text>
               <TouchableOpacity
                 style={styles.counterButton}
                 onPress={() => onChange(numValue + 1)}
               >
-                <Ionicons name="add" size={20} color={theme.palette.text.primary} />
+                <MaterialCommunityIcons name="plus" size={20} color={theme.palette.text.primary} />
               </TouchableOpacity>
             </View>
           );
@@ -51,7 +52,7 @@ export const AccessibilityOptions = ({ collapsed = true, disableCollapse = false
           onPress={() => setIsExpanded(!isExpanded)}
         >
           <Text style={styles.headerText}>Accessibility Options</Text>
-          <Ionicons
+          <MaterialCommunityIcons
             name={isExpanded ? 'chevron-up' : 'chevron-down'}
             size={20}
             color={theme.palette.text.secondary}
@@ -61,8 +62,8 @@ export const AccessibilityOptions = ({ collapsed = true, disableCollapse = false
 
       {(isExpanded || disableCollapse) && (
         <View style={styles.content}>
-          <NumberInput name="highchair_number" label="Highchairs" icon="🪑" />
-          <NumberInput name="wheelchair_number" label="Wheelchairs" icon="♿" />
+          <NumberInput name="highchair_number" label="Highchairs" iconKey="highchair" />
+          <NumberInput name="wheelchair_number" label="Wheelchairs" iconKey="wheelchair" />
         </View>
       )}
     </View>
@@ -106,9 +107,6 @@ const createStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
-  },
-  numberInputIcon: {
-    fontSize: 20,
   },
   numberInputText: {
     fontSize: theme.typography.fontSize.md,

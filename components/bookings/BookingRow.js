@@ -1,8 +1,10 @@
 import React, { useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { BookingRowActions } from './BookingRowActions';
+import { getIcon, getIconSize } from '../../config/icons';
 
 export const BookingRow = ({ booking, onPress }) => {
   const theme = useTheme();
@@ -61,30 +63,48 @@ export const BookingRow = ({ booking, onPress }) => {
       </View>
       
       <View style={styles.bookingDetails}>
-        <Text style={styles.detailText}>🕐 {booking.arrival_time.substring(0, 5)}</Text>
-        <Text style={styles.detailText}>
-          👥 {booking.adults + booking.children} guests
-        </Text>
-        {booking.table_ids && booking.table_ids.length > 0 && (
+        <View style={styles.detailItem}>
+          <MaterialCommunityIcons name={getIcon('time')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
+          <Text style={styles.detailText}>{booking.arrival_time.substring(0, 5)}</Text>
+        </View>
+        <View style={styles.detailItem}>
+          <MaterialCommunityIcons name={getIcon('guests')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
           <Text style={styles.detailText}>
-            🪑 Table {booking.table_ids.join(', ')}
+            {booking.adults + booking.children} guests
           </Text>
+        </View>
+        {booking.table_ids && booking.table_ids.length > 0 && (
+          <View style={styles.detailItem}>
+            <MaterialCommunityIcons name={getIcon('table')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
+            <Text style={styles.detailText}>
+              Table {booking.table_ids.join(', ')}
+            </Text>
+          </View>
         )}
       </View>
       
       {(booking.email || booking.phone) && (
         <View style={styles.contactInfo}>
           {booking.email && (
-            <Text style={styles.contactText}>📧 {booking.email}</Text>
+            <View style={styles.contactItem}>
+              <MaterialCommunityIcons name={getIcon('email')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
+              <Text style={styles.contactText}>{booking.email}</Text>
+            </View>
           )}
           {booking.phone && (
-            <Text style={styles.contactText}>📞 {booking.phone}</Text>
+            <View style={styles.contactItem}>
+              <MaterialCommunityIcons name={getIcon('phone')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
+              <Text style={styles.contactText}>{booking.phone}</Text>
+            </View>
           )}
         </View>
       )}
       
       {booking.costumer_notes && (
-        <Text style={styles.notes}>💬 {booking.costumer_notes}</Text>
+        <View style={styles.notesContainer}>
+          <MaterialCommunityIcons name={getIcon('notes')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
+          <Text style={styles.notes}>{booking.costumer_notes}</Text>
+        </View>
       )}
       </TouchableOpacity>
     </Swipeable>
@@ -128,6 +148,11 @@ const createStyles = (theme) => StyleSheet.create({
     gap: theme.spacing.md,
     marginBottom: theme.spacing.sm,
   },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
   detailText: {
     fontSize: theme.typography.fontSize.sm,
     color: theme.palette.text.secondary,
@@ -136,17 +161,28 @@ const createStyles = (theme) => StyleSheet.create({
     marginTop: theme.spacing.xs,
     gap: theme.spacing.xs,
   },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
   contactText: {
     fontSize: theme.typography.fontSize.sm,
     color: theme.palette.text.secondary,
   },
-  notes: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.palette.text.secondary,
-    fontStyle: 'italic',
+  notesContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: theme.spacing.xs,
     marginTop: theme.spacing.sm,
     paddingTop: theme.spacing.sm,
     borderTopWidth: 1,
     borderTopColor: theme.palette.divider,
+  },
+  notes: {
+    flex: 1,
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.palette.text.secondary,
+    fontStyle: 'italic',
   },
 });

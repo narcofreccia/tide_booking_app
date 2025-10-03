@@ -5,11 +5,11 @@ const ENV = Constants.expoConfig?.extra?.environment || 'development';
 
 const envConfig = {
   development: {
-    apiUrl: Constants.expoConfig?.extra?.devServerUrl || 'http://localhost:8000',
+    apiUrl: Constants.expoConfig?.extra?.devServerUrl,
     environment: 'development',
   },
   production: {
-    apiUrl: Constants.expoConfig?.extra?.prodServerUrl || 'https://api.yourdomain.com',
+    apiUrl: Constants.expoConfig?.extra?.prodServerUrl,
     environment: 'production',
   },
 };

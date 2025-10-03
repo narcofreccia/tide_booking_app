@@ -26,5 +26,11 @@ export {
   getAvailableTimes
 } from './bookingApi';
 
+// Export Customer API functions
+//export { getCustomers } from './customerApi';
+
+// Export Calendar API functions
+export { getMonthlyBookings } from './calendarApi';
+
 // Default export
 export { default } from './apiClient';

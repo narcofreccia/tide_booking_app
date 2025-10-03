@@ -68,11 +68,11 @@ export default function App() {
     <ThemeProvider>
       <ContextProvider>
         <QueryClientProvider client={queryClient}>
+          <StatusBar style="light" translucent={false} backgroundColor="#1a1a1a" />
           <AppContent />
           <Notification />
           <ConfirmDialog />
           <Loading />
-          <StatusBar style="auto" />
         </QueryClientProvider>
       </ContextProvider>
     </ThemeProvider>

@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useForm, FormProvider } from 'react-hook-form';
@@ -181,7 +181,8 @@ export default function CreateBookingScreen({ route, onSuccess }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.outerContainer}>
+      <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -264,14 +265,18 @@ export default function CreateBookingScreen({ route, onSuccess }) {
           </View>
         </ScrollView>
       </FormProvider>
+      </SafeAreaView>
     </View>
   );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
     backgroundColor: theme.palette.background.default,
+  },
+  container: {
+    flex: 1,
   },
   header: {
     padding: theme.spacing.lg,

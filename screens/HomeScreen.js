@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
+import { getIcon, getIconSize } from '../config/icons';
 import BookingsScreen from './BookingsScreen';
 import CalendarScreen from './CalendarScreen';
 import CreateBookingScreen from './CreateBookingScreen';
@@ -35,7 +36,7 @@ export default function HomeScreen() {
     }
   };
 
-  const TabButton = ({ id, iconName, label, isCenter }) => {
+  const TabButton = ({ id, iconKey, label, isCenter }) => {
     const isActive = activeTab === id;
     
     if (isCenter) {
@@ -45,7 +46,7 @@ export default function HomeScreen() {
           onPress={() => setActiveTab(id)}
         >
           <View style={styles.centerTabIcon}>
-            <Ionicons name={iconName} size={28} color={theme.palette.primary.contrastText} />
+            <MaterialCommunityIcons name={getIcon(iconKey)} size={getIconSize('xl')} color={theme.palette.primary.contrastText} />
           </View>
         </TouchableOpacity>
       );
@@ -56,9 +57,9 @@ export default function HomeScreen() {
         style={styles.tabButton}
         onPress={() => setActiveTab(id)}
       >
-        <Ionicons 
-          name={iconName} 
-          size={24} 
+        <MaterialCommunityIcons 
+          name={getIcon(iconKey)} 
+          size={getIconSize('lg')} 
           color={isActive ? theme.palette.primary.main : theme.palette.text.secondary}
         />
         <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
@@ -69,19 +70,21 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        {renderContent()}
-      </View>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.content}>
+          {renderContent()}
+        </View>
 
-      <View style={styles.bottomNav}>
-        <TabButton id="bookings" iconName="list" label="Bookings" />
-        <TabButton id="calendar" iconName="calendar" label="Calendar" />
-        <TabButton id="create" iconName="add" isCenter />
-        <TabButton id="customers" iconName="people" label="Customers" />
-        <TabButton id="settings" iconName="settings" label="Settings" />
-      </View>
-    </SafeAreaView>
+        <View style={styles.bottomNav}>
+          <TabButton id="bookings" iconKey="bookings" label="Bookings" />
+          <TabButton id="calendar" iconKey="calendar" label="Calendar" />
+          <TabButton id="create" iconKey="add" isCenter />
+          <TabButton id="customers" iconKey="customers" label="Customers" />
+          <TabButton id="settings" iconKey="settings" label="Settings" />
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -89,6 +92,9 @@ const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.palette.background.default,
+  },
+  safeArea: {
+    flex: 1,
   },
   content: {
     flex: 1,

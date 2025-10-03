@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useLogout } from '../hooks/useAuth';
 import { SelectRestaurant } from '../components/SelectRestaurant';
 import { TideLogo } from '../components/TideLogo';
+import { getIcon, getIconSize } from '../config/icons';
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -47,10 +49,14 @@ export default function SettingsScreen() {
     });
   };
 
-  const SettingItem = ({ icon, title, subtitle, onPress, danger }) => (
+  const SettingItem = ({ iconKey, title, subtitle, onPress, danger }) => (
     <TouchableOpacity style={styles.settingItem} onPress={onPress}>
       <View style={styles.settingIcon}>
-        <Text style={styles.iconText}>{icon}</Text>
+        <MaterialCommunityIcons 
+          name={getIcon(iconKey)} 
+          size={getIconSize('lg')} 
+          color={danger ? theme.palette.error.main : theme.palette.text.secondary} 
+        />
       </View>
       <View style={styles.settingContent}>
         <Text style={[styles.settingTitle, danger && { color: theme.palette.error.main }]}>
@@ -63,7 +69,8 @@ export default function SettingsScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.outerContainer}>
+      <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -125,17 +132,17 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>General</Text>
           <SettingItem
-            icon="🏪"
+            iconKey="shop"
             title="Restaurant Details"
             subtitle="Manage restaurant information"
           />
           <SettingItem
-            icon="⏰"
+            iconKey="clock"
             title="Operating Hours"
             subtitle="Set opening and closing times"
           />
           <SettingItem
-            icon="🪑"
+            iconKey="table"
             title="Table Management"
             subtitle="Configure tables and seating"
           />
@@ -145,12 +152,12 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Notifications</Text>
           <SettingItem
-            icon="🔔"
+            iconKey="notification"
             title="Push Notifications"
             subtitle="Manage notification preferences"
           />
           <SettingItem
-            icon="📧"
+            iconKey="email"
             title="Email Notifications"
             subtitle="Configure email alerts"
           />
@@ -160,17 +167,17 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
           <SettingItem
-            icon="🔒"
+            iconKey="lock"
             title="Change Password"
             subtitle="Update your password"
           />
           <SettingItem
-            icon="👥"
+            iconKey="team"
             title="Team Members"
             subtitle="Manage staff access"
           />
           <SettingItem
-            icon="💳"
+            iconKey="billing"
             title="Billing"
             subtitle="Subscription and payment"
           />
@@ -180,41 +187,43 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>About</Text>
           <SettingItem
-            icon="ℹ️"
+            iconKey="help"
             title="Help & Support"
             subtitle="Get help with the app"
           />
           <SettingItem
-            icon="📄"
+            iconKey="document"
             title="Terms & Privacy"
             subtitle="Legal information"
           />
           <SettingItem
-            icon="📱"
+            iconKey="version"
             title="App Version"
             subtitle="1.0.0"
           />
         </View>
 
         {/* Logout */}
-        <TouchableOpacity
-          style={styles.logoutButton}
+        <SettingItem
+          iconKey="logout"
+          title="Logout"
+          subtitle="Logout from the app"
           onPress={handleLogout}
-          disabled={logoutMutation.isPending}
-        >
-          <Text style={styles.logoutButtonText}>
-            {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
-          </Text>
-        </TouchableOpacity>
+          danger
+        />
       </ScrollView>
+      </SafeAreaView>
     </View>
   );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
     backgroundColor: theme.palette.background.default,
+  },
+  container: {
+    flex: 1,
   },
   header: {
     padding: theme.spacing.lg,
@@ -345,9 +354,6 @@ const createStyles = (theme) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: theme.spacing.md,
-  },
-  iconText: {
-    fontSize: theme.typography.fontSize.lg,
   },
   settingContent: {
     flex: 1,

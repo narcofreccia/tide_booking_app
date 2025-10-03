@@ -1,18 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useFormContext, Controller } from 'react-hook-form';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
+import { getIcon, getIconSize } from '../../config/icons';
 
 export const Pax = () => {
   const { control } = useFormContext();
   const theme = useTheme();
   const styles = createStyles(theme);
 
-  const GuestCounter = ({ name, label, iconName, min = 0 }) => (
+  const GuestCounter = ({ name, label, iconKey, min = 0 }) => (
     <View style={styles.counterContainer}>
       <View style={styles.counterLabel}>
-        <Ionicons name={iconName} size={24} color={theme.palette.text.primary} />
+        <MaterialCommunityIcons name={getIcon(iconKey)} size={getIconSize('lg')} color={theme.palette.text.primary} />
         <Text style={styles.counterText}>{label}</Text>
       </View>
       <Controller
@@ -28,8 +29,8 @@ export const Pax = () => {
                   onPress={() => onChange(Math.max(min, numValue - 1))}
                   disabled={numValue <= min}
                 >
-                  <Ionicons 
-                    name="remove" 
+                  <MaterialCommunityIcons 
+                    name="minus" 
                     size={20} 
                     color={numValue <= min ? theme.palette.text.disabled : theme.palette.text.primary} 
                   />
@@ -39,7 +40,7 @@ export const Pax = () => {
                   style={styles.counterButton}
                   onPress={() => onChange(numValue + 1)}
                 >
-                  <Ionicons name="add" size={20} color={theme.palette.text.primary} />
+                  <MaterialCommunityIcons name="plus" size={20} color={theme.palette.text.primary} />
                 </TouchableOpacity>
               </View>
               {error && (
@@ -54,8 +55,8 @@ export const Pax = () => {
 
   return (
     <View style={styles.container}>
-      <GuestCounter name="adults" label="Adults" iconName="person" min={1} />
-      <GuestCounter name="children" label="Children" iconName="people" min={0} />
+      <GuestCounter name="adults" label="Adults" iconKey="user" min={1} />
+      <GuestCounter name="children" label="Children" iconKey="guests" min={0} />
     </View>
   );
 };

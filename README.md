@@ -68,17 +68,38 @@ npm start
 
 ✅ **Completed**
 - Modern dark theme with comprehensive design system
+- **Proper SafeAreaView implementation** for iOS notch/rounded corners on all screens
 - Global state management with React Context + useReducer
 - Authentication flow with login/logout
 - Form validation with React Hook Form + Yup
 - API integration with Axios and TanStack Query
 - Reusable UI components (Notification, ConfirmDialog, Loading, LoadingState, SelectRestaurant, DateSelector, Pagination, TideLogo)
-- Bottom tab navigation with professional Ionicons
+- Bottom tab navigation with professional MaterialCommunityIcons
 - Persistent auth storage with AsyncStorage
+- **Swipeable booking rows** with gesture-based actions (Edit, Delete, Update Status, Move)
+- **Role-based permissions** (Delete only for Admin/Owner)
+- **Booking management**: Create, Edit, Delete, Change Status
 - Real-time bookings list with date selector, search, and pagination
+- **Persistent booking date selection** across app sessions
 - Full booking creation form with validation and API integration
 - Available times fetched from backend calendar rules
 - Tide logo displayed in all screen headers
+- **Centralized icon configuration** (`config/icons.js`) for consistent UI
+- **Professional MaterialCommunityIcons** throughout the app (no emojis)
+- Icon mapping with semantic keys (e.g., `'user'`, `'table'`, `'email'`)
+- Standardized icon sizes via `getIconSize()` helper
+- **Status change modal** with visual status selection
+- **Edit booking modal** reusing CreateBookingScreen component
+- **Monthly calendar view** with real-time booking data from backend API
+- **Calendar components**: 
+  - MonthSelector with previous/next navigation
+  - Simplified DayCard showing only total bookings and guests
+  - DayDetailsModal with full interval breakdown
+- **Clean calendar grid** with consistent card heights and 7-day week layout
+- **Interactive day cards** - tap to view detailed time intervals and statistics
+- **Visual indicators**: Today's date highlighted, closed days grayed out
+- **Daily booking statistics** with booking counts and total guests per day
+- **Time interval details** in modal showing breakdown by service periods
 - **API Service** (`services/api.js`)
   - Axios client with request/response interceptors
   - Login endpoint with OAuth2PasswordRequestForm support
@@ -143,7 +164,8 @@ npm start
 ├── .gitignore             # Git ignore rules
 ├── assets/                # Static images, icons
 ├── config/
-│   └── env.js             # Environment configuration handler
+│   ├── env.js             # Environment configuration handler
+│   └── icons.js           # Centralized icon mapping (MaterialCommunityIcons)
 ├── components/
 │   ├── Notification.js    # Animated alert notifications
 │   ├── ConfirmDialog.js   # Confirmation dialog modal

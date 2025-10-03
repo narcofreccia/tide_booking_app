@@ -33,10 +33,10 @@ export default {
       "expo-secure-store"
     ],
     extra: {
-      // Use environment variable or default to development
+      // Use environment variables from eas.json or .env (local dev)
       environment: process.env.APP_ENV || 'development',
       devServerUrl: process.env.DEV_SERVER_URL || "http://localhost:8000",
-      prodServerUrl: process.env.PROD_SERVER_URL || "https://lofficinasirolo-85a0da8063ad.herokuapp.com/",
+      prodServerUrl: process.env.PROD_SERVER_URL || "https://westpiersrl-a6a9f5c00dd1.herokuapp.com/",
       eas: {
         projectId: "a47117ba-73d5-414c-a3c0-9689c5dac633"
       }

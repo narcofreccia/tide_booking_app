@@ -185,18 +185,18 @@ const createStyles = (theme) => StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingTop: theme.spacing.xl,
+    paddingTop: 80,
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.lg,
   },
   header: {
     alignItems: 'center',
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
   },
   logo: {
     width: 120,
     height: 48,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
   },
   subtitle: {
     fontSize: theme.typography.fontSize.md,

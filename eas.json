@@ -8,7 +8,9 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "APP_ENV": "development"
+        "APP_ENV": "development",
+        "DEV_SERVER_URL": "http://localhost:8000",
+        "PROD_SERVER_URL": "https://westpiersrl-a6a9f5c00dd1.herokuapp.com/"
       },
       "ios": {
         "simulator": true
@@ -17,7 +19,9 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "DEV_SERVER_URL": "http://localhost:8000",
+        "PROD_SERVER_URL": "https://westpiersrl-a6a9f5c00dd1.herokuapp.com/"
       },
       "ios": {
         "simulator": false
@@ -26,7 +30,9 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "DEV_SERVER_URL": "http://localhost:8000",
+        "PROD_SERVER_URL": "https://westpiersrl-a6a9f5c00dd1.herokuapp.com/"
       }
     }
   },

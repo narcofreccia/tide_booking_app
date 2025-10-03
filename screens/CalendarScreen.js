@@ -1,80 +1,171 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../theme';
+import { useStateContext } from '../context/ContextProvider';
+import { getMonthlyBookings } from '../services/api';
 import { TideLogo } from '../components/TideLogo';
+import { MonthSelector } from '../components/calendar/MonthSelector';
+import { DayCard } from '../components/calendar/DayCard';
+import { DayDetailsModal } from '../components/calendar/DayDetailsModal';
 
 export default function CalendarScreen() {
   const theme = useTheme();
   const styles = createStyles(theme);
+  const { selectedRestaurant, currentUser } = useStateContext();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // Mock calendar data
-  const daysInMonth = 31;
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id;
+  const selectedYear = selectedDate.getFullYear();
+  const selectedMonth = selectedDate.getMonth() + 1; // JavaScript months are 0-indexed
 
-  const mockEvents = {
-    5: 8,
-    6: 12,
-    7: 6,
-    8: 15,
-    9: 10,
+  // Fetch monthly bookings data
+  const { data, isLoading } = useQuery({
+    queryKey: ['monthly-bookings', restaurantId, selectedYear, selectedMonth],
+    queryFn: () => getMonthlyBookings(restaurantId, selectedYear, selectedMonth),
+    enabled: !!restaurantId,
+    staleTime: 60000, // 1 minute
+  });
+
+  const dailySummaries = data?.daily_summaries || [];
+
+  // Get booking summary for a specific day
+  const getDaySummary = (day) => {
+    return dailySummaries.find(summary => summary.day === day) || null;
+  };
+
+  // Get current month days with proper grid layout
+  const monthDays = useMemo(() => {
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const adjustedFirstDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1; // Convert to Monday-based
+
+    const days = [];
+
+    // Add empty cells for days before the 1st of the month
+    for (let i = 0; i < adjustedFirstDay; i++) {
+      days.push({ day: null, date: null });
+    }
+
+    // Add all days of the month
+    for (let i = 1; i <= daysInMonth; i++) {
+      const currentDate = new Date(year, month, i);
+      const today = new Date();
+      const isToday = 
+        currentDate.getDate() === today.getDate() &&
+        currentDate.getMonth() === today.getMonth() &&
+        currentDate.getFullYear() === today.getFullYear();
+
+      days.push({
+        day: i,
+        date: currentDate,
+        isToday,
+      });
+    }
+
+    return days;
+  }, [selectedDate]);
+
+  // Group days into weeks
+  const weeks = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < monthDays.length; i += 7) {
+      result.push(monthDays.slice(i, i + 7));
+    }
+    return result;
+  }, [monthDays]);
+
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  const handleDayPress = (dayObj) => {
+    setSelectedDay(dayObj);
+    setModalVisible(true);
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.outerContainer}>
+      <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.title}>Calendar</Text>
-            <Text style={styles.subtitle}>October 2025</Text>
+            <Text style={styles.subtitle}>
+              {selectedRestaurant?.name || 'Select a restaurant'}
+            </Text>
           </View>
           <TideLogo size={32} />
         </View>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.calendarGrid}>
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <View key={day} style={styles.dayHeader}>
-              <Text style={styles.dayHeaderText}>{day}</Text>
+      {/* Month Selector */}
+      <View style={styles.monthSelectorContainer}>
+        <MonthSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      </View>
+
+      {!restaurantId ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateText}>
+            Select a restaurant to view monthly bookings
+          </Text>
+        </View>
+      ) : isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.palette.primary.main} />
+          <Text style={styles.loadingText}>Loading calendar...</Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.content}>
+          {/* Day names header */}
+          <View style={styles.dayNamesRow}>
+            {dayNames.map((day) => (
+              <View key={day} style={styles.dayNameCell}>
+                <Text style={styles.dayNameText}>{day}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Calendar grid */}
+          {weeks.map((week, weekIndex) => (
+            <View key={weekIndex} style={styles.weekRow}>
+              {week.map((dayObj, dayIndex) => (
+                <View key={dayIndex} style={styles.dayCell}>
+                  <DayCard
+                    day={dayObj.day}
+                    isToday={dayObj.isToday}
+                    daySummary={getDaySummary(dayObj.day)}
+                    onPress={() => handleDayPress(dayObj)}
+                  />
+                </View>
+              ))}
             </View>
           ))}
-          
-          {days.map((day) => (
-            <TouchableOpacity
-              key={day}
-              style={[
-                styles.dayCell,
-                day === 1 && { marginLeft: '14.28%' }, // Start on Tuesday
-              ]}
-              onPress={() => setSelectedDate(new Date(2025, 9, day))}
-            >
-              <Text style={styles.dayNumber}>{day}</Text>
-              {mockEvents[day] && (
-                <View style={styles.eventIndicator}>
-                  <Text style={styles.eventCount}>{mockEvents[day]}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
+        </ScrollView>
+      )}
 
-        <View style={styles.legend}>
-          <Text style={styles.legendTitle}>Bookings Summary</Text>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: theme.palette.primary.main }]} />
-            <Text style={styles.legendText}>Total bookings this month: 51</Text>
-          </View>
-        </View>
-      </ScrollView>
+      {/* Day Details Modal */}
+      <DayDetailsModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        day={selectedDay?.day}
+        date={selectedDay?.date}
+        daySummary={getDaySummary(selectedDay?.day)}
+      />
+      </SafeAreaView>
     </View>
   );
 }
 
 const createStyles = (theme) => StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
     backgroundColor: theme.palette.background.default,
+  },
+  container: {
+    flex: 1,
   },
   header: {
     padding: theme.spacing.lg,
@@ -93,83 +184,64 @@ const createStyles = (theme) => StyleSheet.create({
     color: theme.palette.text.primary,
     marginBottom: theme.spacing.xs,
   },
-  subtitle: {
-    fontSize: theme.typography.fontSize.md,
-    color: theme.palette.text.secondary,
-  },
   content: {
     flex: 1,
-    padding: theme.spacing.md,
   },
-  calendarGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  monthSelectorContainer: {
+    padding: theme.spacing.lg,
     backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.sm,
-    ...theme.shadows.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.palette.divider,
   },
-  dayHeader: {
-    width: '14.28%',
-    padding: theme.spacing.sm,
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    padding: theme.spacing.xl,
   },
-  dayHeaderText: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+  emptyStateText: {
+    fontSize: theme.typography.fontSize.lg,
+    color: theme.palette.text.secondary,
+    textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  loadingText: {
+    fontSize: theme.typography.fontSize.md,
     color: theme.palette.text.secondary,
   },
-  dayCell: {
-    width: '14.28%',
-    aspectRatio: 1,
-    padding: theme.spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.borderRadius.sm,
-  },
-  dayNumber: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.palette.text.primary,
-    fontWeight: theme.typography.fontWeight.medium,
-  },
-  eventIndicator: {
-    position: 'absolute',
-    bottom: 2,
-    backgroundColor: theme.palette.primary.main,
-    borderRadius: theme.borderRadius.full,
-    paddingHorizontal: theme.spacing.xs,
-    paddingVertical: 2,
-  },
-  eventCount: {
-    fontSize: 8,
-    color: theme.palette.primary.contrastText,
-    fontWeight: theme.typography.fontWeight.bold,
-  },
-  legend: {
-    marginTop: theme.spacing.lg,
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    ...theme.shadows.md,
-  },
-  legendTitle: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.palette.text.primary,
-    marginBottom: theme.spacing.sm,
-  },
-  legendItem: {
+  dayNamesRow: {
     flexDirection: 'row',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.palette.background.paper,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.palette.divider,
+  },
+  dayNameCell: {
+    flex: 1,
     alignItems: 'center',
-    marginTop: theme.spacing.xs,
   },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: theme.borderRadius.full,
-    marginRight: theme.spacing.sm,
+  dayNameText: {
+    fontSize: theme.typography.fontSize.xs,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.palette.text.secondary,
+    textTransform: 'uppercase',
   },
-  legendText: {
+  weekRow: {
+    flexDirection: 'row',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+  },
+  dayCell: {
+    width: `${100 / 7}%`,
+    paddingHorizontal: 2,
+  },
+  subtitle: {
     fontSize: theme.typography.fontSize.sm,
     color: theme.palette.text.secondary,
   },
