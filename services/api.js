@@ -27,7 +27,7 @@ export {
 } from './bookingApi';
 
 // Export Customer API functions
-//export { getCustomers } from './customerApi';
+export { getBookingCustomers } from './customerApi';
 
 // Export Calendar API functions
 export { getMonthlyBookings } from './calendarApi';

@@ -1,31 +1,39 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
+import { getIcon, getIconSize } from '../config/icons';
 
 /**
  * Pagination Component
  * Reusable pagination controls for paginated data
- * @param {number} currentPage - Current page number (1-indexed)
+ * @param {number} currentPage - Current page number (0-indexed or 1-indexed based on zeroIndexed prop)
  * @param {number} totalPages - Total number of pages
  * @param {Function} onPageChange - Callback when page changes
  * @param {number} totalItems - Total number of items (optional, for display)
+ * @param {boolean} zeroIndexed - If true, currentPage is 0-indexed (default: false)
  */
-export const Pagination = ({ currentPage, totalPages, onPageChange, totalItems }) => {
+export const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, zeroIndexed = false }) => {
   const theme = useTheme();
   const styles = createStyles(theme);
+
+  // Convert to 1-indexed for display
+  const displayPage = zeroIndexed ? currentPage + 1 : currentPage;
 
   if (totalPages <= 1) {
     return null; // Don't show pagination if only one page
   }
 
   const handlePrevious = () => {
-    if (currentPage > 1) {
+    const minPage = zeroIndexed ? 0 : 1;
+    if (currentPage > minPage) {
       onPageChange(currentPage - 1);
     }
   };
 
   const handleNext = () => {
-    if (currentPage < totalPages) {
+    const maxPage = zeroIndexed ? totalPages - 1 : totalPages;
+    if (currentPage < maxPage) {
       onPageChange(currentPage + 1);
     }
   };
@@ -71,22 +79,29 @@ export const Pagination = ({ currentPage, totalPages, onPageChange, totalItems }
 
   const pageNumbers = getPageNumbers();
 
+  const minPage = zeroIndexed ? 0 : 1;
+  const maxPage = zeroIndexed ? totalPages - 1 : totalPages;
+  const isFirstPage = currentPage === minPage;
+  const isLastPage = currentPage === maxPage;
+
   return (
     <View style={styles.container}>
       <View style={styles.controls}>
         <TouchableOpacity
-          style={[styles.arrowButton, currentPage === 1 && styles.arrowButtonDisabled]}
+          style={[styles.arrowButton, isFirstPage && styles.arrowButtonDisabled]}
           onPress={handlePrevious}
-          disabled={currentPage === 1}
+          disabled={isFirstPage}
         >
-          <Text style={[styles.arrowText, currentPage === 1 && styles.arrowTextDisabled]}>
-            ‹
-          </Text>
+          <MaterialCommunityIcons
+            name={getIcon('chevronLeft')}
+            size={getIconSize('lg')}
+            color={isFirstPage ? theme.palette.text.disabled : theme.palette.text.primary}
+          />
         </TouchableOpacity>
 
         <View style={styles.centerInfo}>
           <Text style={styles.pageInfo}>
-            Page {currentPage} of {totalPages}
+            Page {displayPage} of {totalPages}
           </Text>
           {totalItems !== undefined && (
             <Text style={styles.itemsText}>
@@ -96,13 +111,15 @@ export const Pagination = ({ currentPage, totalPages, onPageChange, totalItems }
         </View>
 
         <TouchableOpacity
-          style={[styles.arrowButton, currentPage === totalPages && styles.arrowButtonDisabled]}
+          style={[styles.arrowButton, isLastPage && styles.arrowButtonDisabled]}
           onPress={handleNext}
-          disabled={currentPage === totalPages}
+          disabled={isLastPage}
         >
-          <Text style={[styles.arrowText, currentPage === totalPages && styles.arrowTextDisabled]}>
-            ›
-          </Text>
+          <MaterialCommunityIcons
+            name={getIcon('chevronRight')}
+            size={getIconSize('lg')}
+            color={isLastPage ? theme.palette.text.disabled : theme.palette.text.primary}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -120,24 +137,19 @@ const createStyles = (theme) => StyleSheet.create({
     justifyContent: 'space-between',
   },
   arrowButton: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     borderRadius: theme.borderRadius.md,
     backgroundColor: theme.palette.background.paper,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.palette.divider,
     ...theme.shadows.sm,
   },
   arrowButtonDisabled: {
-    opacity: 0.3,
-  },
-  arrowText: {
-    fontSize: 20,
-    color: theme.palette.text.primary,
-    fontWeight: theme.typography.fontWeight.bold,
-  },
-  arrowTextDisabled: {
-    color: theme.palette.text.disabled,
+    opacity: 0.4,
+    backgroundColor: theme.palette.background.elevated,
   },
   centerInfo: {
     alignItems: 'center',

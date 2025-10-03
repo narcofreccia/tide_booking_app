@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, SafeAreaView, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import { DateSelector } from '../components/DateSelector';
 import { Pagination } from '../components/Pagination';
 import { TideLogo } from '../components/TideLogo';
 import { BookingRow } from '../components/bookings/BookingRow';
+import { getIcon, getIconSize } from '../config/icons';
 
 export default function BookingsScreen() {
   const theme = useTheme();
@@ -75,17 +77,38 @@ export default function BookingsScreen() {
           }}
           format="day"
         />
+      </View>
 
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <MaterialCommunityIcons
+          name={getIcon('search')}
+          size={getIconSize('md')}
+          color={theme.palette.text.secondary}
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Search by name, email, phone..."
-          placeholderTextColor={theme.palette.text.hint}
+          placeholderTextColor={theme.palette.text.disabled}
           value={searchQuery}
           onChangeText={(text) => {
             setSearchQuery(text);
             setCurrentPage(1); // Reset to first page on search
           }}
         />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => {
+            setSearchQuery('');
+            setCurrentPage(1);
+          }}>
+            <MaterialCommunityIcons
+              name={getIcon('close')}
+              size={getIconSize('md')}
+              color={theme.palette.text.secondary}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       {!restaurantId ? (
@@ -171,16 +194,27 @@ const createStyles = (theme) => StyleSheet.create({
   },
   filtersContainer: {
     padding: theme.spacing.md,
-    gap: theme.spacing.md,
+    backgroundColor: theme.palette.background.paper,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.palette.divider,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: theme.spacing.md,
+    backgroundColor: theme.palette.background.paper,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.palette.divider,
+    gap: theme.spacing.sm,
+  },
+  searchIcon: {
+    marginLeft: theme.spacing.xs,
   },
   searchInput: {
-    backgroundColor: theme.palette.background.paper,
-    borderWidth: 1,
-    borderColor: theme.palette.border,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
+    flex: 1,
     fontSize: theme.typography.fontSize.md,
     color: theme.palette.text.primary,
+    paddingVertical: theme.spacing.sm,
   },
   emptyState: {
     flex: 1,

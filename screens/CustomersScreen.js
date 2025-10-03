@@ -1,68 +1,167 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
+import { useStateContext } from '../context/ContextProvider';
+import { getBookingCustomers } from '../services/api';
 import { TideLogo } from '../components/TideLogo';
+import { Pagination } from '../components/Pagination';
+import { OrderingList } from '../components/OrderingList';
+import { CustomerRow } from '../components/customers/CustomerRow';
+import { getIcon, getIconSize } from '../config/icons';
+
+const CUSTOMER_ORDER_OPTIONS = [
+  { value: 'total_bookings', label: 'Total Bookings' },
+  { value: 'last_booking_date', label: 'Last Booking' },
+  { value: 'no_show_count', label: 'No Shows' },
+  { value: 'cancelled_by_user_count', label: 'Cancellations' },
+];
 
 export default function CustomersScreen() {
   const theme = useTheme();
   const styles = createStyles(theme);
+  const { selectedRestaurant, currentUser } = useStateContext();
+  
   const [searchQuery, setSearchQuery] = useState('');
+  const [orderByColumn, setOrderByColumn] = useState('total_bookings');
+  const [orderByType, setOrderByType] = useState('desc');
+  const [currentPage, setCurrentPage] = useState(0);
+  const limit = 20;
 
-  // Mock customers data
-  const mockCustomers = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', phone: '+1 234 567 8900', totalBookings: 12 },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '+1 234 567 8901', totalBookings: 8 },
-    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', phone: '+1 234 567 8902', totalBookings: 15 },
-    { id: 4, name: 'Sarah Williams', email: 'sarah@example.com', phone: '+1 234 567 8903', totalBookings: 6 },
-    { id: 5, name: 'Tom Brown', email: 'tom@example.com', phone: '+1 234 567 8904', totalBookings: 20 },
-  ];
+  const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id;
 
-  const filteredCustomers = mockCustomers.filter((customer) =>
-    customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Fetch customers data
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['booking-customers', restaurantId, searchQuery, orderByColumn, orderByType, currentPage],
+    queryFn: () => getBookingCustomers({
+      restaurant_id: restaurantId,
+      search: searchQuery || undefined,
+      orderByColumn,
+      orderByType,
+      limit,
+      page: currentPage,
+    }),
+    enabled: !!restaurantId,
+    staleTime: 30000, // 30 seconds
+  });
 
+  const customers = data?.customers || [];
+  const totalCount = data?.customersCount || 0;
+  const totalPages = data?.pageCount || 1;
+
+  const handleOrderChange = (column, type) => {
+    setOrderByColumn(column);
+    setOrderByType(type);
+    setCurrentPage(0); // Reset to first page when ordering changes
+  };
+
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+    setCurrentPage(0); // Reset to first page when searching
+  };
+
+  const handleCustomerPress = (customer) => {
+    // TODO: Navigate to customer details or show modal
+    console.log('Customer pressed:', customer);
+  };
   return (
     <View style={styles.outerContainer}>
       <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.title}>Customers</Text>
-            <Text style={styles.subtitle}>Manage your customer database</Text>
+            <Text style={styles.subtitle}>
+              {selectedRestaurant?.name || 'Select a restaurant'}
+            </Text>
           </View>
           <TideLogo size={32} />
         </View>
       </View>
 
+      {/* Search Bar */}
       <View style={styles.searchContainer}>
+        <MaterialCommunityIcons
+          name={getIcon('search')}
+          size={getIconSize('md')}
+          color={theme.palette.text.secondary}
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search customers..."
-          placeholderTextColor={theme.palette.text.hint}
+          placeholder="Search by name, email, or phone..."
+          placeholderTextColor={theme.palette.text.disabled}
           value={searchQuery}
-          onChangeText={setSearchQuery}
+          onChangeText={handleSearch}
         />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => handleSearch('')}>
+            <MaterialCommunityIcons
+              name={getIcon('close')}
+              size={getIconSize('md')}
+              color={theme.palette.text.secondary}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
-      <ScrollView style={styles.content}>
-        {filteredCustomers.map((customer) => (
-          <TouchableOpacity key={customer.id} style={styles.customerCard}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{customer.name.charAt(0)}</Text>
+      {!restaurantId ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateText}>
+            Select a restaurant to view customers
+          </Text>
+        </View>
+      ) : isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.palette.primary.main} />
+          <Text style={styles.loadingText}>Loading customers...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.errorText}>Failed to load customers</Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.content}>
+          {/* Ordering */}
+          <OrderingList
+            options={CUSTOMER_ORDER_OPTIONS}
+            orderByColumn={orderByColumn}
+            orderByType={orderByType}
+            onOrderChange={handleOrderChange}
+          />
+
+          {/* Customer List */}
+          {customers.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>
+                {searchQuery ? 'No customers found' : 'No customers yet'}
+              </Text>
             </View>
-            <View style={styles.customerInfo}>
-              <Text style={styles.customerName}>{customer.name}</Text>
-              <Text style={styles.customerEmail}>{customer.email}</Text>
-              <Text style={styles.customerPhone}>{customer.phone}</Text>
-            </View>
-            <View style={styles.bookingBadge}>
-              <Text style={styles.bookingCount}>{customer.totalBookings}</Text>
-              <Text style={styles.bookingLabel}>bookings</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+          ) : (
+            <>
+              {customers.map((customer) => (
+                <CustomerRow
+                  key={customer.phone}
+                  customer={customer}
+                  onPress={() => handleCustomerPress(customer)}
+                />
+              ))}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalCount}
+                  onPageChange={setCurrentPage}
+                  zeroIndexed={true}
+                />
+              )}
+            </>
+          )}
+        </ScrollView>
+      )}
       </SafeAreaView>
     </View>
   );
@@ -98,74 +197,51 @@ const createStyles = (theme) => StyleSheet.create({
     color: theme.palette.text.secondary,
   },
   searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: theme.spacing.md,
     backgroundColor: theme.palette.background.paper,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.palette.divider,
+    gap: theme.spacing.sm,
+  },
+  searchIcon: {
+    marginLeft: theme.spacing.xs,
   },
   searchInput: {
-    backgroundColor: theme.palette.background.default,
-    borderWidth: 1,
-    borderColor: theme.palette.border,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
+    flex: 1,
     fontSize: theme.typography.fontSize.md,
     color: theme.palette.text.primary,
+    paddingVertical: theme.spacing.sm,
   },
   content: {
     flex: 1,
     padding: theme.spacing.md,
   },
-  customerCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    ...theme.shadows.md,
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: theme.borderRadius.full,
-    backgroundColor: theme.palette.primary.main,
+  emptyState: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: theme.spacing.md,
+    padding: theme.spacing.xl,
   },
-  avatarText: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.palette.primary.contrastText,
+  emptyStateText: {
+    fontSize: theme.typography.fontSize.lg,
+    color: theme.palette.text.secondary,
+    textAlign: 'center',
   },
-  customerInfo: {
+  loadingContainer: {
     flex: 1,
-  },
-  customerName: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.palette.text.primary,
-    marginBottom: theme.spacing.xs,
-  },
-  customerEmail: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.palette.text.secondary,
-    marginBottom: 2,
-  },
-  customerPhone: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.palette.text.secondary,
-  },
-  bookingBadge: {
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing.sm,
+    gap: theme.spacing.md,
   },
-  bookingCount: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.palette.primary.main,
-  },
-  bookingLabel: {
-    fontSize: theme.typography.fontSize.xs,
+  loadingText: {
+    fontSize: theme.typography.fontSize.md,
     color: theme.palette.text.secondary,
+  },
+  errorText: {
+    fontSize: theme.typography.fontSize.lg,
+    color: theme.palette.error.main,
+    textAlign: 'center',
   },
 });

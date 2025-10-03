@@ -73,7 +73,7 @@ npm start
 - Authentication flow with login/logout
 - Form validation with React Hook Form + Yup
 - API integration with Axios and TanStack Query
-- Reusable UI components (Notification, ConfirmDialog, Loading, LoadingState, SelectRestaurant, DateSelector, Pagination, TideLogo)
+- Reusable UI components (Notification, ConfirmDialog, Loading, LoadingState, SelectRestaurant, DateSelector, Pagination, OrderingList, TideLogo)
 - Bottom tab navigation with professional MaterialCommunityIcons
 - Persistent auth storage with AsyncStorage
 - **Swipeable booking rows** with gesture-based actions (Edit, Delete, Update Status, Move)
@@ -100,6 +100,14 @@ npm start
 - **Visual indicators**: Today's date highlighted, closed days grayed out
 - **Daily booking statistics** with booking counts and total guests per day
 - **Time interval details** in modal showing breakdown by service periods
+- **Customer management** with real-time data from backend API
+- **Customer components**:
+  - **OrderingList** - Reusable sorting component (moved to `/components`)
+  - CustomerRow showing detailed customer statistics
+- **Customer statistics**: Total bookings, no-shows, cancellations, last booking date
+- **Search functionality** for customers by name, email, or phone
+- **Sortable customer list** by bookings, no-shows, cancellations, or last booking
+- **Paginated customer list** with 20 customers per page
 - **API Service** (`services/api.js`)
   - Axios client with request/response interceptors
   - Login endpoint with OAuth2PasswordRequestForm support
