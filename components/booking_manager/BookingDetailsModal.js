@@ -4,6 +4,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '../../theme'
 import { getBookingStatusColor, getBookingStatusLabel } from '../../constants/bookingStatusColors'
 import { ChangeBookingStatus } from '../bookings/ChangeBookingStatus'
+import { EditBookingModal } from '../bookings/EditBookingModal'
+import { WalkInModal } from './WalkInModal'
 
 /**
  * BookingDetailsModal
@@ -14,9 +16,11 @@ import { ChangeBookingStatus } from '../bookings/ChangeBookingStatus'
  * - tableName: string
  * - onClose: () => void
  */
-export const BookingDetailsModal = ({ visible, bookings = [], tableName, onClose, onSwitchBooking }) => {
+export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId, onClose, onSwitchBooking, restaurantId, date }) => {
   const theme = useTheme()
   const [changeStatusModalVisible, setChangeStatusModalVisible] = useState(false)
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [walkInModalVisible, setWalkInModalVisible] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState(null)
 
   const formatTime = (timeStr) => {
@@ -75,11 +79,35 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, onClose
           {/* Content */}
           <ScrollView style={styles.content}>
             {bookings.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Text style={[styles.emptyText, { color: theme.palette.text.secondary }]}>
-                  Tavolo libero
-                </Text>
-              </View>
+              <>
+                <View style={styles.emptyState}>
+                  <Text style={[styles.emptyText, { color: theme.palette.text.secondary }]}>
+                    Tavolo libero
+                  </Text>
+                </View>
+                
+                {/* Walk-In button for empty table */}
+                <View style={styles.emptyActions}>
+                  <TouchableOpacity
+                    style={[styles.actionButton, { 
+                      backgroundColor: theme.palette.success?.main || '#4caf50',
+                      borderColor: theme.palette.success?.main || '#4caf50'
+                    }]}
+                    onPress={() => {
+                      setWalkInModalVisible(true)
+                    }}
+                  >
+                    <MaterialCommunityIcons 
+                      name="walk" 
+                      size={16} 
+                      color="#FFFFFF" 
+                    />
+                    <Text style={styles.actionButtonText}>
+                      Crea Walk-In
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
             ) : (
               bookings.map((booking, index) => (
                 <View 
@@ -187,47 +215,92 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, onClose
                     )}
                   </View>
 
-                  {/* Action Buttons */}
+                  {/* Action Buttons - 2x2 Grid */}
                   <View style={styles.actionsSection}>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.actionButtonHalf, { 
-                        backgroundColor: theme.palette.primary.main,
-                        borderColor: theme.palette.primary.main 
-                      }]}
-                      onPress={() => {
-                        onSwitchBooking?.(booking)
-                        onClose()
-                      }}
-                    >
-                      <MaterialCommunityIcons 
-                        name="swap-horizontal" 
-                        size={16} 
-                        color="#FFFFFF" 
-                      />
-                      <Text style={styles.actionButtonText}>
-                        Sposta
-                      </Text>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.actionButtonHalf, { 
-                        backgroundColor: theme.palette.secondary?.main || theme.palette.info.main,
-                        borderColor: theme.palette.secondary?.main || theme.palette.info.main
-                      }]}
-                      onPress={() => {
-                        setSelectedBooking(booking)
-                        setChangeStatusModalVisible(true)
-                      }}
-                    >
-                      <MaterialCommunityIcons 
-                        name="checkbox-marked-circle-outline" 
-                        size={16} 
-                        color="#FFFFFF" 
-                      />
-                      <Text style={styles.actionButtonText}>
-                        Stato
-                      </Text>
-                    </TouchableOpacity>
+                    {/* First Row */}
+                    <View style={styles.actionRow}>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.actionButtonHalf, { 
+                          backgroundColor: theme.palette.primary.main,
+                          borderColor: theme.palette.primary.main 
+                        }]}
+                        onPress={() => {
+                          onSwitchBooking?.(booking)
+                          onClose()
+                        }}
+                      >
+                        <MaterialCommunityIcons 
+                          name="swap-horizontal" 
+                          size={16} 
+                          color="#FFFFFF" 
+                        />
+                        <Text style={styles.actionButtonText}>
+                          Sposta
+                        </Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.actionButtonHalf, { 
+                          backgroundColor: theme.palette.secondary?.main || theme.palette.info.main,
+                          borderColor: theme.palette.secondary?.main || theme.palette.info.main
+                        }]}
+                        onPress={() => {
+                          setSelectedBooking(booking)
+                          setChangeStatusModalVisible(true)
+                        }}
+                      >
+                        <MaterialCommunityIcons 
+                          name="checkbox-marked-circle-outline" 
+                          size={16} 
+                          color="#FFFFFF" 
+                        />
+                        <Text style={styles.actionButtonText}>
+                          Stato
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* Second Row */}
+                    <View style={styles.actionRow}>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.actionButtonHalf, { 
+                          backgroundColor: theme.palette.warning?.main || '#ff9800',
+                          borderColor: theme.palette.warning?.main || '#ff9800'
+                        }]}
+                        onPress={() => {
+                          setSelectedBooking(booking)
+                          setEditModalVisible(true)
+                        }}
+                      >
+                        <MaterialCommunityIcons 
+                          name="pencil" 
+                          size={16} 
+                          color="#FFFFFF" 
+                        />
+                        <Text style={styles.actionButtonText}>
+                          Modifica
+                        </Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.actionButtonHalf, { 
+                          backgroundColor: theme.palette.success?.main || '#4caf50',
+                          borderColor: theme.palette.success?.main || '#4caf50'
+                        }]}
+                        onPress={() => {
+                          setWalkInModalVisible(true)
+                        }}
+                      >
+                        <MaterialCommunityIcons 
+                          name="walk" 
+                          size={16} 
+                          color="#FFFFFF" 
+                        />
+                        <Text style={styles.actionButtonText}>
+                          Walk-In
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
                   {/* Notes */}
@@ -272,6 +345,32 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, onClose
           }}
         />
       )}
+
+      {/* Edit Booking Modal */}
+      {selectedBooking && (
+        <EditBookingModal
+          booking={selectedBooking}
+          visible={editModalVisible}
+          onClose={() => {
+            setEditModalVisible(false)
+            setSelectedBooking(null)
+            onClose()
+          }}
+        />
+      )}
+
+      {/* Walk-In Modal */}
+      <WalkInModal
+        visible={walkInModalVisible}
+        onClose={() => {
+          setWalkInModalVisible(false)
+          onClose()
+        }}
+        tableId={tableId}
+        tableName={tableName}
+        restaurantId={restaurantId}
+        date={date}
+      />
     </Modal>
   )
 }
@@ -321,6 +420,10 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
+  },
+  emptyActions: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   bookingCard: {
     borderRadius: 12,
@@ -377,6 +480,9 @@ const styles = StyleSheet.create({
   actionsSection: {
     marginTop: 12,
     paddingTop: 12,
+    gap: 8,
+  },
+  actionRow: {
     flexDirection: 'row',
     gap: 8,
   },

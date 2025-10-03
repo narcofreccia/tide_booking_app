@@ -34,7 +34,10 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
           message: 'Booking deleted successfully',
         },
       });
+      // Invalidate all booking-related queries to refresh the map
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings-by-date'] });
+      queryClient.invalidateQueries({ queryKey: ['tables-by-restaurant'] });
       onActionComplete?.();
     },
     onError: (error) => {

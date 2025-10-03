@@ -15,7 +15,8 @@ import { getBookingStatusColor } from '../../constants/bookingStatusColors'
  */
 export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, onTablePress, selectedTableId }) => {
   const theme = useTheme()
-  const [containerWidth, setContainerWidth] = React.useState(Dimensions.get('window').width - 48)
+  const screenWidth = Dimensions.get('window').width
+  const screenHeight = Dimensions.get('window').height
 
   const width = Number(floor?.width) || 800
   const height = Number(floor?.height) || 600
@@ -23,10 +24,8 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
   const snap = Number(floor?.style?.tileSize ?? floor?.style?.gridSize ?? 10) || 10
   const tableFillColor = '#90caf9'
 
-  // Calculate scale to fit container
-  const scale = Math.min(1, containerWidth / width)
-  const scaledWidth = width * scale
-  const scaledHeight = height * scale
+  // Use full canvas size - no scaling
+  // Users can pan around to see different areas
 
   // Contrast helper for text color
   const getContrastColor = (hexcolor) => {
@@ -211,37 +210,44 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
 
   return (
     <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false}
+      horizontal
+      showsHorizontalScrollIndicator={true}
+      showsVerticalScrollIndicator={true}
+      style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
+      nestedScrollEnabled={true}
     >
-      <View 
-        style={[styles.container, { backgroundColor: bgColor }]}
-        onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+      <ScrollView
+        showsVerticalScrollIndicator={true}
+        showsHorizontalScrollIndicator={false}
+        nestedScrollEnabled={true}
       >
-        <Svg width={scaledWidth} height={scaledHeight} viewBox={`0 0 ${width} ${height}`}>
-          {/* Background */}
-          <Rect x={0} y={0} width={width} height={height} fill={bgColor} />
-          
-          {/* Grid */}
-          {renderGrid()}
-          
-          {/* Tables */}
-          {tables.map(renderTable)}
-        </Svg>
-      </View>
+        <View style={[styles.container, { backgroundColor: bgColor }]}>
+          <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+            {/* Background */}
+            <Rect x={0} y={0} width={width} height={height} fill={bgColor} />
+            
+            {/* Grid */}
+            {renderGrid()}
+            
+            {/* Tables */}
+            {tables.map(renderTable)}
+          </Svg>
+        </View>
+      </ScrollView>
     </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
     flexGrow: 1,
   },
   container: {
     padding: 12,
-    borderRadius: 8,
-    minWidth: '100%',
   },
   emptyText: {
     textAlign: 'center',

@@ -1,7 +1,7 @@
-# Table Switching & Status Management Implementation
+# Booking Management Features Implementation
 
 ## Overview
-Implemented comprehensive booking management features for the React Native mobile app, including table switching and quick status changes directly from the map view.
+Implemented comprehensive booking management features for the React Native mobile app, including table switching, status changes, walk-in creation, and booking editing directly from the map view.
 
 ## User Flows
 
@@ -18,6 +18,18 @@ Implemented comprehensive booking management features for the React Native mobil
 3. **User selects new status** → Status updates via API
 4. **Both modals close** → Map refreshes with new status color
 
+### Walk-In Creation Flow
+1. **User taps on a table (empty or occupied)** → `BookingDetailsModal` opens
+2. **User taps "Walk-In" button** → `WalkInModal` opens
+3. **User enters PAX and optional notes** → Taps "Crea Walk-In"
+4. **Walk-in created** → Both modals close, map and bookings list refresh
+
+### Edit Booking Flow
+1. **User taps on a table with booking** → `BookingDetailsModal` opens
+2. **User taps "Modifica" button** → `EditBookingModal` opens (full screen)
+3. **User edits booking details** → Saves changes
+4. **Both modals close** → Map and bookings list refresh
+
 ## Components Modified/Created
 
 ### 1. **SwitchBookingPositionDrawer.js** (NEW)
@@ -33,11 +45,12 @@ Implemented comprehensive booking management features for the React Native mobil
   - `onCancel`: callback when cancelled
 
 ### 2. **BookingDetailsModal.js** (MODIFIED)
-- Added two action buttons displayed side by side:
-  - **"Sposta"** - Triggers table switching mode
-  - **"Stato"** - Opens status change modal
-- Integrates `ChangeBookingStatus` component
-- Auto-closes after status change
+- Added four action buttons in 2x2 grid layout:
+  - **Row 1**: "Sposta" (blue) | "Stato" (info)
+  - **Row 2**: "Modifica" (orange) | "Walk-In" (green)
+- Integrates `ChangeBookingStatus`, `EditBookingModal`, and `WalkInModal`
+- Shows "Crea Walk-In" button for empty tables
+- Auto-closes after any action
 - Compact button layout with proper spacing
 
 ### 3. **TablesMapReadOnly.js** (MODIFIED)
@@ -71,15 +84,24 @@ Implemented comprehensive booking management features for the React Native mobil
 - Invalidates: `bookings`, `bookings-by-date`, `tables-by-restaurant`
 - Ensures map updates immediately after status change
 
-### 8. **BookingRowActions.js** (MODIFIED)
+### 8. **WalkInModal.js** (NEW)
+- Simple modal for creating walk-in reservations
+- Input fields: PAX (required) and Restaurant Notes (optional)
+- Shows table info at the top
+- Calls `createWalkInBooking` API
+- Invalidates all booking queries on success
+
+### 9. **BookingRowActions.js** (MODIFIED)
 - Restyled for modern, compact appearance
 - Reduced button size from 48x48 to 36x36 pixels
 - Refined shadows and spacing
+- Enhanced query invalidation on delete
 - Better visual consistency with app design
 - Removed unused "Move" button
 
-## API Endpoint
+## API Endpoints
 
+### Table Switching
 ```javascript
 POST /booking/switch_table_position
 Body: {
@@ -87,6 +109,19 @@ Body: {
   "target_table_id": number
 }
 Returns: [updated_source_booking] or [updated_source, updated_target] if swapped
+```
+
+### Walk-In Creation
+```javascript
+POST /booking/restaurant/{restaurant_id}/walk-in
+Body: {
+  "restaurant_id": number,
+  "table_ids": [number] | null,
+  "adults": number,
+  "restaurant_notes": string | null,
+  "reservation_date": "YYYY-MM-DD"
+}
+Returns: created_booking_object
 ```
 
 ## Visual Indicators
@@ -100,9 +135,11 @@ Returns: [updated_source_booking] or [updated_source, updated_target] if swapped
 ✅ **Ultra-compact drawer** - Minimal height to avoid blocking tables
 ✅ **Visual feedback** - Selected table highlighted in orange
 ✅ **Smart swapping** - If target has booking, tables are swapped automatically
-✅ **Auto-refresh** - Query invalidation refreshes bookings and tables after move
-✅ **Clear status** - Shows source → target in single compact line
-✅ **Easy cancellation** - Close button or cancel button
+✅ **Auto-refresh** - Query invalidation refreshes bookings and tables after all actions
+✅ **4-in-1 Actions** - Table switching, status change, edit, and walk-in creation
+✅ **Empty table support** - Walk-in button available for empty tables
+✅ **Comprehensive invalidation** - All actions refresh both map and bookings list
+✅ **Easy cancellation** - Close button or cancel button on all modals
 
 ## Drawer Design
 
@@ -115,21 +152,27 @@ The drawer is intentionally **very compact** to maximize map visibility:
 
 ## Files Changed
 
-1. `/services/bookingApi.js` - Added `switchTablePosition` API function
+1. `/services/bookingApi.js` - Added `switchTablePosition` and `createWalkInBooking` API functions
 2. `/components/booking_manager/SwitchBookingPositionDrawer.js` - NEW compact drawer
-3. `/components/booking_manager/BookingDetailsModal.js` - Added action buttons & status integration
-4. `/components/booking_manager/TablesMapReadOnly.js` - Added table highlighting
-5. `/components/booking_manager/BookingsCanvas.js` - Added switching mode support
-6. `/screens/BookingsMapScreen.js` - Integrated complete workflow
-7. `/components/bookings/ChangeBookingStatus.js` - Enhanced query invalidation
-8. `/components/bookings/BookingRowActions.js` - Restyled for modern appearance
+3. `/components/booking_manager/WalkInModal.js` - NEW walk-in creation modal
+4. `/components/booking_manager/BookingDetailsModal.js` - Added 4 action buttons & modal integrations
+5. `/components/booking_manager/TablesMapReadOnly.js` - Added table highlighting & full-size panning
+6. `/components/booking_manager/BookingsCanvas.js` - Added switching mode support & props passing
+7. `/screens/BookingsMapScreen.js` - Integrated complete workflow
+8. `/components/bookings/ChangeBookingStatus.js` - Enhanced query invalidation
+9. `/components/bookings/BookingRowActions.js` - Restyled & enhanced query invalidation
+10. `/components/bookings/EditBookingModal.js` - Integrated into map workflow
 
 ## Summary
 
 This implementation provides a complete, polished booking management experience:
 - ✅ Quick table switching with visual feedback
 - ✅ Fast status changes from map view
-- ✅ Automatic data refresh and map updates
+- ✅ Walk-in creation from any table (empty or occupied)
+- ✅ Full booking editing capabilities
+- ✅ Automatic data refresh across all views (map + list)
 - ✅ Clean, modern UI that blends with app design
 - ✅ Minimal, non-intrusive drawer design
 - ✅ Smart query invalidation for instant updates
+- ✅ Full-size pannable map for better readability
+- ✅ 2x2 action button grid for quick access to all features

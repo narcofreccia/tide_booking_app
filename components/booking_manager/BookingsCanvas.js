@@ -29,6 +29,7 @@ export const BookingsCanvas = ({
 }) => {
   const theme = useTheme()
   const [selectedTable, setSelectedTable] = React.useState(null)
+  const [selectedTableIdLocal, setSelectedTableIdLocal] = React.useState(null)
   const [selectedBookings, setSelectedBookings] = React.useState([])
   const [modalVisible, setModalVisible] = React.useState(false)
 
@@ -92,6 +93,7 @@ export const BookingsCanvas = ({
     // Otherwise, show the booking details modal
     const table = tables.find(t => t.id === tableId)
     setSelectedTable(table)
+    setSelectedTableIdLocal(tableId)
     setSelectedBookings(bookings)
     setModalVisible(true)
   }
@@ -137,8 +139,11 @@ export const BookingsCanvas = ({
         visible={modalVisible}
         bookings={selectedBookings}
         tableName={selectedTable?.number || selectedTable?.name || selectedTable?.id}
+        tableId={selectedTableIdLocal}
         onClose={handleCloseModal}
         onSwitchBooking={onSwitchBooking}
+        restaurantId={restaurantId}
+        date={date}
       />
     </View>
   )
