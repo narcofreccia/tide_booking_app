@@ -137,3 +137,24 @@ export const getAvailableTimes = async (restaurantId, date, serviceType = 'booki
   });
   return response.data;
 };
+
+/**
+ * Get all bookings for a restaurant on a given date
+ * @param {number} restaurant_id - Restaurant ID
+ * @param {Object} params - Query parameters
+ * @param {string} params.reservation_date - Date in YYYY-MM-DD format (required)
+ * @param {string} params.start_time - Start time in HH:mm or HH:mm:ss format (optional)
+ * @param {string} params.end_time - End time in HH:mm or HH:mm:ss format (optional)
+ * @returns {Promise} Array of bookings
+ */
+export const getBookingsByDate = async (restaurant_id, { reservation_date, start_time = undefined, end_time = undefined } = {}) => {
+  if (!restaurant_id) throw new Error('restaurant_id is required')
+  if (!reservation_date) throw new Error('reservation_date (YYYY-MM-DD) is required')
+  
+  const params = { reservation_date }
+  if (start_time) params.start_time = start_time
+  if (end_time) params.end_time = end_time
+  
+  const response = await ApiClient.get(`/booking/restaurant/${restaurant_id}/bookings/by-date`, { params })
+  return response.data
+};

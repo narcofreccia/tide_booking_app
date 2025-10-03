@@ -25,6 +25,52 @@ git clone https://github.com/your-org/multi-restaurant-booking-app.git
 cd tide_booking_app
 ```
 
+## 🗺️ Bookings Map Screen
+
+The app includes a new read-only map view of tables with live booking overlays.
+
+- **Location**: Bottom nav → Map tab (MaterialCommunityIcons `map-outline`)
+- **File**: `screens/BookingsMapScreen.js`
+- **Core components**:
+  - `components/booking_manager/BookingsCanvas.js`
+  - `components/booking_manager/TablesMapReadOnly.js` (SVG-based)
+  - `components/booking_manager/SectionIntervalBar.js` (compact Section/Interval pickers)
+  - `components/booking_manager/BookingDetailsModal.js`
+
+### How it works
+- Fetches floor, tables, and bookings via React Query.
+- Renders a performant SVG canvas scaled to screen width.
+- Click/tap on a table to open a bottom-sheet with booking details.
+- Color-coded booking status overlays (see `constants/bookingStatusColors.js`).
+- Supports multiple bookings per table with a diagonal split overlay.
+- Section and Interval pickers are compact chips matching the app's theme.
+
+### Navigation changes
+- Bottom tabs: `Bookings | Map | Create | Calendar | Settings`.
+- Calendar moved to the fourth tab.
+- Customers moved into Settings under "Restaurant Details" as a dedicated entry.
+
+### Implementation notes
+- Uses `react-native-svg` (no native rebuild required; works in Expo Go).
+- We evaluated `@shopify/react-native-skia` for even higher performance but it currently requires React 18. This project uses React 19, so Skia is not installed to avoid dependency conflicts.
+
+### Theming & typography
+- Map labels use the platform `System` font with increased sizes for legibility.
+  - Table number/pax: 12px, semibold
+  - Time: 11px, medium
+  - Customer name: 10px, regular
+- Pickers are compact chips, primary-colored when active.
+
+## 🔧 Icon Mapping
+
+All icons are centrally declared in `config/icons.js`. The Map tab uses:
+
+```js
+map: 'map-outline'
+```
+
+Use `getIcon(key)` and `getIconSize(sizeKey)` helpers to keep icons consistent across the app.
+
 2. **Install dependencies**
 ```bash
 npm install
@@ -111,6 +157,7 @@ npm start
 - Standardized icon sizes via `getIconSize()` helper
 - **Status change modal** with visual status selection
 - **Edit booking modal** reusing CreateBookingScreen component
+- **Map view of tables (Bookings Map)** with real-time booking overlays
 - **Monthly calendar view** with real-time booking data from backend API
 - **Calendar components**: 
   - MonthSelector with previous/next navigation
@@ -176,6 +223,7 @@ npm start
   - **LoginScreen**: Email/password validation with Yup, themed UI
   - **HomeScreen**: Main app screen with bottom navigation
   - **BookingsScreen**: Real-time bookings with date selector, search, pagination, and status indicators
+  - **BookingsMapScreen**: Read-only floor map with tables and booking overlays
   - **CalendarScreen**: Calendar view with booking indicators
   - **CreateBookingScreen**: Full booking form with validation, date/time selection, guest management, accessibility options
   - **CustomersScreen**: Customer database with search

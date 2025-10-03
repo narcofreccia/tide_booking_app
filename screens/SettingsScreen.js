@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
@@ -7,12 +7,14 @@ import { useLogout } from '../hooks/useAuth';
 import { SelectRestaurant } from '../components/SelectRestaurant';
 import { TideLogo } from '../components/TideLogo';
 import { getIcon, getIconSize } from '../config/icons';
+import CustomersScreen from './CustomersScreen';
 
 export default function SettingsScreen() {
   const theme = useTheme();
   const { currentUser } = useStateContext();
   const dispatch = useDispatchContext();
   const logoutMutation = useLogout();
+  const [showCustomers, setShowCustomers] = useState(false);
   const styles = createStyles(theme);
 
   const handleLogout = () => {
@@ -67,6 +69,11 @@ export default function SettingsScreen() {
       <Text style={styles.chevron}>›</Text>
     </TouchableOpacity>
   );
+
+  // If showing customers, render CustomersScreen instead
+  if (showCustomers) {
+    return <CustomersScreen onBack={() => setShowCustomers(false)} />;
+  }
 
   return (
     <View style={styles.outerContainer}>
@@ -135,6 +142,12 @@ export default function SettingsScreen() {
             iconKey="shop"
             title="Restaurant Details"
             subtitle="Manage restaurant information"
+          />
+          <SettingItem
+            iconKey="customers"
+            title="Customers"
+            subtitle="View and manage customer database"
+            onPress={() => setShowCustomers(true)}
           />
           <SettingItem
             iconKey="clock"

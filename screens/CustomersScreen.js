@@ -18,7 +18,7 @@ const CUSTOMER_ORDER_OPTIONS = [
   { value: 'cancelled_by_user_count', label: 'Cancellations' },
 ];
 
-export default function CustomersScreen() {
+export default function CustomersScreen({ onBack }) {
   const theme = useTheme();
   const styles = createStyles(theme);
   const { selectedRestaurant, currentUser } = useStateContext();
@@ -70,6 +70,11 @@ export default function CustomersScreen() {
       <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
+          {onBack && (
+            <TouchableOpacity onPress={onBack} style={styles.backButton}>
+              <MaterialCommunityIcons name="arrow-left" size={24} color={theme.palette.text.primary} />
+            </TouchableOpacity>
+          )}
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>Customers</Text>
             <Text style={styles.subtitle}>
@@ -196,6 +201,10 @@ const createStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  backButton: {
+    padding: theme.spacing.xs,
   },
   title: {
     fontSize: theme.typography.fontSize.xxl,

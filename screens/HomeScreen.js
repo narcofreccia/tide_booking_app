@@ -4,9 +4,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { getIcon, getIconSize } from '../config/icons';
 import BookingsScreen from './BookingsScreen';
-import CalendarScreen from './CalendarScreen';
+import BookingsMapScreen from './BookingsMapScreen';
 import CreateBookingScreen from './CreateBookingScreen';
-import CustomersScreen from './CustomersScreen';
+import CalendarScreen from './CalendarScreen';
 import SettingsScreen from './SettingsScreen';
 
 export default function HomeScreen() {
@@ -23,12 +23,12 @@ export default function HomeScreen() {
     switch (activeTab) {
       case 'bookings':
         return <BookingsScreen />;
-      case 'calendar':
-        return <CalendarScreen />;
+      case 'map':
+        return <BookingsMapScreen />;
       case 'create':
         return <CreateBookingScreen onSuccess={handleCreateBookingSuccess} />;
-      case 'customers':
-        return <CustomersScreen />;
+      case 'calendar':
+        return <CalendarScreen />;
       case 'settings':
         return <SettingsScreen />;
       default:
@@ -78,9 +78,9 @@ export default function HomeScreen() {
 
         <View style={styles.bottomNav}>
           <TabButton id="bookings" iconKey="bookings" label="Bookings" />
-          <TabButton id="calendar" iconKey="calendar" label="Calendar" />
+          <TabButton id="map" iconKey="table" label="Map" />
           <TabButton id="create" iconKey="add" isCenter />
-          <TabButton id="customers" iconKey="customers" label="Customers" />
+          <TabButton id="calendar" iconKey="calendar" label="Calendar" />
           <TabButton id="settings" iconKey="settings" label="Settings" />
         </View>
       </SafeAreaView>

@@ -29,6 +29,7 @@ export const ICONS = {
   settings: 'cog-outline',
   home: 'home-outline',
   back: 'arrow-left',
+  map: 'map-outline',
   
   // Status indicators
   confirmed: 'check-circle',

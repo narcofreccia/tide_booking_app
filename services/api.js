@@ -23,7 +23,8 @@ export {
   changeBookingStatus,
   getTables, 
   getAvailability,
-  getAvailableTimes
+  getAvailableTimes,
+  getBookingsByDate
 } from './bookingApi';
 
 // Export Customer API functions
@@ -31,6 +32,14 @@ export { getBookingCustomers } from './customerApi';
 
 // Export Calendar API functions
 export { getMonthlyBookings } from './calendarApi';
+
+// Export Floor API functions
+export { 
+  getFloorById,
+  getElementsByFloor,
+  getAllTablesByRestaurantId,
+  getSectionsByRestaurantRule
+} from './floorApi';
 
 // Default export
 export { default } from './apiClient';
