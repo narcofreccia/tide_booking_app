@@ -32,24 +32,44 @@ npm install
 
 3. **Configure Environment Variables**
 
-The app uses `app.json` for environment configuration. Update the `extra` section in `app.json`:
+The app uses `app.config.js` for environment configuration. Update the `extra` section:
 
-```json
+```js
 "extra": {
   "environment": "development",
   "devServerUrl": "http://localhost:8000",
+  "devServerUrlExpoGo": "http://192.168.10.102:8000", // For Expo Go on physical devices
   "prodServerUrl": "https://api.yourdomain.com"
 }
 ```
+
+**Important for Expo Go (Physical Devices):**
+- `devServerUrl` is used for simulators/emulators (localhost)
+- `devServerUrlExpoGo` is used when running in Expo Go on a physical device
+- Set `devServerUrlExpoGo` to your computer's LAN IP address (e.g., `http://192.168.x.x:8000`)
+- Ensure your backend is listening on `0.0.0.0:8000` (not just `127.0.0.1`)
+- Both your phone and computer must be on the same WiFi network
 
 For production builds, change `"environment"` to `"production"`.
 
 Alternatively, you can create a `.env` file (copy from `.env.example`):
 ```env
+APP_ENV=development
 DEV_SERVER_URL=http://localhost:8000
+DEV_SERVER_EXPO_URL=http://192.168.x.x:8000
 PROD_SERVER_URL=https://api.yourdomain.com
-NODE_ENV=development
 PUBLIC_KEY=your_public_key_here
+```
+
+**Finding your LAN IP:**
+```bash
+# macOS/Linux
+ipconfig getifaddr en0
+# or
+ifconfig | grep "inet " | grep -v 127.0.0.1
+
+# Windows
+ipconfig
 ```
 
 ## Running the App
@@ -180,7 +200,7 @@ npm start
 ├── .gitignore             # Git ignore rules
 ├── assets/                # Static images, icons
 ├── config/
-│   ├── env.js             # Environment configuration handler
+│   ├── env.js             # Environment configuration handler with Expo Go detection
 │   └── icons.js           # Centralized icon mapping (MaterialCommunityIcons)
 ├── components/
 │   ├── Notification.js    # Animated alert notifications
@@ -443,6 +463,27 @@ Icons are provided by `@expo/vector-icons` (Ionicons) for a professional, native
 - **Where**: `BookingsScreen`, `CalendarScreen`, `CustomersScreen`.
 - **How it works**: Uses React Native `RefreshControl` attached to each screen's `ScrollView` and wired to TanStack Query's `refetch()`.
 - **Behavior**: Pulling down triggers a fresh fetch from the backend and shows a native spinner. Query caches are respected; manual refresh always fetches new data.
+
+## 🌐 Environment Configuration
+
+The app automatically detects the runtime environment and uses the appropriate API URL:
+
+**`config/env.js`** intelligently selects the API URL based on:
+- **Expo Go** (`Constants.appOwnership === 'expo'`): Uses `devServerUrlExpoGo` for physical device testing over LAN
+- **Simulator/Emulator**: Uses `devServerUrl` (localhost)
+- **Production builds**: Uses `prodServerUrl`
+
+**Configuration in `app.config.js`:**
+```js
+extra: {
+  environment: process.env.APP_ENV || 'development',
+  devServerUrl: process.env.DEV_SERVER_URL || "http://localhost:8000",
+  devServerUrlExpoGo: process.env.DEV_SERVER_EXPO_URL || 'http://192.168.x.x:8000',
+  prodServerUrl: process.env.PROD_SERVER_URL || "https://your-api.com"
+}
+```
+
+**Debug logging**: The app logs the active configuration on startup to help verify which URL is being used.
 
 ## 🎨 Theme System
 
