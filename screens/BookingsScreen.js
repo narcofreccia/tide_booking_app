@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, SafeAreaView, TouchableOpacity, RefreshControl } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
@@ -29,7 +29,7 @@ export default function BookingsScreen() {
   };
   const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id;
   // Fetch bookings
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ['bookings', restaurantId , formatDate(selectedDate), searchQuery, currentPage],
     queryFn: () => listBookings({
       restaurant_id: restaurantId,
@@ -134,7 +134,18 @@ export default function BookingsScreen() {
         </View>
       ) : (
         <>
-          <ScrollView style={styles.content}>
+          <ScrollView 
+            style={styles.content}
+            contentContainerStyle={styles.scrollContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor={theme.palette.primary.main}
+                colors={[theme.palette.primary.main]}
+              />
+            }
+          >
             {bookings.map((booking) => (
               <BookingRow 
                 key={booking.id} 
@@ -249,6 +260,10 @@ const createStyles = (theme) => StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xs
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingVertical: theme.spacing.sm,
   },
 });

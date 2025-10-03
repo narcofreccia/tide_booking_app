@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView, RefreshControl } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../theme';
 import { useStateContext } from '../context/ContextProvider';
@@ -22,7 +22,7 @@ export default function CalendarScreen() {
   const selectedMonth = selectedDate.getMonth() + 1; // JavaScript months are 0-indexed
 
   // Fetch monthly bookings data
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['monthly-bookings', restaurantId, selectedYear, selectedMonth],
     queryFn: () => getMonthlyBookings(restaurantId, selectedYear, selectedMonth),
     enabled: !!restaurantId,
@@ -118,7 +118,18 @@ export default function CalendarScreen() {
           <Text style={styles.loadingText}>Loading calendar...</Text>
         </View>
       ) : (
-        <ScrollView style={styles.content}>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              tintColor={theme.palette.primary.main}
+              colors={[theme.palette.primary.main]}
+            />
+          }
+        >
           {/* Day names header */}
           <View style={styles.dayNamesRow}>
             {dayNames.map((day) => (
@@ -186,6 +197,7 @@ const createStyles = (theme) => StyleSheet.create({
   },
   content: {
     flex: 1,
+    //paddingHorizontal: theme.spacing.xs,
   },
   monthSelectorContainer: {
     padding: theme.spacing.lg,
@@ -240,6 +252,10 @@ const createStyles = (theme) => StyleSheet.create({
   dayCell: {
     width: `${100 / 7}%`,
     paddingHorizontal: 2,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingVertical: theme.spacing.sm,
   },
   subtitle: {
     fontSize: theme.typography.fontSize.sm,

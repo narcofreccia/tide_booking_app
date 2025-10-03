@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
@@ -32,7 +32,7 @@ export default function CustomersScreen() {
   const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id;
 
   // Fetch customers data
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ['booking-customers', restaurantId, searchQuery, orderByColumn, orderByType, currentPage],
     queryFn: () => getBookingCustomers({
       restaurant_id: restaurantId,
@@ -122,7 +122,18 @@ export default function CustomersScreen() {
           <Text style={styles.errorText}>Failed to load customers</Text>
         </View>
       ) : (
-        <ScrollView style={styles.content}>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              tintColor={theme.palette.primary.main}
+              colors={[theme.palette.primary.main]}
+            />
+          }
+        >
           {/* Ordering */}
           <OrderingList
             options={CUSTOMER_ORDER_OPTIONS}
@@ -216,7 +227,7 @@ const createStyles = (theme) => StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xs,
   },
   emptyState: {
     flex: 1,
@@ -243,5 +254,9 @@ const createStyles = (theme) => StyleSheet.create({
     fontSize: theme.typography.fontSize.lg,
     color: theme.palette.error.main,
     textAlign: 'center',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingVertical: theme.spacing.sm,
   },
 });

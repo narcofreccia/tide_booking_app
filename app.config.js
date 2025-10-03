@@ -36,6 +36,7 @@ export default {
       // Use environment variables from eas.json or .env (local dev)
       environment: process.env.APP_ENV || 'development',
       devServerUrl: process.env.DEV_SERVER_URL || "http://localhost:8000",
+      devServerUrlExpoGo: process.env.DEV_SERVER_EXPO_URL || 'http://192.168.10.102:8000',
       prodServerUrl: process.env.PROD_SERVER_URL || "https://westpiersrl-a6a9f5c00dd1.herokuapp.com/",
       eas: {
         projectId: "a47117ba-73d5-414c-a3c0-9689c5dac633"

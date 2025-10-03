@@ -109,6 +109,7 @@ npm start
 - **Search functionality** for customers by name, email, or phone
 - **Sortable customer list** by bookings, no-shows, cancellations, or last booking
 - **Paginated customer list** with 20 customers per page
+ - **Pull-to-refresh** on data screens (Bookings, Calendar, Customers) using native RefreshControl integrated with React Query `refetch()`
 - **API Service** (`services/api.js`)
   - Axios client with request/response interceptors
   - Login endpoint with OAuth2PasswordRequestForm support
@@ -436,6 +437,12 @@ The HomeScreen features a bottom navigation bar with 5 tabs using professional I
 5. **Settings** - App settings, profile, and logout
 
 Icons are provided by `@expo/vector-icons` (Ionicons) for a professional, native look. All screens are fully themed.
+
+## 🔄 Pull-to-Refresh
+
+- **Where**: `BookingsScreen`, `CalendarScreen`, `CustomersScreen`.
+- **How it works**: Uses React Native `RefreshControl` attached to each screen's `ScrollView` and wired to TanStack Query's `refetch()`.
+- **Behavior**: Pulling down triggers a fresh fetch from the backend and shows a native spinner. Query caches are respected; manual refresh always fetches new data.
 
 ## 🎨 Theme System
 
