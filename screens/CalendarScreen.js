@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../theme';
 import { useStateContext } from '../context/ContextProvider';
 import { getMonthlyBookings } from '../services/api';
-import { ScreenWrapper } from '../components/ScreenWrapper';
 import { TideLogo } from '../components/TideLogo';
 import { MonthSelector } from '../components/calendar/MonthSelector';
 import { DayCard } from '../components/calendar/DayCard';
@@ -88,7 +87,7 @@ export default function CalendarScreen() {
   };
 
   return (
-    <ScreenWrapper headerColor={theme.palette.background.paper}>
+    <>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={{ flex: 1 }}>
@@ -165,7 +164,7 @@ export default function CalendarScreen() {
         date={selectedDay?.date}
         daySummary={getDaySummary(selectedDay?.day)}
       />
-    </ScreenWrapper>
+    </>
   );
 }
 
@@ -179,9 +178,7 @@ const createStyles = (theme) => StyleSheet.create({
   },
   header: {
     padding: theme.spacing.lg,
-    backgroundColor: theme.palette.background.paper,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.palette.divider,
+    backgroundColor: 'transparent'
   },
   headerContent: {
     flexDirection: 'row',
@@ -200,7 +197,7 @@ const createStyles = (theme) => StyleSheet.create({
   },
   monthSelectorContainer: {
     padding: theme.spacing.lg,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: 'transparent',
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider,
   },

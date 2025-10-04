@@ -26,25 +26,23 @@ export const ScreenWrapper = ({
   const mainColor = backgroundColor || theme.palette.background.default
   const btmColor = bottomColor || mainColor
 
-  // Gradient colors - subtle dark gradient
+  // Gradient colors - subtle dark gradient starting from header color
   const gradientColors = [
-    theme.palette.background.default,
+    topColor, // Start with header color at the top
     theme.palette.background.backdrop || '#0A0F1A',
     theme.palette.background.default,
   ]
 
   return (
     <>
-      {/* Top background for status bar area */}
-      <View style={[styles.topBackground, { backgroundColor: topColor }]} />
-      
       {/* Status bar configuration */}
       <StatusBar 
         barStyle="light-content" 
-        backgroundColor={topColor}
+        backgroundColor="transparent"
+        translucent
       />
       
-      {/* Gradient background */}
+      {/* Gradient background - covers entire screen including status bar */}
       <LinearGradient
         colors={gradientColors}
         style={styles.gradientBackground}
@@ -69,21 +67,13 @@ export const ScreenWrapper = ({
 }
 
 const styles = StyleSheet.create({
-  topBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 50,
-    zIndex: -1,
-  },
   gradientBackground: {
     position: 'absolute',
-    top: 0,
+    top: -100, // Extend above to cover status bar area
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: -2,
+    zIndex: -1,
   },
   container: {
     flex: 1,

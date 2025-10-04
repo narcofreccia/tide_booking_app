@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
+import { ScreenWrapper } from '../components/ScreenWrapper';
 import { getIcon, getIconSize } from '../config/icons';
 import BookingsScreen from './BookingsScreen';
 import BookingsMapScreen from './BookingsMapScreen';
@@ -70,21 +71,19 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.content}>
-          {renderContent()}
-        </View>
+    <ScreenWrapper>
+      <View style={styles.content}>
+        {renderContent()}
+      </View>
 
-        <View style={styles.bottomNav}>
-          <TabButton id="bookings" iconKey="bookings" label="Bookings" />
-          <TabButton id="map" iconKey="table" label="Map" />
-          <TabButton id="create" iconKey="add" isCenter />
-          <TabButton id="calendar" iconKey="calendar" label="Calendar" />
-          <TabButton id="settings" iconKey="settings" label="Settings" />
-        </View>
-      </SafeAreaView>
-    </View>
+      <View style={styles.bottomNav}>
+        <TabButton id="bookings" iconKey="bookings" label="Bookings" />
+        <TabButton id="map" iconKey="table" label="Map" />
+        <TabButton id="create" iconKey="add" isCenter />
+        <TabButton id="calendar" iconKey="calendar" label="Calendar" />
+        <TabButton id="settings" iconKey="settings" label="Settings" />
+      </View>
+    </ScreenWrapper>
   );
 }
 
@@ -101,12 +100,9 @@ const createStyles = (theme) => StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: theme.palette.background.paper,
-    borderTopWidth: 1,
-    borderTopColor: theme.palette.divider,
+    backgroundColor: 'transparent',
     paddingBottom: theme.spacing.xs,
     paddingTop: theme.spacing.sm,
-    ...theme.shadows.lg,
   },
   tabButton: {
     flex: 1,

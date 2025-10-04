@@ -7,7 +7,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createBooking, updateBooking } from '../services/api';
 import bookingSchema from '../validation/bookingValidation';
-import { ScreenWrapper } from '../components/ScreenWrapper';
 import { SimpleField } from '../components/SimpleField';
 import { NewBookingDatePicker } from '../components/new_booking/NewBookingDatePicker';
 import { AvailableTimes } from '../components/new_booking/AvailableTimes';
@@ -182,7 +181,7 @@ export default function CreateBookingScreen({ route, onSuccess }) {
   };
 
   return (
-    <ScreenWrapper headerColor={theme.palette.background.paper}>
+    <>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -265,7 +264,7 @@ export default function CreateBookingScreen({ route, onSuccess }) {
           </View>
         </ScrollView>
       </FormProvider>
-    </ScreenWrapper>
+    </>
   );
 }
 
@@ -279,7 +278,7 @@ const createStyles = (theme) => StyleSheet.create({
   },
   header: {
     padding: theme.spacing.lg,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: 'transparent',
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider,
   },

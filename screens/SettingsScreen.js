@@ -4,7 +4,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useLogout } from '../hooks/useAuth';
-import { ScreenWrapper } from '../components/ScreenWrapper';
 import { SelectRestaurant } from '../components/SelectRestaurant';
 import { TideLogo } from '../components/TideLogo';
 import { getIcon, getIconSize } from '../config/icons';
@@ -77,7 +76,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <ScreenWrapper headerColor={theme.palette.background.paper}>
+    <>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -225,7 +224,7 @@ export default function SettingsScreen() {
           danger
         />
       </ScrollView>
-    </ScreenWrapper>
+    </>
   );
 }
 
@@ -239,7 +238,7 @@ const createStyles = (theme) => StyleSheet.create({
   },
   header: {
     padding: theme.spacing.lg,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: 'transparent',
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider,
   },

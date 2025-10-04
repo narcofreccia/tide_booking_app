@@ -3,7 +3,6 @@ import { View, Text, StyleSheet } from 'react-native'
 import { useTheme } from '../theme'
 import { useStateContext } from '../context/ContextProvider'
 import { useQueryClient } from '@tanstack/react-query'
-import { ScreenWrapper } from '../components/ScreenWrapper'
 import { DateSelector } from '../components/DateSelector'
 import { SectionIntervalBar } from '../components/booking_manager/SectionIntervalBar'
 import { BookingsCanvas } from '../components/booking_manager/BookingsCanvas'
@@ -21,6 +20,7 @@ export default function BookingsMapScreen() {
   const [selectedSectionId, setSelectedSectionId] = useState(null)
   const [selectedFloorId, setSelectedFloorId] = useState(null)
   const [selectedInterval, setSelectedInterval] = useState(null)
+  const [selectedIntervalIndex, setSelectedIntervalIndex] = useState(null)
   
   // Table switching state
   const [switchDrawerOpen, setSwitchDrawerOpen] = useState(false)
@@ -44,6 +44,7 @@ export default function BookingsMapScreen() {
 
   const handleIntervalChange = (interval, index) => {
     setSelectedInterval(interval)
+    setSelectedIntervalIndex(index)
   }
 
   // Handle switching booking position
@@ -103,7 +104,6 @@ export default function BookingsMapScreen() {
 
   return (
     <>
-    <ScreenWrapper headerColor={theme.palette.background.paper}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
@@ -133,7 +133,7 @@ export default function BookingsMapScreen() {
             restaurantId={restaurantId}
             date={dateStr}
             selectedSectionId={selectedSectionId}
-            selectedIntervalIndex={selectedInterval ? 0 : -1}
+            selectedIntervalIndex={selectedIntervalIndex}
             onSectionChange={handleSectionChange}
             onIntervalChange={handleIntervalChange}
           />
@@ -162,9 +162,8 @@ export default function BookingsMapScreen() {
           />
         )}
       </View>
-    </ScreenWrapper>
 
-    {/* Table Switching Drawer - Outside ScreenWrapper to cover navigation */}
+    {/* Table Switching Drawer */}
     {switchDrawerOpen && (
       <SwitchBookingPositionDrawer
         open={switchDrawerOpen}
@@ -187,9 +186,7 @@ const createStyles = (theme) => StyleSheet.create({
   },
   header: {
     padding: theme.spacing.lg,
-    backgroundColor: theme.palette.background.paper,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.palette.divider,
+    backgroundColor: 'transparent',
   },
   headerContent: {
     flexDirection: 'row',
@@ -197,7 +194,7 @@ const createStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: theme.typography.fontSize.xl,
+    fontSize: theme.typography.fontSize.xxl,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.palette.text.primary,
     marginBottom: theme.spacing.xs,
@@ -208,15 +205,13 @@ const createStyles = (theme) => StyleSheet.create({
   },
   dateContainer: {
     padding: theme.spacing.md,
-    backgroundColor: theme.palette.background.paper,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.palette.divider,
+    backgroundColor: 'transparent',
   },
   selectorsContainer: {
     padding: theme.spacing.md,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: 'transparent',
     borderBottomWidth: 1,
-    borderBottomColor: theme.palette.divider,
+    borderBottomColor: theme.palette.divider
   },
   canvasContainer: {
     flex: 1,

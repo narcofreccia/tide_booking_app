@@ -50,11 +50,10 @@ const createStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: 'transparent',
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.sm,
     minHeight: 56, // Match DateSelector height
-    ...theme.shadows.sm,
   },
   button: {
     width: 40,

@@ -71,11 +71,10 @@ const createStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: 'transparent',
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.sm,
     minHeight: 56, // Standardized height
-    ...theme.shadows.sm,
   },
   arrowButton: {
     width: 40,

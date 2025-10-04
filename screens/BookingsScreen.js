@@ -6,7 +6,6 @@ import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useQuery } from '@tanstack/react-query';
 import { listBookings } from '../services/api';
-import { ScreenWrapper } from '../components/ScreenWrapper';
 import { DateSelector } from '../components/DateSelector';
 import { Pagination } from '../components/Pagination';
 import { TideLogo } from '../components/TideLogo';
@@ -53,8 +52,7 @@ export default function BookingsScreen() {
   };
 
   return (
-    <ScreenWrapper headerColor={theme.palette.background.paper}>
-      <GestureHandlerRootView style={styles.gestureContainer}>
+    <GestureHandlerRootView style={styles.gestureContainer}>
         <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -75,40 +73,41 @@ export default function BookingsScreen() {
             dispatch({ type: 'UPDATE_SELECTED_BOOKING_DATE', payload: date });
             setCurrentPage(1); // Reset to first page on date change
           }}
-          format="day"
         />
       </View>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <MaterialCommunityIcons
-          name={getIcon('search')}
-          size={getIconSize('md')}
-          color={theme.palette.text.secondary}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by name, email, phone..."
-          placeholderTextColor={theme.palette.text.disabled}
-          value={searchQuery}
-          onChangeText={(text) => {
-            setSearchQuery(text);
-            setCurrentPage(1); // Reset to first page on search
-          }}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => {
-            setSearchQuery('');
-            setCurrentPage(1);
-          }}>
-            <MaterialCommunityIcons
-              name={getIcon('close')}
-              size={getIconSize('md')}
-              color={theme.palette.text.secondary}
-            />
-          </TouchableOpacity>
-        )}
+        <View style={styles.searchInputContainer}>
+          <MaterialCommunityIcons
+            name={getIcon('search')}
+            size={getIconSize('md')}
+            color={theme.palette.text.secondary}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name, email, phone..."
+            placeholderTextColor={theme.palette.text.disabled}
+            value={searchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text);
+              setCurrentPage(1); // Reset to first page on search
+            }}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => {
+              setSearchQuery('');
+              setCurrentPage(1);
+            }}>
+              <MaterialCommunityIcons
+                name={getIcon('close')}
+                size={getIconSize('md')}
+                color={theme.palette.text.secondary}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {!restaurantId ? (
@@ -165,8 +164,7 @@ export default function BookingsScreen() {
           )}
         </>
       )}
-      </GestureHandlerRootView>
-    </ScreenWrapper>
+    </GestureHandlerRootView>
   );
 }
 
@@ -183,9 +181,7 @@ const createStyles = (theme) => StyleSheet.create({
   },
   header: {
     padding: theme.spacing.lg,
-    backgroundColor: theme.palette.background.paper,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.palette.divider,
+    backgroundColor: 'transparent',
   },
   headerContent: {
     flexDirection: 'row',
@@ -204,21 +200,23 @@ const createStyles = (theme) => StyleSheet.create({
   },
   filtersContainer: {
     padding: theme.spacing.md,
-    backgroundColor: theme.palette.background.paper,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.palette.divider,
+    backgroundColor: 'transparent',
   },
   searchContainer: {
+    padding: theme.spacing.md,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
+    borderBottomColor: theme.palette.divider
+  },
+  searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: theme.spacing.md,
-    backgroundColor: theme.palette.background.paper,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.palette.divider,
-    gap: theme.spacing.sm,
+    backgroundColor: theme.palette.background.elevated,
+    borderRadius: theme.borderRadius.lg,
+    paddingHorizontal: theme.spacing.md,
   },
   searchIcon: {
-    marginLeft: theme.spacing.xs,
+    marginRight: theme.spacing.sm,
   },
   searchInput: {
     flex: 1,

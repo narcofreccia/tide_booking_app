@@ -152,7 +152,7 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
               textAnchor="middle"
               fontFamily="System"
             >
-              {t.number} ({(tableBookings[0].adults || 0) + (tableBookings[0].children || 0)}p)
+              {`${t.number} (${(tableBookings[0].adults || 0) + (tableBookings[0].children || 0)}p)`}
             </SvgText>
             {/* Arrival time */}
             <SvgText
@@ -191,7 +191,7 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
             textAnchor="middle"
             fontFamily="System"
           >
-            {t.number} ({t.max_capacity})
+            {`${t.number} (${t.max_capacity})`}
           </SvgText>
         )}
       </G>
