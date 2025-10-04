@@ -4,10 +4,12 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { getIcon, getIconSize } from '../../config/icons';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export const Pax = () => {
   const { control } = useFormContext();
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   const GuestCounter = ({ name, label, iconKey, min = 0 }) => (
@@ -55,8 +57,8 @@ export const Pax = () => {
 
   return (
     <View style={styles.container}>
-      <GuestCounter name="adults" label="Adults" iconKey="user" min={1} />
-      <GuestCounter name="children" label="Children" iconKey="guests" min={0} />
+      <GuestCounter name="adults" label={t('bookings.adults')} iconKey="user" min={1} />
+      <GuestCounter name="children" label={t('bookings.children')} iconKey="guests" min={0} />
     </View>
   );
 };

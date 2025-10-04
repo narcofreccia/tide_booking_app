@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'rea
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '../../theme'
 import { getBookingStatusColor, getBookingStatusLabel } from '../../constants/bookingStatusColors'
+import { useTranslation } from '../../hooks/useTranslation'
+import { useStateContext } from '../../context/ContextProvider'
+import { getLocale } from '../../utils/localeUtils'
 import { ChangeBookingStatus } from '../bookings/ChangeBookingStatus'
 import { EditBookingModal } from '../bookings/EditBookingModal'
 import { WalkInModal } from './WalkInModal'
@@ -18,6 +21,8 @@ import { WalkInModal } from './WalkInModal'
  */
 export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId, onClose, onSwitchBooking, restaurantId, date }) => {
   const theme = useTheme()
+  const { t } = useTranslation()
+  const { language } = useStateContext()
   const [changeStatusModalVisible, setChangeStatusModalVisible] = useState(false)
   const [editModalVisible, setEditModalVisible] = useState(false)
   const [walkInModalVisible, setWalkInModalVisible] = useState(false)
@@ -31,7 +36,8 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
   const formatDate = (dateStr) => {
     if (!dateStr) return '-'
     const date = new Date(dateStr)
-    return date.toLocaleDateString('it-IT', {
+    const locale = getLocale(language, 'it-IT')
+    return date.toLocaleDateString(locale, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -59,7 +65,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
           <View style={[styles.header, { borderBottomColor: theme.palette.divider }]}>
             <View style={styles.headerContent}>
               <Text style={[styles.title, { color: theme.palette.text.primary }]}>
-                🪑 Tavolo {tableName}
+                {t('bookingDetails.tableTitle', { tableName })}
               </Text>
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                 <MaterialCommunityIcons 
@@ -71,8 +77,8 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
             </View>
             <Text style={[styles.subtitle, { color: theme.palette.text.secondary }]}>
               {bookings.length === 0 
-                ? 'Nessuna prenotazione' 
-                : `${bookings.length} prenotazione${bookings.length > 1 ? 'i' : ''}`}
+                ? t('bookingDetails.noBooking') 
+                : t(bookings.length > 1 ? 'bookingDetails.bookingCountPlural' : 'bookingDetails.bookingCount', { count: bookings.length })}
             </Text>
           </View>
 
@@ -82,7 +88,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
               <>
                 <View style={styles.emptyState}>
                   <Text style={[styles.emptyText, { color: theme.palette.text.secondary }]}>
-                    Tavolo libero
+                    {t('bookingDetails.tableFree')}
                   </Text>
                 </View>
                 
@@ -103,7 +109,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                       color="#FFFFFF" 
                     />
                     <Text style={styles.actionButtonText}>
-                      Crea Walk-In
+                      {t('bookingDetails.createWalkIn')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -168,7 +174,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                         color={theme.palette.text.secondary} 
                       />
                       <Text style={[styles.detailText, { color: theme.palette.text.secondary }]}>
-                        {(booking.adults || 0) + (booking.children || 0)} persone
+                        {(booking.adults || 0) + (booking.children || 0)} {t('bookingDetails.people')}
                       </Text>
                     </View>
 
@@ -193,9 +199,9 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                           color={theme.palette.text.secondary} 
                         />
                         <Text style={[styles.detailText, { color: theme.palette.text.secondary }]}>
-                          {Number(booking.highchair_number) > 0 && `Seggioloni: ${booking.highchair_number}`}
+                          {Number(booking.highchair_number) > 0 && `${t('bookingDetails.highchairs')}: ${booking.highchair_number}`}
                           {Number(booking.highchair_number) > 0 && Number(booking.wheelchair_number) > 0 && ' • '}
-                          {Number(booking.wheelchair_number) > 0 && `Sedie a rotelle: ${booking.wheelchair_number}`}
+                          {Number(booking.wheelchair_number) > 0 && `${t('bookingDetails.wheelchairs')}: ${booking.wheelchair_number}`}
                         </Text>
                       </View>
                     )}
@@ -208,7 +214,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                           color={theme.palette.text.secondary} 
                         />
                         <Text style={[styles.detailText, { color: theme.palette.text.secondary }]}>
-                          {booking.amount > 0 ? `€${Number(booking.amount).toFixed(2)}` : 'Deposito'}
+                          {booking.amount > 0 ? `€${Number(booking.amount).toFixed(2)}` : t('bookingDetails.deposit')}
                           {booking.payment_status && ` • ${booking.payment_status}`}
                         </Text>
                       </View>
@@ -235,7 +241,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                           color="#FFFFFF" 
                         />
                         <Text style={styles.actionButtonText}>
-                          Sposta
+                          {t('bookingDetails.move')}
                         </Text>
                       </TouchableOpacity>
                       
@@ -255,7 +261,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                           color="#FFFFFF" 
                         />
                         <Text style={styles.actionButtonText}>
-                          Stato
+                          {t('bookingDetails.status')}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -278,7 +284,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                           color="#FFFFFF" 
                         />
                         <Text style={styles.actionButtonText}>
-                          Modifica
+                          {t('bookingDetails.edit')}
                         </Text>
                       </TouchableOpacity>
                       
@@ -297,7 +303,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                           color="#FFFFFF" 
                         />
                         <Text style={styles.actionButtonText}>
-                          Walk-In
+                          {t('bookingDetails.walkIn')}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -307,7 +313,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                   {booking.costumer_notes && (
                     <View style={[styles.notesSection, { borderTopColor: theme.palette.divider }]}>
                       <Text style={[styles.notesLabel, { color: theme.palette.text.secondary }]}>
-                        Note Cliente:
+                        {t('bookingDetails.customerNotes')}
                       </Text>
                       <Text style={[styles.notesText, { color: theme.palette.text.primary }]}>
                         {booking.costumer_notes}
@@ -318,7 +324,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                   {booking.restaurant_notes && (
                     <View style={[styles.notesSection, { borderTopColor: theme.palette.divider }]}>
                       <Text style={[styles.notesLabel, { color: theme.palette.text.secondary }]}>
-                        Note Ristorante:
+                        {t('bookingDetails.restaurantNotes')}
                       </Text>
                       <Text style={[styles.notesText, { color: theme.palette.text.primary }]}>
                         {booking.restaurant_notes}

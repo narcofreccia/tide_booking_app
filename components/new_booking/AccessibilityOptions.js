@@ -4,10 +4,12 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { getIcon, getIconSize } from '../../config/icons';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export const AccessibilityOptions = ({ collapsed = true, disableCollapse = false }) => {
   const { control } = useFormContext();
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
   const [isExpanded, setIsExpanded] = useState(!collapsed);
 
@@ -51,7 +53,7 @@ export const AccessibilityOptions = ({ collapsed = true, disableCollapse = false
           style={styles.header}
           onPress={() => setIsExpanded(!isExpanded)}
         >
-          <Text style={styles.headerText}>Accessibility Options</Text>
+          <Text style={styles.headerText}>{t('bookings.accessibilityOptions')}</Text>
           <MaterialCommunityIcons
             name={isExpanded ? 'chevron-up' : 'chevron-down'}
             size={20}
@@ -62,8 +64,8 @@ export const AccessibilityOptions = ({ collapsed = true, disableCollapse = false
 
       {(isExpanded || disableCollapse) && (
         <View style={styles.content}>
-          <NumberInput name="highchair_number" label="Highchairs" iconKey="highchair" />
-          <NumberInput name="wheelchair_number" label="Wheelchairs" iconKey="wheelchair" />
+          <NumberInput name="highchair_number" label={t('bookings.highchairs')} iconKey="highchair" />
+          <NumberInput name="wheelchair_number" label={t('bookings.wheelchairs')} iconKey="wheelchair" />
         </View>
       )}
     </View>

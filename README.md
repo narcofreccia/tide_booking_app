@@ -78,6 +78,63 @@ The app includes an interactive map view of tables with live booking overlays an
 - Automatic query invalidation for `bookings-by-date` and `tables-by-restaurant`
 - See `TABLE_SWITCHING_IMPLEMENTATION.md` for detailed documentation
 
+## 🌍 Multilingual Support (i18n)
+
+The app supports multiple languages with a complete internationalization system:
+
+### Supported Languages
+- **Italian (it)** - Primary language (source translations)
+- **English (en)** - Auto-translated
+- **Spanish (es)** - Auto-translated
+
+### Features
+- **Language Selector**: Professional dropdown in Settings screen
+- **Persistent Preference**: Language choice saved to AsyncStorage
+- **Automatic Date Localization**: Dates formatted according to selected language
+- **Translation Coverage**: All screens, components, and UI elements translated
+- **Auto-Translation Script**: `npm run translate` to auto-translate missing keys using OpenAI
+
+### File Structure
+```
+translations/
+├── it.json          # Italian (source)
+├── en.json          # English (auto-translated)
+└── es.json          # Spanish (auto-translated)
+
+hooks/
+└── useTranslation.js # Translation hook
+
+utils/
+└── localeUtils.js    # Centralized locale mapping
+
+scripts/
+└── translate-missing.mjs # Auto-translation script
+```
+
+### Usage
+```javascript
+import { useTranslation } from '../hooks/useTranslation';
+
+function MyComponent() {
+  const { t } = useTranslation();
+  
+  return (
+    <Text>{t('bookings.title')}</Text>
+    <Text>{t('bookings.bookingCount', { count: 5 })}</Text>
+  );
+}
+```
+
+### Adding New Translations
+1. Add keys to `translations/it.json` (Italian source)
+2. Run `npm run translate` to auto-translate to other languages
+3. Review and adjust auto-translations if needed
+
+### Locale Utilities
+Centralized locale mapping in `utils/localeUtils.js`:
+- `getLocale(language)` - Get locale string (e.g., 'it-IT')
+- `formatDateWithLocale(date, language, options)` - Format dates with locale support
+
 ## 🔧 Icon Mapping
 
 All icons are centrally declared in `config/icons.js`. The Map tab uses:
@@ -87,6 +144,15 @@ map: 'map-outline'
 ```
 
 Use `getIcon(key)` and `getIconSize(sizeKey)` helpers to keep icons consistent across the app.
+
+### Available Icon Categories
+- **Booking related**: time, guests, table, email, phone, notes
+- **Actions**: edit, delete, move, status, add, close
+- **Navigation**: bookings, calendar, settings, home, back, map
+- **Arrows/Pagination**: arrowLeft, arrowRight, chevronLeft, chevronRight, chevronUp, chevronDown
+- **Status indicators**: confirmed, pending, cancelled, arrived, seated, completed
+- **Accessibility**: wheelchair, highchair
+- **General**: search, filter, sort, info, warning, error, success
 
 2. **Install dependencies**
 ```bash
@@ -150,14 +216,24 @@ npm start
 ## Current Implementation## ✨ Features
 
 ✅ **Completed**
-- Modern dark theme with comprehensive design system
+- **Modern theme system** with Dark and Light modes
+  - Dark Theme ("Nocturne Neo") - Elegant dark mode
+  - Light Theme ("Aurora Daylight") - Fresh light mode
+  - Theme toggle in Settings screen
+  - Persistent theme preference across sessions
 - **Proper SafeAreaView implementation** for iOS notch/rounded corners on all screens
 - Global state management with React Context + useReducer
 - **Authentication flow** with login/logout and silent token refresh
 - **Refresh token support** for mobile with automatic token rotation
+- **Multilingual support** with i18n system (Italian, English, Spanish)
+  - Language selector in Settings screen
+  - Persistent language preference across sessions
+  - Automatic date/time localization based on selected language
+  - Translation script for auto-translating missing keys
+  - Centralized locale utilities for consistent formatting
 - Form validation with React Hook Form + Yup
 - API integration with Axios and TanStack Query
-- Reusable UI components (Notification, ConfirmDialog, Loading, LoadingState, SelectRestaurant, DateSelector, Pagination, OrderingList, TideLogo)
+- Reusable UI components (Notification, ConfirmDialog, Loading, LoadingState, SelectRestaurant, DateSelector, Pagination, OrderingList, TideLogo, LanguageSelector)
 - Bottom tab navigation with professional MaterialCommunityIcons
 - Persistent auth storage with AsyncStorage
 - **Swipeable booking rows** with gesture-based actions (Edit, Delete, Update Status, Move)
@@ -273,6 +349,7 @@ npm start
 │   ├── Loading.js         # Global loading overlay
 │   ├── LoadingState.js    # Animated loading dots
 │   ├── SelectRestaurant.js # Restaurant selection dropdown
+│   ├── LanguageSelector.js # Language selection dropdown
 │   ├── DateSelector.js    # Date navigation with arrows
 │   ├── Pagination.js      # Reusable pagination controls
 │   ├── SimpleField.js     # Reusable form input field
@@ -282,18 +359,30 @@ npm start
 │   │   ├── BookingRowActions.js # Swipe actions (Move, Update Status, Edit, Delete)
 │   │   ├── ChangeBookingStatus.js # Status change modal
 │   │   └── EditBookingModal.js # Edit booking modal wrapper
-│   └── new_booking/       # Booking form components
-│       ├── NewBookingDatePicker.js
-│       ├── AvailableTimes.js
-│       ├── SimplePhoneField.js
-│       ├── BookingStatus.js
-│       ├── AccessibilityOptions.js
-│       └── Pax.js
+│   ├── new_booking/       # Booking form components
+│   │   ├── NewBookingDatePicker.js
+│   │   ├── AvailableTimes.js
+│   │   ├── SimplePhoneField.js
+│   │   ├── BookingStatus.js
+│   │   ├── AccessibilityOptions.js
+│   │   └── Pax.js
+│   ├── booking_manager/   # Map view components
+│   │   ├── BookingsCanvas.js
+│   │   ├── TablesMapReadOnly.js
+│   │   ├── SectionIntervalBar.js
+│   │   ├── BookingDetailsModal.js
+│   │   ├── SwitchBookingPositionDrawer.js
+│   │   └── WalkInModal.js
+│   └── calendar/          # Calendar components
+│       ├── MonthSelector.js
+│       ├── DayCard.js
+│       └── DayDetailsModal.js
 ├── context/
 │   ├── ContextProvider.js # Global state provider with React Context
 │   └── reducer.js         # Reducer for global state management
 ├── hooks/
-│   └── useAuth.js         # Authentication hooks (login, logout, currentUser)
+│   ├── useAuth.js         # Authentication hooks (login, logout, currentUser)
+│   └── useTranslation.js  # Translation hook for i18n
 ├── theme/
 │   ├── ThemeProvider.js   # Theme provider component
 │   ├── darkTheme.js       # Dark theme configuration
@@ -307,7 +396,14 @@ npm start
 │   ├── bookingApi.js      # Booking & availability endpoints
 │   └── getUserRole.js     # User role utilities (isAdmin, isOwner, etc.)
 ├── utils/
-│   └── storage.js         # Auth & data persistence utilities
+│   ├── storage.js         # Auth & data persistence utilities
+│   └── localeUtils.js     # Centralized locale mapping and formatting
+├── translations/
+│   ├── it.json            # Italian translations (source)
+│   ├── en.json            # English translations (auto-translated)
+│   └── es.json            # Spanish translations (auto-translated)
+├── scripts/
+│   └── translate-missing.mjs # Auto-translation script using OpenAI
 ├── validation/
 │   └── bookingValidation.js # Booking form validation schema
 ├── screens/
@@ -552,21 +648,29 @@ extra: {
 
 ## 🎨 Theme System
 
-The app uses a centralized theme system for consistent styling across all components.
+The app features a comprehensive theme system with **Dark** and **Light** modes that users can toggle.
+
+### Theme Modes
+- **Dark Theme** ("Nocturne Neo") - Elegant dark mode with deep blue-gray backgrounds
+- **Light Theme** ("Aurora Daylight") - Fresh, clean light mode with cool-neutral tones
+- **Theme Toggle** - Switch between modes in Settings screen
+- **Persistent Preference** - Theme choice saved to AsyncStorage
 
 ### Usage
 
 ```javascript
-import { useTheme } from '../theme';
+import { useTheme, useThemeMode } from '../theme';
 
 function MyComponent() {
   const theme = useTheme();
+  const { themeMode, toggleTheme } = useThemeMode();
 
   return (
     <View style={{ backgroundColor: theme.palette.background.paper }}>
       <Text style={{ color: theme.palette.text.primary }}>
-        Themed Text
+        Current theme: {themeMode}
       </Text>
+      <Button onPress={toggleTheme}>Toggle Theme</Button>
     </View>
   );
 }
@@ -574,16 +678,24 @@ function MyComponent() {
 
 ### Theme Features
 
-- **Colors**: Primary, secondary, error, warning, info, success palettes
-- **Typography**: Font families, sizes, weights, line heights
+- **Colors**: Primary (Fresh teal-mint), secondary (Bright blue), error, warning, info, success palettes
+- **Typography**: Font families, sizes, weights, line heights, letter spacing
 - **Spacing**: Consistent spacing scale (xs, sm, md, lg, xl, xxl)
-- **Border Radius**: Predefined border radius values
-- **Shadows**: Platform-specific shadow configurations
-- **Component Styles**: Pre-configured styles for buttons, inputs, cards
+- **Border Radius**: Predefined border radius values (sm, md, lg, xl, full)
+- **Shadows**: Platform-specific shadow configurations with proper elevation
+- **Component Styles**: Pre-configured styles for buttons, inputs, cards, tabs, chips, tooltips, modals
+- **Motion**: Duration and easing configurations for animations
+- **Z-Index**: Layering system for drawers, modals, snackbars, tooltips
+
+### Theme Files
+- `/theme/darkTheme.js` - Dark theme configuration
+- `/theme/lightTheme.js` - Light theme configuration
+- `/theme/ThemeProvider.js` - Theme provider with mode switching
+- `/components/ThemeToggle.js` - Theme toggle component
 
 ### Customization
 
-Edit `/theme/darkTheme.js` to customize the theme. See `/theme/README.md` for detailed documentation.
+Edit `/theme/darkTheme.js` or `/theme/lightTheme.js` to customize themes. The theme system automatically handles persistence and switching.
 
 🔗 Backend Endpoints
 

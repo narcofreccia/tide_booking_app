@@ -3,9 +3,14 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'rea
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { getIcon, getIconSize } from '../../config/icons';
+import { useTranslation } from '../../hooks/useTranslation';
+import { useStateContext } from '../../context/ContextProvider';
+import { getLocale } from '../../utils/localeUtils';
 
 export const DayDetailsModal = ({ visible, onClose, day, date, daySummary }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
+  const { language } = useStateContext();
   const styles = createStyles(theme);
 
   if (!daySummary) return null;
@@ -17,7 +22,8 @@ export const DayDetailsModal = ({ visible, onClose, day, date, daySummary }) => 
   const formatDate = (dateObj) => {
     if (!dateObj) return '';
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return dateObj.toLocaleDateString('en-US', options);
+    const locale = getLocale(language);
+    return dateObj.toLocaleDateString(locale, options);
   };
 
   return (
@@ -46,7 +52,7 @@ export const DayDetailsModal = ({ visible, onClose, day, date, daySummary }) => 
 
           {/* Total Summary */}
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>Daily Summary</Text>
+            <Text style={styles.summaryTitle}>{t('calendar.dailySummary')}</Text>
             <View style={styles.summaryStats}>
               <View style={styles.summaryStatItem}>
                 <MaterialCommunityIcons 
@@ -55,7 +61,7 @@ export const DayDetailsModal = ({ visible, onClose, day, date, daySummary }) => 
                   color={theme.palette.primary.main} 
                 />
                 <Text style={styles.summaryStatNumber}>{totalBookings}</Text>
-                <Text style={styles.summaryStatLabel}>Bookings</Text>
+                <Text style={styles.summaryStatLabel}>{t(totalBookings === 1 ? 'calendar.booking' : 'calendar.bookings')}</Text>
               </View>
               <View style={styles.summaryStatItem}>
                 <MaterialCommunityIcons 
@@ -64,14 +70,14 @@ export const DayDetailsModal = ({ visible, onClose, day, date, daySummary }) => 
                   color={theme.palette.secondary.main} 
                 />
                 <Text style={styles.summaryStatNumber}>{totalPax}</Text>
-                <Text style={styles.summaryStatLabel}>Guests</Text>
+                <Text style={styles.summaryStatLabel}>{t(totalPax === 1 ? 'calendar.guest' : 'calendar.guests')}</Text>
               </View>
             </View>
           </View>
 
           {/* Time Intervals */}
           <ScrollView style={styles.intervalsContainer}>
-            <Text style={styles.intervalsTitle}>Time Intervals</Text>
+            <Text style={styles.intervalsTitle}>{t('calendar.timeIntervals')}</Text>
             {intervals.map((interval, index) => (
               <View key={index} style={styles.intervalCard}>
                 <View style={styles.intervalHeader}>
@@ -92,7 +98,7 @@ export const DayDetailsModal = ({ visible, onClose, day, date, daySummary }) => 
                       color={theme.palette.text.secondary} 
                     />
                     <Text style={styles.intervalStatText}>
-                      {interval.booking_count} {interval.booking_count === 1 ? 'booking' : 'bookings'}
+                      {interval.booking_count} {t(interval.booking_count === 1 ? 'calendar.booking' : 'calendar.bookings')}
                     </Text>
                   </View>
                   <View style={styles.intervalStat}>
@@ -102,7 +108,7 @@ export const DayDetailsModal = ({ visible, onClose, day, date, daySummary }) => 
                       color={theme.palette.text.secondary} 
                     />
                     <Text style={styles.intervalStatText}>
-                      {interval.total_pax} {interval.total_pax === 1 ? 'guest' : 'guests'}
+                      {interval.total_pax} {t(interval.total_pax === 1 ? 'calendar.guest' : 'calendar.guests')}
                     </Text>
                   </View>
                 </View>

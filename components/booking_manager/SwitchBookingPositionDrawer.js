@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '../../theme'
 import { getBookingStatusColor } from '../../constants/bookingStatusColors'
+import { useTranslation } from '../../hooks/useTranslation'
 
 /**
  * SwitchBookingPositionDrawer
@@ -27,10 +28,11 @@ export const SwitchBookingPositionDrawer = ({
   onCancel
 }) => {
   const theme = useTheme()
+  const { t } = useTranslation()
 
   const getSourceTableNumbers = () => {
     if (!sourceBooking?.table_ids || sourceBooking.table_ids.length === 0) {
-      return 'Nessun tavolo'
+      return t('map.noTable')
     }
     return sourceBooking.table_ids.join(', ')
   }
@@ -50,7 +52,7 @@ export const SwitchBookingPositionDrawer = ({
             color={theme.palette.primary.main} 
           />
           <Text style={[styles.title, { color: theme.palette.text.primary }]}>
-            Modalità Spostamento
+            {t('map.switchMode')}
           </Text>
           <TouchableOpacity onPress={onCancel || onClose} style={styles.closeButton}>
             <MaterialCommunityIcons 
@@ -81,7 +83,7 @@ export const SwitchBookingPositionDrawer = ({
             {selectedTableId ? (
               <>
                 <Text style={[styles.compactText, { color: theme.palette.primary.main }]}>
-                  Tavolo {selectedTableName || selectedTableId}
+                  {t('map.table')} {selectedTableName || selectedTableId}
                 </Text>
                 <MaterialCommunityIcons 
                   name="check-circle" 
@@ -92,7 +94,7 @@ export const SwitchBookingPositionDrawer = ({
               </>
             ) : (
               <Text style={[styles.compactLabel, { color: theme.palette.text.secondary }]}>
-                Seleziona tavolo
+                {t('map.selectTable')}
               </Text>
             )}
           </View>
@@ -108,7 +110,7 @@ export const SwitchBookingPositionDrawer = ({
             onPress={onCancel || onClose}
           >
             <Text style={[styles.buttonText, { color: theme.palette.text.primary }]}>
-              Annulla
+              {t('map.cancel')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -126,7 +128,7 @@ export const SwitchBookingPositionDrawer = ({
               color="white" 
             />
             <Text style={[styles.buttonText, { color: 'white', marginLeft: 6 }]}>
-              Conferma Spostamento
+              {t('map.confirmSwitch')}
             </Text>
           </TouchableOpacity>
         </View>

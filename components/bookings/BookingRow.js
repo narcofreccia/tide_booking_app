@@ -5,9 +5,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { BookingRowActions } from './BookingRowActions';
 import { getIcon, getIconSize } from '../../config/icons';
+import { useTranslation } from '../../hooks/useTranslation';  
 
 export const BookingRow = ({ booking, onPress }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
   const swipeableRef = useRef(null);
 
@@ -58,7 +60,7 @@ export const BookingRow = ({ booking, onPress }) => {
           {booking.name} {booking.surname || ''}
         </Text>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
-          <Text style={styles.statusText}>{formatStatus(booking.status)}</Text>
+          <Text style={styles.statusText}>{formatStatus(t('bookingStatus.' + booking.status))}</Text>
         </View>
       </View>
       
@@ -70,14 +72,14 @@ export const BookingRow = ({ booking, onPress }) => {
         <View style={styles.detailItem}>
           <MaterialCommunityIcons name={getIcon('guests')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
           <Text style={styles.detailText}>
-            {booking.adults + booking.children} guests
+            {booking.adults + booking.children} {t('bookings.guests')}
           </Text>
         </View>
         {booking.table_ids && booking.table_ids.length > 0 && (
           <View style={styles.detailItem}>
             <MaterialCommunityIcons name={getIcon('table')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
             <Text style={styles.detailText}>
-              Table {booking.table_ids.join(', ')}
+              {t('bookings.table')} {booking.table_ids.join(', ')}
             </Text>
           </View>
         )}

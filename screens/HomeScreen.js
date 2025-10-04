@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { getIcon, getIconSize } from '../config/icons';
+import { useTranslation } from '../hooks/useTranslation';
 import BookingsScreen from './BookingsScreen';
 import BookingsMapScreen from './BookingsMapScreen';
 import CreateBookingScreen from './CreateBookingScreen';
@@ -12,6 +13,7 @@ import SettingsScreen from './SettingsScreen';
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('bookings');
   const styles = createStyles(theme);
 
@@ -77,11 +79,11 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.bottomNav}>
-        <TabButton id="bookings" iconKey="bookings" label="Bookings" />
-        <TabButton id="map" iconKey="table" label="Map" />
+        <TabButton id="bookings" iconKey="bookings" label={t('navigation.bookings')} />
+        <TabButton id="map" iconKey="table" label={t('navigation.map')} />
         <TabButton id="create" iconKey="add" isCenter />
-        <TabButton id="calendar" iconKey="calendar" label="Calendar" />
-        <TabButton id="settings" iconKey="settings" label="Settings" />
+        <TabButton id="calendar" iconKey="calendar" label={t('navigation.calendar')} />
+        <TabButton id="settings" iconKey="settings" label={t('navigation.settings')} />
       </View>
     </ScreenWrapper>
   );

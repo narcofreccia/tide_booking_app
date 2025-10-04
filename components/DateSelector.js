@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
+import { useStateContext } from '../context/ContextProvider';
+import { useTranslation } from '../hooks/useTranslation';
+import { getLocale } from '../utils/localeUtils';
 
 /**
  * DateSelector Component
@@ -11,6 +14,8 @@ import { useTheme } from '../theme';
  */
 export const DateSelector = ({ selectedDate, onDateChange, format = 'full' }) => {
   const theme = useTheme();
+  const { language } = useStateContext();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   const handlePrevious = () => {
@@ -32,7 +37,8 @@ export const DateSelector = ({ selectedDate, onDateChange, format = 'full' }) =>
       day: { weekday: 'short', month: 'short', day: 'numeric' },
     };
 
-    return date.toLocaleDateString('en-US', options[format]);
+    const locale = getLocale(language);
+    return date.toLocaleDateString(locale, options[format]);
   };
 
   const isToday = (date) => {
@@ -54,7 +60,7 @@ export const DateSelector = ({ selectedDate, onDateChange, format = 'full' }) =>
         <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
         {isToday(selectedDate) && (
           <View style={styles.todayBadge}>
-            <Text style={styles.todayText}>Today</Text>
+            <Text style={styles.todayText}>{t('common.today')}</Text>
           </View>
         )}
       </View>

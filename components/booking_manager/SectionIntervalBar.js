@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useTheme } from '../../theme'
 import { useQuery } from '@tanstack/react-query'
 import { getSectionsByRestaurantRule } from '../../services/api'
+import { useTranslation } from '../../hooks/useTranslation'
 
 /**
  * SectionIntervalBar
@@ -24,6 +25,7 @@ export const SectionIntervalBar = ({
   onIntervalChange 
 }) => {
   const theme = useTheme()
+  const { t } = useTranslation()
   const todayStr = React.useMemo(() => {
     if (!date) return new Date().toISOString().split('T')[0]
     return date
@@ -125,7 +127,7 @@ export const SectionIntervalBar = ({
     return (
       <View style={styles.container}>
         <Text style={[styles.loadingText, { color: theme.palette.text.secondary }]}>
-          Caricamento...
+          {t('map.loading')}
         </Text>
       </View>
     )
@@ -135,7 +137,7 @@ export const SectionIntervalBar = ({
     <View style={styles.container}>
       {/* Section Selector */}
       <View>
-        <Text style={[styles.label, { color: theme.palette.text.secondary }]}>Sezione</Text>
+        <Text style={[styles.label, { color: theme.palette.text.secondary }]}>{t('map.section')}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
           {sections.map((section) => {
             const active = selectedSectionId === section.id
@@ -165,7 +167,7 @@ export const SectionIntervalBar = ({
 
       {/* Interval Selector */}
       <View>
-        <Text style={[styles.label, { color: theme.palette.text.secondary }]}>Orario</Text>
+        <Text style={[styles.label, { color: theme.palette.text.secondary }]}>{t('map.time')}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
           <TouchableOpacity
             style={[
@@ -181,7 +183,7 @@ export const SectionIntervalBar = ({
               styles.chipText,
               { color: (selectedIntervalIndex === -1 || selectedIntervalIndex == null) ? theme.palette.primary.contrastText : theme.palette.text.primary }
             ]}>
-              Tutti
+              {t('map.all')}
             </Text>
           </TouchableOpacity>
           {sortedTimeRanges.map((tr) => {

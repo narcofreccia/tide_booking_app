@@ -2,20 +2,22 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { useFormContext, Controller } from 'react-hook-form';
 import { useTheme } from '../../theme';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const BOOKING_STATUSES = [
-  { value: 'pending', label: 'Pending', color: '#FFA726' },
-  { value: 'confirmed', label: 'Confirmed', color: '#66BB6A' },
-  { value: 'seated', label: 'Seated', color: '#42A5F5' },
-  { value: 'completed', label: 'Completed', color: '#26A69A' },
-  { value: 'cancelled_by_user', label: 'Cancelled by User', color: '#EF5350' },
-  { value: 'cancelled_by_restaurant', label: 'Cancelled by Restaurant', color: '#EC407A' },
-  { value: 'no_show', label: 'No Show', color: '#AB47BC' },
+  { value: 'pending', labelKey: 'bookingStatus.pending', color: '#FFA726' },
+  { value: 'confirmed', labelKey: 'bookingStatus.confirmed', color: '#66BB6A' },
+  { value: 'seated', labelKey: 'bookingStatus.seated', color: '#42A5F5' },
+  { value: 'completed', labelKey: 'bookingStatus.completed', color: '#26A69A' },
+  { value: 'cancelled_by_user', labelKey: 'bookingStatus.cancelledByUser', color: '#EF5350' },
+  { value: 'cancelled_by_restaurant', labelKey: 'bookingStatus.cancelledByRestaurant', color: '#EC407A' },
+  { value: 'no_show', labelKey: 'bookingStatus.noShow', color: '#AB47BC' },
 ];
 
 export const BookingStatus = ({ name = 'status', label = 'Status' }) => {
   const { control } = useFormContext();
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -37,11 +39,11 @@ export const BookingStatus = ({ name = 'status', label = 'Status' }) => {
                 {selectedStatus ? (
                   <View style={styles.selectedStatus}>
                     <View style={[styles.statusDot, { backgroundColor: selectedStatus.color }]} />
-                    <Text style={styles.selectorText}>{selectedStatus.label}</Text>
+                    <Text style={styles.selectorText}>{t(selectedStatus.labelKey)}</Text>
                   </View>
                 ) : (
                   <Text style={[styles.selectorText, { color: theme.palette.text.hint }]}>
-                    Select status
+                    {t('bookingStatus.selectStatus')}
                   </Text>
                 )}
                 <Text style={styles.chevron}>▼</Text>
@@ -64,7 +66,7 @@ export const BookingStatus = ({ name = 'status', label = 'Status' }) => {
                 >
                   <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
-                      <Text style={styles.modalTitle}>Select Status</Text>
+                      <Text style={styles.modalTitle}>{t('bookingStatus.selectStatusTitle')}</Text>
                       <TouchableOpacity onPress={() => setIsOpen(false)}>
                         <Text style={styles.closeButton}>✕</Text>
                       </TouchableOpacity>
@@ -89,7 +91,7 @@ export const BookingStatus = ({ name = 'status', label = 'Status' }) => {
                               styles.optionText,
                               value === status.value && styles.optionTextSelected
                             ]}>
-                              {status.label}
+                              {t(status.labelKey)}
                             </Text>
                           </View>
                           {value === status.value && (

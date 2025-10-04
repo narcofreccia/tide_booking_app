@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl }
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../theme';
 import { useStateContext } from '../context/ContextProvider';
+import { useTranslation } from '../hooks/useTranslation';
 import { getMonthlyBookings } from '../services/api';
 import { TideLogo } from '../components/TideLogo';
 import { MonthSelector } from '../components/calendar/MonthSelector';
@@ -11,6 +12,7 @@ import { DayDetailsModal } from '../components/calendar/DayDetailsModal';
 
 export default function CalendarScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
   const { selectedRestaurant, currentUser } = useStateContext();
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -79,7 +81,15 @@ export default function CalendarScreen() {
     return result;
   }, [monthDays]);
 
-  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dayNames = [
+    t('calendar.dayNames.mon'),
+    t('calendar.dayNames.tue'),
+    t('calendar.dayNames.wed'),
+    t('calendar.dayNames.thu'),
+    t('calendar.dayNames.fri'),
+    t('calendar.dayNames.sat'),
+    t('calendar.dayNames.sun')
+  ];
 
   const handleDayPress = (dayObj) => {
     setSelectedDay(dayObj);
@@ -91,9 +101,9 @@ export default function CalendarScreen() {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.title}>Calendar</Text>
+            <Text style={styles.title}>{t('calendar.title')}</Text>
             <Text style={styles.subtitle}>
-              {selectedRestaurant?.name || 'Select a restaurant'}
+              {selectedRestaurant?.name || t('calendar.selectRestaurant')}
             </Text>
           </View>
           <TideLogo size={32} />
@@ -108,13 +118,13 @@ export default function CalendarScreen() {
       {!restaurantId ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>
-            Select a restaurant to view monthly bookings
+            {t('calendar.selectRestaurantToView')}
           </Text>
         </View>
       ) : isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.palette.primary.main} />
-          <Text style={styles.loadingText}>Loading calendar...</Text>
+          <Text style={styles.loadingText}>{t('calendar.loadingCalendar')}</Text>
         </View>
       ) : (
         <ScrollView

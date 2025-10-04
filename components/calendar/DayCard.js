@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { getIcon, getIconSize } from '../../config/icons';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export const DayCard = ({ day, isToday, daySummary, onPress }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   if (!day) {
@@ -37,7 +39,7 @@ export const DayCard = ({ day, isToday, daySummary, onPress }) => {
       {/* Content */}
       {!isOpen ? (
         <View style={styles.closedContainer}>
-          <Text style={styles.closedText}>Closed</Text>
+          <Text style={styles.closedText}>{t('calendar.closed')}</Text>
         </View>
       ) : totalBookings > 0 ? (
         <View style={styles.statsContainer}>
@@ -60,7 +62,7 @@ export const DayCard = ({ day, isToday, daySummary, onPress }) => {
         </View>
       ) : (
         <View style={styles.emptyDay}>
-          <Text style={styles.emptyText}>No bookings</Text>
+          <Text style={styles.emptyText}>{t('calendar.noBookings')}</Text>
         </View>
       )}
     </TouchableOpacity>

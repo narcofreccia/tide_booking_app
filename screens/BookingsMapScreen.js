@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native'
 import { useTheme } from '../theme'
 import { useStateContext } from '../context/ContextProvider'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from '../hooks/useTranslation'
 import { DateSelector } from '../components/DateSelector'
 import { SectionIntervalBar } from '../components/booking_manager/SectionIntervalBar'
 import { BookingsCanvas } from '../components/booking_manager/BookingsCanvas'
@@ -12,6 +13,7 @@ import { switchTablePosition } from '../services/bookingApi'
 
 export default function BookingsMapScreen() {
   const theme = useTheme()
+  const { t } = useTranslation()
   const { selectedRestaurant, currentUser } = useStateContext()
   const queryClient = useQueryClient()
   const styles = createStyles(theme)
@@ -89,9 +91,9 @@ export default function BookingsMapScreen() {
       handleCancelSwitch()
       
       // Show success message (you might want to add a toast/alert system)
-      console.log(result.length > 1 ? 'Prenotazioni scambiate con successo' : 'Prenotazione spostata con successo')
+      console.log(result.length > 1 ? t('map.bookingsSwitched') : t('map.bookingMoved'))
     } catch (error) {
-      console.error('Errore durante lo spostamento della prenotazione:', error)
+      console.error(t('map.errorSwitching'), error)
     }
   }
 
@@ -108,9 +110,9 @@ export default function BookingsMapScreen() {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.title}>Mappa Prenotazioni</Text>
+            <Text style={styles.title}>{t('map.title')}</Text>
             <Text style={styles.subtitle}>
-              {selectedRestaurant?.name || 'Seleziona un ristorante'}
+              {selectedRestaurant?.name || t('map.selectRestaurantPrompt')}
             </Text>
           </View>
           <TideLogo size={32} />
@@ -145,7 +147,7 @@ export default function BookingsMapScreen() {
         {!restaurantId ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>
-              Seleziona un ristorante dalle impostazioni
+              {t('map.pleaseSelectRestaurant')}
             </Text>
           </View>
         ) : (

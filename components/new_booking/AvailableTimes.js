@@ -5,11 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../../theme';
 import { useStateContext } from '../../context/ContextProvider';
 import { getAvailableTimes } from '../../services/api';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export const AvailableTimes = ({ name = 'arrival_time', label = 'Time' }) => {
   const { control, watch, setValue } = useFormContext();
   const { selectedRestaurant } = useStateContext();
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   const reservationDate = watch('reservation_date');
@@ -77,11 +79,11 @@ export const AvailableTimes = ({ name = 'arrival_time', label = 'Time' }) => {
             {isLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="small" color={theme.palette.primary.main} />
-                <Text style={styles.loadingText}>Loading times...</Text>
+                <Text style={styles.loadingText}>{t('bookings.loadingTimes')}</Text>
               </View>
             ) : times.length === 0 ? (
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>No available times</Text>
+                <Text style={styles.emptyText}>{t('bookings.noAvailableTimes')}</Text>
               </View>
             ) : (
               <ScrollView 

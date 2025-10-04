@@ -6,8 +6,11 @@ import { useStateContext, useDispatchContext } from '../context/ContextProvider'
 import { useLogout } from '../hooks/useAuth';
 import { SelectRestaurant } from '../components/SelectRestaurant';
 import { TideLogo } from '../components/TideLogo';
+import { LanguageSelector } from '../components/LanguageSelector';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { getIcon, getIconSize } from '../config/icons';
 import CustomersScreen from './CustomersScreen';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -16,6 +19,7 @@ export default function SettingsScreen() {
   const logoutMutation = useLogout();
   const [showCustomers, setShowCustomers] = useState(false);
   const styles = createStyles(theme);
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     dispatch({
@@ -80,8 +84,8 @@ export default function SettingsScreen() {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.title}>Settings</Text>
-            <Text style={styles.subtitle}>Manage your account and preferences</Text>
+            <Text style={styles.title}>{t('settings.title')}</Text>
+            <Text style={styles.subtitle}>{t('settings.subtitle')}</Text>
           </View>
           <TideLogo size={32} />
         </View>
@@ -90,13 +94,13 @@ export default function SettingsScreen() {
       <ScrollView style={styles.content}>
         {/* Restaurant Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Restaurant</Text>
+          <Text style={styles.sectionTitle}>{t('settings.restaurant')}</Text>
           <SelectRestaurant />
         </View>
 
         {/* Profile Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Profile</Text>
+          <Text style={styles.sectionTitle}>{t('settings.profile')}</Text>
           <View style={styles.profileCard}>
             <View style={styles.profileAvatar}>
               <Text style={styles.profileAvatarText}>
@@ -104,15 +108,15 @@ export default function SettingsScreen() {
               </Text>
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{currentUser?.name || 'User'}</Text>
-              <Text style={styles.profileEmail}>{currentUser?.email || 'user@example.com'}</Text>
+              <Text style={styles.profileName}>{currentUser?.name || t('settings.user')}</Text>
+              <Text style={styles.profileEmail}>{currentUser?.email || t('settings.userEmail')}</Text>
               <View style={styles.profileDetails}>
                 <Text style={styles.profileRole}>
-                  {currentUser?.role ? currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) : 'Manager'}
+                  {currentUser?.role ? currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) : t('settings.manager')}
                 </Text>
                 {currentUser?.business_id && (
                   <Text style={styles.profileBusiness}>
-                    • Business ID: {currentUser.business_id}
+                    • {t('settings.businessId')}: {currentUser.business_id}
                   </Text>
                 )}
               </View>
@@ -125,7 +129,7 @@ export default function SettingsScreen() {
                   ))}
                   {currentUser.features.length > 3 && (
                     <Text style={styles.moreFeatures}>
-                      +{currentUser.features.length - 3} more
+                      +{currentUser.features.length - 3} {t('settings.more')}
                     </Text>
                   )}
                 </View>
@@ -136,81 +140,83 @@ export default function SettingsScreen() {
 
         {/* General Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>General</Text>
+          <Text style={styles.sectionTitle}>{t('settings.general')}</Text>
+          <LanguageSelector />
+          <ThemeToggle />
           <SettingItem
             iconKey="shop"
-            title="Restaurant Details"
-            subtitle="Manage restaurant information"
+            title={t('settings.restaurantDetails')}
+            subtitle={t('settings.restaurantDetailsSubtitle')}
           />
           <SettingItem
             iconKey="customers"
-            title="Customers"
-            subtitle="View and manage customer database"
+            title={t('settings.customers')}
+            subtitle={t('settings.customersSubtitle')}
             onPress={() => setShowCustomers(true)}
           />
           <SettingItem
             iconKey="clock"
-            title="Operating Hours"
-            subtitle="Set opening and closing times"
+            title={t('settings.operatingHours')}
+            subtitle={t('settings.operatingHoursSubtitle')}
           />
           <SettingItem
             iconKey="table"
-            title="Table Management"
-            subtitle="Configure tables and seating"
+            title={t('settings.tableManagement')}
+            subtitle={t('settings.tableManagementSubtitle')}
           />
         </View>
 
         {/* Notifications */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notifications</Text>
+          <Text style={styles.sectionTitle}>{t('settings.notifications')}</Text>
           <SettingItem
             iconKey="notification"
-            title="Push Notifications"
-            subtitle="Manage notification preferences"
+            title={t('settings.pushNotifications')}
+            subtitle={t('settings.pushNotificationsSubtitle')}
           />
           <SettingItem
             iconKey="email"
-            title="Email Notifications"
-            subtitle="Configure email alerts"
+            title={t('settings.emailNotifications')}
+            subtitle={t('settings.emailNotificationsSubtitle')}
           />
         </View>
 
         {/* Account */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
+          <Text style={styles.sectionTitle}>{t('settings.account')}</Text>
           <SettingItem
             iconKey="lock"
-            title="Change Password"
-            subtitle="Update your password"
+            title={t('settings.changePassword')}
+            subtitle={t('settings.changePasswordSubtitle')}
           />
           <SettingItem
             iconKey="team"
-            title="Team Members"
-            subtitle="Manage staff access"
+            title={t('settings.teamMembers')}
+            subtitle={t('settings.teamMembersSubtitle')}
           />
           <SettingItem
             iconKey="billing"
-            title="Billing"
-            subtitle="Subscription and payment"
+            title={t('settings.billing')}
+            subtitle={t('settings.billingSubtitle')}
           />
         </View>
 
         {/* About */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
+          <Text style={styles.sectionTitle}>{t('settings.about')}</Text>
           <SettingItem
             iconKey="help"
-            title="Help & Support"
-            subtitle="Get help with the app"
+            title={t('settings.helpSupport')}
+            subtitle={t('settings.helpSupportSubtitle')}
           />
           <SettingItem
             iconKey="document"
-            title="Terms & Privacy"
-            subtitle="Legal information"
+            title={t('settings.termsPrivacy')}
+            subtitle={t('settings.termsPrivacySubtitle')}
           />
           <SettingItem
             iconKey="version"
-            title="App Version"
+            title={t('settings.appVersion')}
             subtitle="1.0.0"
           />
         </View>
@@ -218,8 +224,8 @@ export default function SettingsScreen() {
         {/* Logout */}
         <SettingItem
           iconKey="logout"
-          title="Logout"
-          subtitle="Logout from the app"
+          title={t('settings.logoutTitle')}
+          subtitle={t('settings.logoutSubtitle')}
           onPress={handleLogout}
           danger
         />

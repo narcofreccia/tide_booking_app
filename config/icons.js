@@ -31,6 +31,16 @@ export const ICONS = {
   back: 'arrow-left',
   map: 'map-outline',
   
+  // Arrows / Pagination
+  arrowLeft: 'arrow-left',
+  arrowRight: 'arrow-right',
+  arrowUp: 'arrow-up',
+  arrowDown: 'arrow-down',
+  chevronLeft: 'chevron-left',
+  chevronRight: 'chevron-right',
+  chevronUp: 'chevron-up',
+  chevronDown: 'chevron-down',
+  
   // Status indicators
   confirmed: 'check-circle',
   pending: 'clock-outline',

@@ -2,6 +2,7 @@ import React, { useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
+import { useTranslation } from '../hooks/useTranslation';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -18,6 +19,7 @@ import { TideLogo } from '../components/TideLogo';
 
 export default function CreateBookingScreen({ route, onSuccess }) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { selectedRestaurant } = useStateContext();
   const dispatch = useDispatchContext();
   const queryClient = useQueryClient();
@@ -104,7 +106,7 @@ export default function CreateBookingScreen({ route, onSuccess }) {
         payload: {
           open: true,
           severity: 'error',
-          message: error?.message || `Error ${isEditMode ? 'updating' : 'creating'} booking`,
+          message: error?.message || t(isEditMode ? 'bookings.errorUpdatingMessage' : 'bookings.errorCreatingMessage'),
         },
       });
       dispatch({ type: 'END_LOADING' });
@@ -115,7 +117,7 @@ export default function CreateBookingScreen({ route, onSuccess }) {
         payload: {
           open: true,
           severity: 'success',
-          message: `Booking ${isEditMode ? 'updated' : 'created'} successfully!`,
+          message: t(isEditMode ? 'bookings.bookingUpdated' : 'bookings.bookingCreated'),
         },
       });
       dispatch({ type: 'END_LOADING' });
@@ -185,9 +187,9 @@ export default function CreateBookingScreen({ route, onSuccess }) {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.title}>{isEditMode ? 'Edit Booking' : 'Create New Booking'}</Text>
+            <Text style={styles.title}>{t(isEditMode ? 'bookings.editBookingTitle' : 'bookings.createNewBooking')}</Text>
             <Text style={styles.subtitle}>
-              {isEditMode ? 'Update booking details' : 'Fill in the booking details'}
+              {t(isEditMode ? 'bookings.updateBookingDetails' : 'bookings.fillBookingDetails')}
             </Text>
           </View>
           <TideLogo size={32} />
@@ -198,31 +200,31 @@ export default function CreateBookingScreen({ route, onSuccess }) {
         <ScrollView style={styles.content}>
           <View style={styles.form}>
             {/* Date and Time */}
-            <NewBookingDatePicker name="reservation_date" label="Date" />
-            <AvailableTimes name="arrival_time" label="Arrival Time" />
+            <NewBookingDatePicker name="reservation_date" label={t('bookings.date')} />
+            <AvailableTimes name="arrival_time" label={t('bookings.arrivalTime')} />
 
             {/* Customer Info */}
             <View style={styles.row}>
               <View style={styles.halfWidth}>
-                <SimpleField field="name" label="Name" type="text" />
+                <SimpleField field="name" label={t('bookings.name')} type="text" />
               </View>
               <View style={styles.halfWidth}>
-                <SimpleField field="surname" label="Surname" type="text" />
+                <SimpleField field="surname" label={t('bookings.surname')} type="text" />
               </View>
             </View>
 
             <View style={styles.row}>
               <View style={styles.halfWidth}>
-                <SimplePhoneField name="phone" label="Phone" />
+                <SimplePhoneField name="phone" label={t('bookings.phone')} />
               </View>
               <View style={styles.halfWidth}>
-                <SimpleField field="email" label="Email" type="email" />
+                <SimpleField field="email" label={t('bookings.email')} type="email" />
               </View>
             </View>
 
             {/* Guest Count */}
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>Guests</Text>
+              <Text style={styles.sectionLabel}>{t('bookings.guestsLabel')}</Text>
               <Pax />
             </View>
 
@@ -230,23 +232,23 @@ export default function CreateBookingScreen({ route, onSuccess }) {
             <AccessibilityOptions collapsed={true} disableCollapse={false} />
 
             {/* Status */}
-            <BookingStatus name="status" label="Status" />
+            <BookingStatus name="status" label={t('bookings.status')} />
 
             {/* Notes */}
             <SimpleField 
               field="costumer_notes" 
-              label="Customer Notes" 
+              label={t('bookings.customerNotes')} 
               multiline 
               rows={4}
-              placeholder="Special requests, dietary requirements..."
+              placeholder={t('bookings.customerNotesPlaceholder')}
             />
             
             <SimpleField 
               field="restaurant_notes" 
-              label="Restaurant Notes" 
+              label={t('bookings.restaurantNotes')} 
               multiline 
               rows={4}
-              placeholder="Internal notes..."
+              placeholder={t('bookings.restaurantNotesPlaceholder')}
             />
 
             <TouchableOpacity 
@@ -256,8 +258,8 @@ export default function CreateBookingScreen({ route, onSuccess }) {
             >
               <Text style={styles.buttonText}>
                 {mutation.isPending 
-                  ? (isEditMode ? 'Updating...' : 'Creating...') 
-                  : (isEditMode ? 'Update Booking' : 'Create Booking')
+                  ? t(isEditMode ? 'bookings.updating' : 'bookings.creating') 
+                  : t(isEditMode ? 'bookings.updateBooking' : 'bookings.createBooking')
                 }
               </Text>
             </TouchableOpacity>

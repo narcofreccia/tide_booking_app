@@ -11,11 +11,13 @@ import { Pagination } from '../components/Pagination';
 import { TideLogo } from '../components/TideLogo';
 import { BookingRow } from '../components/bookings/BookingRow';
 import { getIcon, getIconSize } from '../config/icons';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function BookingsScreen() {
   const theme = useTheme();
   const { selectedRestaurant, currentUser, selectedBookingDate } = useStateContext();
   const dispatch = useDispatchContext();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   const [selectedDate, setSelectedDate] = useState(selectedBookingDate || new Date());
@@ -56,9 +58,9 @@ export default function BookingsScreen() {
         <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.title}>Bookings</Text>
+            <Text style={styles.title}>{t('bookings.title')}</Text>
             <Text style={styles.subtitle}>
-              {selectedRestaurant?.name || 'Select a restaurant'}
+              {selectedRestaurant?.name || t('bookings.selectRestaurantPrompt')}
             </Text>
           </View>
           <TideLogo size={32} />
@@ -87,7 +89,7 @@ export default function BookingsScreen() {
           />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search by name, email, phone..."
+            placeholder={t('bookings.searchPlaceholder')}
             placeholderTextColor={theme.palette.text.disabled}
             value={searchQuery}
             onChangeText={(text) => {
@@ -112,23 +114,23 @@ export default function BookingsScreen() {
 
       {!restaurantId ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>Please select a restaurant from Settings</Text>
+          <Text style={styles.emptyText}>{t('bookings.pleaseSelectRestaurant')}</Text>
         </View>
       ) : isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.palette.primary.main} />
-          <Text style={styles.loadingText}>Loading bookings...</Text>
+          <Text style={styles.loadingText}>{t('bookings.loadingBookings')}</Text>
         </View>
       ) : error ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>Error loading bookings</Text>
+          <Text style={styles.emptyText}>{t('bookings.errorLoading')}</Text>
           <Text style={styles.errorText}>{error.message}</Text>
         </View>
       ) : bookings.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No bookings found</Text>
+          <Text style={styles.emptyText}>{t('bookings.noBookingsFound')}</Text>
           <Text style={styles.emptySubtext}>
-            {searchQuery ? 'Try a different search' : 'No bookings for this date'}
+            {searchQuery ? t('bookings.tryDifferentSearch') : t('bookings.noBookingsForDate')}
           </Text>
         </View>
       ) : (

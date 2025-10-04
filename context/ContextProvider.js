@@ -8,6 +8,7 @@ const initialState = {
   dialog: { open: false, close: false, title: '', message: '', onSubmit: undefined },
   loading: false,
   selectedRestaurant: { id: null, name: null, public_key: null },
+  language: 'en',
 };
 
 // Create Context
@@ -16,6 +17,7 @@ const DispatchContext = createContext();
 // Context Provider Component
 export const ContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [isInitialized, setIsInitialized] = React.useState(false);
 
   // Load currentUser and selectedRestaurant from AsyncStorage on mount
   useEffect(() => {
@@ -38,8 +40,16 @@ export const ContextProvider = ({ children }) => {
           const selectedBookingDate = new Date(storedBookingDate);
           dispatch({ type: 'UPDATE_SELECTED_BOOKING_DATE', payload: selectedBookingDate });
         }
+
+        const storedLanguage = await AsyncStorage.getItem('language');
+        if (storedLanguage) {
+          dispatch({ type: 'UPDATE_LANGUAGE', payload: storedLanguage });
+        }
+        
+        setIsInitialized(true);
       } catch (error) {
         console.error('Error loading persisted data from AsyncStorage:', error);
+        setIsInitialized(true);
       }
     };
 
@@ -92,6 +102,24 @@ export const ContextProvider = ({ children }) => {
 
     persistSelectedBookingDate();
   }, [state.selectedBookingDate]);
+
+  // Persist language to AsyncStorage whenever it changes
+  useEffect(() => {
+    // Don't persist on initial mount, only after data is loaded
+    if (!isInitialized) return;
+    
+    const persistLanguage = async () => {
+      try {
+        if (state.language) {
+          await AsyncStorage.setItem('language', state.language);
+        }
+      } catch (error) {
+        console.error('Error persisting language to AsyncStorage:', error);
+      }
+    };
+
+    persistLanguage();
+  }, [state.language, isInitialized]);
 
   return (
     <StateContext.Provider value={state}>

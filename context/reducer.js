@@ -5,6 +5,7 @@ const initialState = {
   loading: false,
   selectedRestaurant: { id: null, name: null, public_key: null },
   selectedBookingDate: new Date(),
+  language: 'en',
 };
 
 const reducer = (state = initialState, action) => {
@@ -38,6 +39,9 @@ const reducer = (state = initialState, action) => {
     
     case 'UPDATE_SELECTED_BOOKING_DATE':
       return { ...state, selectedBookingDate: action.payload };
+    
+    case 'UPDATE_LANGUAGE':
+      return { ...state, language: action.payload };
     
     default:
       console.log('Unhandled action:', action);

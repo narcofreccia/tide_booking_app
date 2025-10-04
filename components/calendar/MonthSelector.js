@@ -2,15 +2,27 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
-
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
+import { useTranslation } from '../../hooks/useTranslation';
 
 export const MonthSelector = ({ selectedDate, onDateChange }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
+  
+  const MONTHS = [
+    t('calendar.months.january'),
+    t('calendar.months.february'),
+    t('calendar.months.march'),
+    t('calendar.months.april'),
+    t('calendar.months.may'),
+    t('calendar.months.june'),
+    t('calendar.months.july'),
+    t('calendar.months.august'),
+    t('calendar.months.september'),
+    t('calendar.months.october'),
+    t('calendar.months.november'),
+    t('calendar.months.december')
+  ];
 
   const handlePrevMonth = () => {
     const newDate = new Date(selectedDate);

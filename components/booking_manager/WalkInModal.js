@@ -5,6 +5,7 @@ import { useTheme } from '../../theme'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDispatchContext } from '../../context/ContextProvider'
 import { createWalkInBooking } from '../../services/bookingApi'
+import { useTranslation } from '../../hooks/useTranslation'
 
 /**
  * WalkInModal
@@ -19,6 +20,7 @@ import { createWalkInBooking } from '../../services/bookingApi'
  */
 export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId, date }) => {
   const theme = useTheme()
+  const { t } = useTranslation()
   const dispatch = useDispatchContext()
   const queryClient = useQueryClient()
   const styles = createStyles(theme)
@@ -34,7 +36,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
         payload: {
           open: true,
           severity: 'success',
-          message: 'Walk-in creato con successo',
+          message: t('walkIn.successMessage'),
         },
       })
       
@@ -54,7 +56,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
         payload: {
           open: true,
           severity: 'error',
-          message: error?.response?.data?.detail || 'Errore creazione walk-in',
+          message: error?.response?.data?.detail || t('walkIn.errorMessage'),
         },
       })
     },
@@ -104,7 +106,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
                 color={theme.palette.primary.main} 
               />
               <Text style={[styles.title, { color: theme.palette.text.primary }]}>
-                Nuovo Walk-In
+                {t('walkIn.title')}
               </Text>
             </View>
             <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
@@ -121,7 +123,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
             {/* Table Info */}
             <View style={[styles.infoBox, { backgroundColor: theme.palette.background.default }]}>
               <Text style={[styles.infoLabel, { color: theme.palette.text.secondary }]}>
-                Tavolo
+                {t('walkIn.table')}
               </Text>
               <Text style={[styles.infoValue, { color: theme.palette.text.primary }]}>
                 {tableName || tableId}
@@ -131,7 +133,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
             {/* PAX Input */}
             <View style={styles.fieldContainer}>
               <Text style={[styles.label, { color: theme.palette.text.primary }]}>
-                Persone (PAX) *
+                {t('walkIn.paxLabel')}
               </Text>
               <TextInput
                 style={[styles.input, { 
@@ -142,7 +144,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
                 value={pax}
                 onChangeText={setPax}
                 keyboardType="number-pad"
-                placeholder="2"
+                placeholder={t('walkIn.paxPlaceholder')}
                 placeholderTextColor={theme.palette.text.disabled}
               />
             </View>
@@ -150,7 +152,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
             {/* Notes Input */}
             <View style={styles.fieldContainer}>
               <Text style={[styles.label, { color: theme.palette.text.primary }]}>
-                Note ristorante (opzionale)
+                {t('walkIn.notesLabel')}
               </Text>
               <TextInput
                 style={[styles.textArea, { 
@@ -162,7 +164,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
                 onChangeText={setNotes}
                 multiline
                 numberOfLines={4}
-                placeholder="Aggiungi note..."
+                placeholder={t('walkIn.notesPlaceholder')}
                 placeholderTextColor={theme.palette.text.disabled}
                 textAlignVertical="top"
               />
@@ -179,7 +181,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
               onPress={handleClose}
             >
               <Text style={[styles.buttonText, { color: theme.palette.text.primary }]}>
-                Annulla
+                {t('walkIn.cancel')}
               </Text>
             </TouchableOpacity>
             
@@ -196,7 +198,7 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
                 color="#FFFFFF" 
               />
               <Text style={[styles.buttonText, { color: '#FFFFFF', marginLeft: 6 }]}>
-                {mutation.isPending ? 'Creazione...' : 'Crea Walk-In'}
+                {mutation.isPending ? t('walkIn.creating') : t('walkIn.create')}
               </Text>
             </TouchableOpacity>
           </View>
