@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useQuery } from '@tanstack/react-query'
 import { useTheme } from '../../theme'
 import { getAllTablesByRestaurantId, getBookingsByDate, getFloorById } from '../../services/api'
@@ -126,7 +127,7 @@ export const BookingsCanvas = ({
   }
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <TablesMapReadOnly
         floor={floor}
         tables={tables}
@@ -145,7 +146,7 @@ export const BookingsCanvas = ({
         restaurantId={restaurantId}
         date={date}
       />
-    </View>
+    </GestureHandlerRootView>
   )
 }
 

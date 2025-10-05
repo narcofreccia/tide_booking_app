@@ -44,6 +44,10 @@ The app includes an interactive map view of tables with live booking overlays an
 ### Features
 - **Interactive Table Map**: Fetches floor, tables, and bookings via React Query
 - **Performant SVG Rendering**: Scaled to screen width with smooth interactions
+- **Pinch-to-Zoom**: Native iOS pinch gesture support (0.5x - 3x zoom)
+  - Smooth, organic zoom with ScrollView's built-in capabilities
+  - Full 2D scrolling with visible scrollbars
+  - Zoom persists during navigation
 - **Booking Details**: Tap on a table to open bottom-sheet with full booking information
 - **Table Switching**: Move bookings between tables with visual feedback
   - Tap "Sposta" button to enter switching mode
@@ -69,6 +73,8 @@ The app includes an interactive map view of tables with live booking overlays an
 
 ### Implementation notes
 - Uses `react-native-svg` (no native rebuild required; works in Expo Go)
+- **Pinch-to-zoom** implemented with ScrollView's native `minimumZoomScale` and `maximumZoomScale` props (iOS)
+- Nested ScrollViews for 2D panning with visible scrollbars
 - Smart query invalidation ensures instant UI updates after changes
 - Minimal drawer design (~80-90px height) to maximize map visibility
 - Table highlighting with orange border (#ff6b35) for visual feedback
@@ -251,6 +257,7 @@ npm start
 - Real-time bookings list with date selector, search, and pagination
 - **Time interval filtering** on BookingsScreen - Filter by lunch, dinner, or all times
 - **Inline booking summary** - Reservation and guest counts next to search bar
+- **Quick access to Customers** - Icon button in BookingsScreen header for easy navigation
 - **Persistent booking date selection** across app sessions
 - Full booking creation form with validation and API integration
 - Available times fetched from backend calendar rules
@@ -287,6 +294,14 @@ npm start
   - Confirm password matching
   - Real-time validation feedback
   - Success/error notifications
+- **Support Modal** - Help and support information
+  - Configurable support page URL via environment variable
+  - Support hours and response time information
+  - Direct link to open support page
+- **Streamlined Settings Screen**
+  - Removed clutter: Restaurant Details, Table Management, Email Notifications, Team Members, Billing, Terms & Privacy
+  - Role-based visibility for Operating Hours (Admin/Owner/Manager only)
+  - Focus on essential settings: Language, Theme, Password, Support
  - **Pull-to-refresh** on data screens (Bookings, Calendar, Customers) using native RefreshControl integrated with React Query `refetch()`
 - **API Service** (`services/api.js`)
   - Axios client with request/response interceptors
@@ -397,6 +412,8 @@ npm start
 │   │   └── WalkInModal.js
 │   ├── password_change/   # Password change components
 │   │   └── PasswordField.js      # Password input with show/hide toggle
+│   ├── settings/          # Settings components
+│   │   └── SupportModal.js       # Support information modal
 │   └── calendar/          # Calendar components
 │       ├── MonthSelector.js
 │       ├── DayCard.js
@@ -665,20 +682,20 @@ The app automatically detects the runtime environment and uses the appropriate A
 **Configuration in `app.config.js`:**
 ```js
 extra: {
+  tideSupportPage: process.env.TIDE_SUPPORT_URL || 'https://tideexperience.com/support',
   environment: process.env.APP_ENV || 'development',
   devServerUrl: process.env.DEV_SERVER_URL || "http://localhost:8000",
   devServerUrlExpoGo: process.env.DEV_SERVER_EXPO_URL || 'http://192.168.x.x:8000',
   prodServerUrl: process.env.PROD_SERVER_URL || "https://your-api.com"
 }
 ```
-
 **Debug logging**: The app logs the active configuration on startup to help verify which URL is being used.
 
 ## 🎨 Theme System
 
 The app features a comprehensive theme system with **Dark** and **Light** modes that users can toggle.
 
-### Theme Modes
+{{ ... }}
 - **Dark Theme** ("Nocturne Neo") - Elegant dark mode with deep blue-gray backgrounds
 - **Light Theme** ("Aurora Daylight") - Fresh, clean light mode with cool-neutral tones
 - **Theme Toggle** - Switch between modes in Settings screen

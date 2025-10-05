@@ -34,6 +34,7 @@ export default {
     ],
     extra: {
       // Use environment variables from eas.json or .env (local dev)
+      tideSupportPage: process.env.TIDE_SUPPORT_URL || 'https://tideexperience.com/support',
       environment: process.env.APP_ENV || 'development',
       devServerUrl: process.env.DEV_SERVER_URL || "http://localhost:8000",
       devServerUrlExpoGo: process.env.DEV_SERVER_EXPO_URL || 'http://192.168.10.102:8000',

@@ -9,8 +9,9 @@ import { TideLogo } from '../components/TideLogo';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { getIcon, getIconSize } from '../config/icons';
-import CustomersScreen from './CustomersScreen';
 import PasswordChangeScreen from './PasswordChangeScreen';
+import { SupportModal } from '../components/settings/SupportModal';
+import { isAdmin, isOwner, isManager } from '../services/getUserRole';
 import { useTranslation } from '../hooks/useTranslation';
 
 export default function SettingsScreen() {
@@ -18,10 +19,13 @@ export default function SettingsScreen() {
   const { currentUser } = useStateContext();
   const dispatch = useDispatchContext();
   const logoutMutation = useLogout();
-  const [showCustomers, setShowCustomers] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
   const styles = createStyles(theme);
   const { t } = useTranslation();
+
+  // Check if user has management permissions
+  const canManageRestaurant = isAdmin(currentUser) || isOwner(currentUser) || isManager(currentUser);
 
   const handleLogout = () => {
     dispatch({
@@ -75,11 +79,6 @@ export default function SettingsScreen() {
       <Text style={styles.chevron}>›</Text>
     </TouchableOpacity>
   );
-
-  // If showing customers, render CustomersScreen instead
-  if (showCustomers) {
-    return <CustomersScreen onBack={() => setShowCustomers(false)} />;
-  }
 
   // If showing password change, render PasswordChangeScreen instead
   if (showPasswordChange) {
@@ -150,43 +149,15 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>{t('settings.general')}</Text>
           <LanguageSelector />
           <ThemeToggle />
-          <SettingItem
-            iconKey="shop"
-            title={t('settings.restaurantDetails')}
-            subtitle={t('settings.restaurantDetailsSubtitle')}
-          />
-          <SettingItem
-            iconKey="customers"
-            title={t('settings.customers')}
-            subtitle={t('settings.customersSubtitle')}
-            onPress={() => setShowCustomers(true)}
-          />
-          <SettingItem
-            iconKey="clock"
-            title={t('settings.operatingHours')}
-            subtitle={t('settings.operatingHoursSubtitle')}
-          />
-          <SettingItem
-            iconKey="table"
-            title={t('settings.tableManagement')}
-            subtitle={t('settings.tableManagementSubtitle')}
-          />
+          {canManageRestaurant && (
+            <SettingItem
+              iconKey="clock"
+              title={t('settings.operatingHours')}
+              subtitle={t('settings.operatingHoursSubtitle')}
+            />
+          )}
         </View>
 
-        {/* Notifications */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('settings.notifications')}</Text>
-          <SettingItem
-            iconKey="notification"
-            title={t('settings.pushNotifications')}
-            subtitle={t('settings.pushNotificationsSubtitle')}
-          />
-          <SettingItem
-            iconKey="email"
-            title={t('settings.emailNotifications')}
-            subtitle={t('settings.emailNotificationsSubtitle')}
-          />
-        </View>
 
         {/* Account */}
         <View style={styles.section}>
@@ -197,16 +168,6 @@ export default function SettingsScreen() {
             subtitle={t('settings.changePasswordSubtitle')}
             onPress={() => setShowPasswordChange(true)}
           />
-          <SettingItem
-            iconKey="team"
-            title={t('settings.teamMembers')}
-            subtitle={t('settings.teamMembersSubtitle')}
-          />
-          <SettingItem
-            iconKey="billing"
-            title={t('settings.billing')}
-            subtitle={t('settings.billingSubtitle')}
-          />
         </View>
 
         {/* About */}
@@ -216,11 +177,7 @@ export default function SettingsScreen() {
             iconKey="help"
             title={t('settings.helpSupport')}
             subtitle={t('settings.helpSupportSubtitle')}
-          />
-          <SettingItem
-            iconKey="document"
-            title={t('settings.termsPrivacy')}
-            subtitle={t('settings.termsPrivacySubtitle')}
+            onPress={() => setShowSupportModal(true)}
           />
           <SettingItem
             iconKey="version"
@@ -238,6 +195,12 @@ export default function SettingsScreen() {
           danger
         />
       </ScrollView>
+
+      {/* Support Modal */}
+      <SupportModal
+        visible={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+      />
     </>
   );
 }

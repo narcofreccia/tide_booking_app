@@ -237,18 +237,17 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
   return (
     <ScrollView 
       horizontal
-      showsHorizontalScrollIndicator={true}
-      showsVerticalScrollIndicator={true}
       style={styles.scrollView}
-      contentContainerStyle={styles.scrollContent}
-      nestedScrollEnabled={true}
+      showsHorizontalScrollIndicator={true}
+      minimumZoomScale={0.5}
+      maximumZoomScale={3}
+      pinchGestureEnabled={true}
+      bouncesZoom={true}
     >
       <ScrollView
         showsVerticalScrollIndicator={true}
-        showsHorizontalScrollIndicator={false}
-        nestedScrollEnabled={true}
       >
-        <View style={[styles.container, { backgroundColor: bgColor }]}>
+        <View style={{ width, height, backgroundColor: bgColor }}>
           <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
             {/* Background */}
             <Rect x={0} y={0} width={width} height={height} fill={bgColor} />
@@ -268,12 +267,12 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
+    backgroundColor: 'transparent',
   },
   container: {
-    padding: 12,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyText: {
     textAlign: 'center',

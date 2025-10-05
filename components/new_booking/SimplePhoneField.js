@@ -3,10 +3,33 @@ import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useFormContext, Controller } from 'react-hook-form';
 import { useTheme } from '../../theme';
 
-export const SimplePhoneField = ({ name = 'phone', label = 'Phone' }) => {
+export const SimplePhoneField = ({ name = 'phone', label = 'Phone', defaultCountryCode = '+39' }) => {
   const { control } = useFormContext();
   const theme = useTheme();
   const styles = createStyles(theme);
+
+  const handlePhoneChange = (text, onChange) => {
+    // Allow digits, +, and spaces only
+    let cleaned = text.replace(/[^\d+\s]/g, '');
+    
+    // If empty or user deleted the +, reset to default country code
+    if (cleaned.length === 0 || (!cleaned.startsWith('+') && cleaned.trim().length === 0)) {
+      onChange(defaultCountryCode);
+      return;
+    }
+    
+    // If doesn't start with +, add default country code
+    if (!cleaned.startsWith('+')) {
+      cleaned = defaultCountryCode + ' ' + cleaned.trim();
+    }
+    
+    // Ensure only one + at the start and it's at position 0
+    if (cleaned.indexOf('+') > 0) {
+      cleaned = '+' + cleaned.replace(/\+/g, '');
+    }
+    
+    onChange(cleaned);
+  };
 
   return (
     <View style={styles.container}>
@@ -14,22 +37,35 @@ export const SimplePhoneField = ({ name = 'phone', label = 'Phone' }) => {
       <Controller
         name={name}
         control={control}
-        render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
-          <>
-            <TextInput
-              style={[styles.input, error && styles.inputError]}
-              value={value ?? ''}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="+39 123 456 7890"
-              placeholderTextColor={theme.palette.text.hint}
-              keyboardType="phone-pad"
-            />
-            {error && (
-              <Text style={styles.errorText}>{error.message}</Text>
-            )}
-          </>
-        )}
+        render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => {
+          const displayValue = value || defaultCountryCode;
+          
+          const handleBlur = () => {
+            // If only country code or empty, clear the field
+            if (!value || value === defaultCountryCode || value === '+' || value.trim() === '') {
+              onChange(null);
+            }
+            onBlur();
+          };
+          
+          return (
+            <>
+              <TextInput
+                style={[styles.input, error && styles.inputError]}
+                value={displayValue}
+                onChangeText={(text) => handlePhoneChange(text, onChange)}
+                onBlur={handleBlur}
+                placeholder="+39 123 456 7890"
+                placeholderTextColor={theme.palette.text.hint}
+                keyboardType="phone-pad"
+                selectTextOnFocus={false}
+              />
+              {error && (
+                <Text style={styles.errorText}>{error.message}</Text>
+              )}
+            </>
+          );
+        }}
       />
     </View>
   );

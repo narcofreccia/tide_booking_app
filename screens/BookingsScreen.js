@@ -12,6 +12,7 @@ import { Pagination } from '../components/Pagination';
 import { TideLogo } from '../components/TideLogo';
 import { BookingRow } from '../components/bookings/BookingRow';
 import { BookingSummaryBar } from '../components/booking_manager/BookingSummaryBar';
+import CustomersScreen from './CustomersScreen';
 import { getIcon, getIconSize } from '../config/icons';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -27,6 +28,7 @@ export default function BookingsScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedInterval, setSelectedInterval] = useState(null);
   const [selectedIntervalIndex, setSelectedIntervalIndex] = useState(null);
+  const [showCustomers, setShowCustomers] = useState(false);
   const limit = 20;
 
   // Format date to YYYY-MM-DD
@@ -78,17 +80,34 @@ export default function BookingsScreen() {
     setCurrentPage(1); // Reset to first page on interval change
   };
 
+  // If showing customers, render CustomersScreen instead
+  if (showCustomers) {
+    return <CustomersScreen onBack={() => setShowCustomers(false)} />;
+  }
+
   return (
     <GestureHandlerRootView style={styles.gestureContainer}>
         <View style={styles.header}>
         <View style={styles.headerContent}>
-          <View>
+          <View style={styles.headerLeft}>
             <Text style={styles.title}>{t('bookings.title')}</Text>
             <Text style={styles.subtitle}>
               {selectedRestaurant?.name || t('bookings.selectRestaurantPrompt')}
             </Text>
           </View>
-          <TideLogo size={32} />
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={styles.customersButton}
+              onPress={() => setShowCustomers(true)}
+            >
+              <MaterialCommunityIcons
+                name={getIcon('customers')}
+                size={getIconSize('lg')}
+                color={theme.palette.primary.main}
+              />
+            </TouchableOpacity>
+            <TideLogo size={32} />
+          </View>
         </View>
       </View>
 
@@ -235,6 +254,17 @@ const createStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  customersButton: {
+    padding: theme.spacing.xs,
   },
   title: {
     fontSize: theme.typography.fontSize.xxl,

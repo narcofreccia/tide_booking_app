@@ -75,7 +75,14 @@
     "logoutMessage": "Sei sicuro di voler uscire?",
     "logoutSubtitle": "Esci dall'app",
     "languageChanged": "Lingua cambiata con successo",
-    "languageChangedMessage": "La lingua è stata cambiata con successo. Vuoi uscire dall'app e riavviarla?"
+    "languageChangedMessage": "La lingua è stata cambiata con successo. Vuoi uscire dall'app e riavviarla?",
+    "support": {
+      "title": "Supporto e Assistenza",
+      "description": "Hai bisogno di aiuto? Il nostro team di supporto è qui per assisterti con qualsiasi domanda o problema.",
+      "emailInfo": "Rispondiamo entro 24 ore",
+      "hoursInfo": "Lun-Ven: 9:00-18:00",
+      "openSupportPage": "Apri Pagina Supporto"
+    }
   },
   "restaurant": {
     "selectRestaurant": "Seleziona Ristorante",

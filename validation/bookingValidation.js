@@ -41,7 +41,33 @@ const bookingSchema = yup.object({
   phone: yup
     .string()
     .nullable()
-    .transform((v, o) => (o === '' ? null : v)),
+    .transform((v, o) => {
+      // Transform empty string or just country code to null
+      if (!o || o === '' || o === '+39' || o === '+') return null;
+      return v;
+    })
+    .test('valid-phone-format', 'Telefono non valido. Usa formato internazionale (es. +39 123 456 7890)', (value) => {
+      // Allow null/empty (optional field)
+      if (!value || value === null) return true;
+      
+      // Must start with +
+      if (!value.startsWith('+')) return false;
+      
+      // Remove + and spaces to check digits
+      const digitsOnly = value.replace(/[^\d]/g, '');
+      
+      // Must have at least country code (1-3 digits) + phone number (minimum 6 digits)
+      // Total minimum: 7 digits
+      if (digitsOnly.length < 7) return false;
+      
+      // Must not be longer than 15 digits (international standard)
+      if (digitsOnly.length > 15) return false;
+      
+      // Basic format check: + followed by digits (spaces allowed)
+      const validFormat = /^\+[\d\s]+$/.test(value);
+      
+      return validFormat;
+    }),
   
   email: yup
     .string()
