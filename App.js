@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -104,17 +105,19 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <ContextProvider>
-        <QueryClientProvider client={queryClient}>
-          <StatusBar style="light" translucent={false} backgroundColor="#1a1a1a" />
-          <AppContent />
-          <Notification />
-          <ConfirmDialog />
-          <Loading />
-        </QueryClientProvider>
-      </ContextProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <ContextProvider>
+          <QueryClientProvider client={queryClient}>
+            <StatusBar style="light" translucent={false} backgroundColor="#1a1a1a" />
+            <AppContent />
+            <Notification />
+            <ConfirmDialog />
+            <Loading />
+          </QueryClientProvider>
+        </ContextProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 

@@ -49,13 +49,25 @@ The app includes an interactive map view of tables with live booking overlays an
   - Full 2D scrolling with visible scrollbars
   - Zoom persists during navigation
 - **Booking Details**: Tap on a table to open bottom-sheet with full booking information
+- **Walk-In Bookings**: Create walk-in reservations directly from the table map
+  - Quick access from empty tables or tables with existing bookings
+  - Simple form with PAX and notes
+  - Instant map refresh after creation
 - **Table Switching**: Move bookings between tables with visual feedback
   - Tap "Sposta" button to enter switching mode
   - Select target table on map (highlighted in orange)
   - Confirm to move/swap bookings
 - **Quick Status Changes**: Update booking status directly from map
   - Tap "Stato" button to open status selector
+  - Translated status labels (pending, confirmed, seated, completed, etc.)
   - Instant map refresh with new status color
+- **Edit Bookings**: Full booking edit functionality from table details
+  - Modal-based editing with form validation
+  - Phone number with country code enforcement
+  - International phone format validation
+- **Clickable Phone Numbers**: Tap phone numbers in booking list to call
+  - Direct dialer integration with `tel:` links
+  - Visual indication (underline + primary color)
 - **Color-Coded Overlays**: Visual status indicators (see `constants/bookingStatusColors.js`)
 - **Multi-Booking Support**: Diagonal split overlay for tables with multiple bookings
 - **Compact Controls**: Section and Interval pickers as themed chips
@@ -65,6 +77,7 @@ The app includes an interactive map view of tables with live booking overlays an
   - Inline with search bar in BookingsScreen
 - **Smart Customer Name Display**: Combines surname and name intelligently on table labels
 - **Time Interval Filtering**: Filter bookings by service time (lunch, dinner, etc.)
+- **Timezone-Safe Date Handling**: Local timezone formatting prevents date shift bugs
 
 ### Navigation changes
 - Bottom tabs: `Bookings | Map | Create | Calendar | Settings`.
@@ -75,6 +88,16 @@ The app includes an interactive map view of tables with live booking overlays an
 - Uses `react-native-svg` (no native rebuild required; works in Expo Go)
 - **Pinch-to-zoom** implemented with ScrollView's native `minimumZoomScale` and `maximumZoomScale` props (iOS)
 - Nested ScrollViews for 2D panning with visible scrollbars
+- **SafeAreaView** from `react-native-safe-area-context` with `SafeAreaProvider` wrapper
+- **Modal management**: Sequential modal transitions prevent crashes
+  - Child modals (WalkIn, Edit, Status) don't auto-close parent modal
+  - Prevents double-close race conditions on mobile
+- **Phone validation**: International format with country code enforcement
+  - Minimum 7 digits, maximum 15 digits (E.164 standard)
+  - Auto-formats with `+` prefix and spaces allowed
+- **Date handling**: Local timezone formatting with `getFullYear()`, `getMonth()`, `getDate()`
+  - Avoids `toISOString()` UTC conversion bugs
+  - Consistent dates across screen navigation
 - Smart query invalidation ensures instant UI updates after changes
 - Minimal drawer design (~80-90px height) to maximize map visibility
 - Table highlighting with orange border (#ff6b35) for visual feedback

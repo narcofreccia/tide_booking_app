@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Linking } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
@@ -25,6 +25,12 @@ export const BookingRow = ({ booking, onPress }) => {
       completed: theme.palette.success.dark,
     };
     return statusColors[status] || theme.palette.text.secondary;
+  };
+
+  const handlePhonePress = () => {
+    if (booking.phone) {
+      Linking.openURL(`tel:${booking.phone}`);
+    }
   };
 
   const formatStatus = (status) => {
@@ -94,10 +100,14 @@ export const BookingRow = ({ booking, onPress }) => {
             </View>
           )}
           {booking.phone && (
-            <View style={styles.contactItem}>
-              <MaterialCommunityIcons name={getIcon('phone')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
-              <Text style={styles.contactText}>{booking.phone}</Text>
-            </View>
+            <TouchableOpacity 
+              style={styles.contactItem}
+              onPress={handlePhonePress}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons name={getIcon('phone')} size={getIconSize('sm')} color={theme.palette.primary.main} />
+              <Text style={[styles.contactText, styles.phoneText]}>{booking.phone}</Text>
+            </TouchableOpacity>
           )}
         </View>
       )}
@@ -171,6 +181,10 @@ const createStyles = (theme) => StyleSheet.create({
   contactText: {
     fontSize: theme.typography.fontSize.sm,
     color: theme.palette.text.secondary,
+  },
+  phoneText: {
+    color: theme.palette.primary.main,
+    textDecorationLine: 'underline',
   },
   notesContainer: {
     flexDirection: 'row',

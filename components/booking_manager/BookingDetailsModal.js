@@ -346,8 +346,6 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
           onClose={() => {
             setChangeStatusModalVisible(false)
             setSelectedBooking(null)
-            // Close the BookingDetailsModal after status change
-            onClose()
           }}
         />
       )}
@@ -360,7 +358,6 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
           onClose={() => {
             setEditModalVisible(false)
             setSelectedBooking(null)
-            onClose()
           }}
         />
       )}
@@ -370,7 +367,6 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
         visible={walkInModalVisible}
         onClose={() => {
           setWalkInModalVisible(false)
-          onClose()
         }}
         tableId={tableId}
         tableName={tableName}

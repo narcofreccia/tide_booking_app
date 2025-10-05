@@ -149,7 +149,10 @@
     "statusno_show": "No Presentado",
     "statusArrived": "Llegado",
     "statusSeated": "Sentado",
-    "statusCompleted": "Completada"
+    "statusCompleted": "Completada",
+    "statusUpdated": "Estado actualizado",
+    "errorUpdatingStatus": "Error al actualizar el estado",
+    "currentStatus": "Estado Actual"
   },
   "navigation": {
     "bookings": "Reservas",
@@ -167,7 +170,10 @@
     "cancelled_by_restaurant": "Cancelada por el Restaurante",
     "no_show": "No Presentado",
     "selectStatus": "Selecciona estado",
-    "selectStatusTitle": "Selecciona Estado"
+    "selectStatusTitle": "Selecciona Estado",
+    "arrived": "Llegado",
+    "bill": "Factura",
+    "clean": "Por Limpiar"
   },
   "calendar": {
     "title": "Calendario",

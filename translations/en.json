@@ -149,7 +149,10 @@
     "statusno_show": "No Show",
     "statusArrived": "Arrived",
     "statusSeated": "Seated",
-    "statusCompleted": "Completed"
+    "statusCompleted": "Completed",
+    "statusUpdated": "Status updated",
+    "errorUpdatingStatus": "Error updating status",
+    "currentStatus": "Current Status"
   },
   "navigation": {
     "bookings": "Bookings",
@@ -167,7 +170,10 @@
     "cancelled_by_restaurant": "Cancelled by Restaurant",
     "no_show": "No Show",
     "selectStatus": "Select status",
-    "selectStatusTitle": "Select Status"
+    "selectStatusTitle": "Select Status",
+    "arrived": "Arrived",
+    "bill": "Bill",
+    "clean": "To Clean"
   },
   "calendar": {
     "title": "Calendar",

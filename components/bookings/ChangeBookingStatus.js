@@ -5,19 +5,7 @@ import { useTheme } from '../../theme';
 import { useDispatchContext } from '../../context/ContextProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { changeBookingStatus } from '../../services/api';
-
-const BOOKING_STATUS_LABELS = {
-  pending: 'Pending',
-  confirmed: 'Confirmed',
-  cancelled_by_user: 'Cancelled by User',
-  cancelled_by_restaurant: 'Cancelled by Restaurant',
-  no_show: 'No Show',
-  arrived: 'Arrived',
-  seated: 'Seated',
-  bill: 'Bill',
-  clean: 'Clean',
-  completed: 'Completed',
-};
+import { useTranslation } from '../../hooks/useTranslation';
 
 const DEFAULT_STATUS_OPTIONS = [
   'pending',
@@ -36,9 +24,14 @@ export const ChangeBookingStatus = ({ booking, visible, onClose, statusOptions }
   const theme = useTheme();
   const dispatch = useDispatchContext();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   const finalStatusOptions = statusOptions || DEFAULT_STATUS_OPTIONS;
+
+  const getStatusLabel = (status) => {
+    return t(`bookingStatus.${status}`) || status;
+  };
 
   const getStatusColor = (status) => {
     const statusColors = {
@@ -67,7 +60,7 @@ export const ChangeBookingStatus = ({ booking, visible, onClose, statusOptions }
         payload: {
           open: true,
           severity: 'success',
-          message: `Status updated to: ${BOOKING_STATUS_LABELS[newStatus] || newStatus}`,
+          message: `${t('bookings.statusUpdated')}: ${getStatusLabel(newStatus)}`,
         },
       });
       // Invalidate all booking-related queries
@@ -82,7 +75,7 @@ export const ChangeBookingStatus = ({ booking, visible, onClose, statusOptions }
         payload: {
           open: true,
           severity: 'error',
-          message: error?.response?.data?.detail || 'Error updating status',
+          message: error?.response?.data?.detail || t('bookings.errorUpdatingStatus'),
         },
       });
     },
@@ -108,17 +101,17 @@ export const ChangeBookingStatus = ({ booking, visible, onClose, statusOptions }
       >
         <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Change Booking Status</Text>
+            <Text style={styles.modalTitle}>{t('bookingStatus.selectStatusTitle')}</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <MaterialCommunityIcons name="close" size={24} color={theme.palette.text.primary} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.currentStatusContainer}>
-            <Text style={styles.currentStatusLabel}>Current Status:</Text>
+            <Text style={styles.currentStatusLabel}>{t('bookings.currentStatus')}:</Text>
             <View style={[styles.currentStatusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
               <Text style={styles.currentStatusText}>
-                {BOOKING_STATUS_LABELS[booking.status] || booking.status}
+                {getStatusLabel(booking.status)}
               </Text>
             </View>
           </View>
@@ -147,7 +140,7 @@ export const ChangeBookingStatus = ({ booking, visible, onClose, statusOptions }
                         isCurrentStatus && styles.statusOptionTextCurrent,
                       ]}
                     >
-                      {BOOKING_STATUS_LABELS[status] || status}
+                      {getStatusLabel(status)}
                     </Text>
                   </View>
                   {isCurrentStatus && (
