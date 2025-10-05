@@ -41,5 +41,10 @@ export {
   getSectionsByRestaurantRule
 } from './floorApi';
 
+// Export User API functions
+export {
+  updatePassword
+} from './userApi';
+
 // Default export
 export { default } from './apiClient';

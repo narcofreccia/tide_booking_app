@@ -141,46 +141,72 @@ export const TablesMapReadOnly = ({ floor, tables = [], bookingsByTable = {}, on
         
         {/* Table labels */}
         {hasBookings ? (
-          <>
-            {/* Table number and pax */}
-            <SvgText
-              x={x + tw / 2}
-              y={y + th / 2 - 10}
-              fontSize="12"
-              fontWeight="600"
-              fill={textColor}
-              textAnchor="middle"
-              fontFamily="System"
-            >
-              {`${t.number} (${(tableBookings[0].adults || 0) + (tableBookings[0].children || 0)}p)`}
-            </SvgText>
-            {/* Arrival time */}
-            <SvgText
-              x={x + tw / 2}
-              y={y + th / 2 + 4}
-              fontSize="11"
-              fontWeight="500"
-              fill={textColor}
-              textAnchor="middle"
-              fontFamily="System"
-            >
-              {tableBookings[0].arrival_time?.slice(0, 5) || ''}
-            </SvgText>
-            {/* Customer name */}
-            <SvgText
-              x={x + tw / 2}
-              y={y + th / 2 + 17}
-              fontSize="10"
-              fontWeight="400"
-              fill={textColor}
-              textAnchor="middle"
-              fontFamily="System"
-            >
-              {(tableBookings[0].name || '').length > 10 
-                ? (tableBookings[0].name || '').slice(0, 10) + '...' 
-                : (tableBookings[0].name || '')}
-            </SvgText>
-          </>
+          (() => {
+            const booking = tableBookings[0];
+            
+            // Build customer name: if both exist, combine them; otherwise show the one that exists
+            let customerName = 'N/A';
+            if (booking.surname && booking.name) {
+              customerName = `${booking.surname} ${booking.name}`;
+            } else if (booking.name) {
+              customerName = booking.name;
+            } else if (booking.surname) {
+              customerName = booking.surname;
+            }
+            
+            const arrivalTime = booking.arrival_time ? booking.arrival_time.slice(0, 5) : 'N/A';
+            const totalPax = (booking.adults || 0) + (booking.children || 0);
+            
+            // Table number and pax
+            const tableNumStr = `${t.number ?? ''} (${totalPax}p)`;
+            
+            // Customer name (truncate to fit table width)
+            const maxNameLength = 8;
+            const nameStr = customerName.length > maxNameLength 
+              ? customerName.substring(0, maxNameLength) + '.'
+              : customerName;
+            
+            return (
+              <>
+                {/* Table number and pax */}
+                <SvgText
+                  x={x + tw / 2}
+                  y={y + th / 2 - 10}
+                  fontSize="12"
+                  fontWeight="600"
+                  fill={textColor}
+                  textAnchor="middle"
+                  fontFamily="System"
+                >
+                  {tableNumStr}
+                </SvgText>
+                {/* Arrival time */}
+                <SvgText
+                  x={x + tw / 2}
+                  y={y + th / 2 + 4}
+                  fontSize="11"
+                  fontWeight="500"
+                  fill={textColor}
+                  textAnchor="middle"
+                  fontFamily="System"
+                >
+                  {arrivalTime}
+                </SvgText>
+                {/* Customer name */}
+                <SvgText
+                  x={x + tw / 2}
+                  y={y + th / 2 + 17}
+                  fontSize="10"
+                  fontWeight="400"
+                  fill={textColor}
+                  textAnchor="middle"
+                  fontFamily="System"
+                >
+                  {nameStr}
+                </SvgText>
+              </>
+            );
+          })()
         ) : (
           <SvgText
             x={x + tw / 2}

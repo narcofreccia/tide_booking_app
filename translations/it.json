@@ -73,7 +73,9 @@
     "appVersion": "Versione App",
     "logoutTitle": "Esci",
     "logoutMessage": "Sei sicuro di voler uscire?",
-    "logoutSubtitle": "Esci dall'app"
+    "logoutSubtitle": "Esci dall'app",
+    "languageChanged": "Lingua cambiata con successo",
+    "languageChangedMessage": "La lingua è stata cambiata con successo. Vuoi uscire dall'app e riavviarla?"
   },
   "restaurant": {
     "selectRestaurant": "Seleziona Ristorante",
@@ -228,6 +230,24 @@
     "successMessage": "Walk-in creato con successo",
     "errorMessage": "Errore creazione walk-in"
   },
+  "passwordChange": {
+    "title": "Cambia Password",
+    "subtitle": "Aggiorna la tua password",
+    "infoText": "Per la tua sicurezza, assicurati di scegliere una password forte e unica.",
+    "currentPassword": "Password Attuale",
+    "currentPasswordPlaceholder": "Inserisci la password attuale",
+    "newPassword": "Nuova Password",
+    "newPasswordPlaceholder": "Inserisci la nuova password",
+    "confirmPassword": "Conferma Password",
+    "confirmPasswordPlaceholder": "Conferma la nuova password",
+    "requirements": "Requisiti Password:",
+    "requirement1": "Almeno 8 caratteri",
+    "requirement2": "Almeno una lettera maiuscola e una minuscola",
+    "requirement3": "Almeno un numero",
+    "submit": "Aggiorna Password",
+    "successMessage": "Password aggiornata con successo",
+    "errorMessage": "Errore durante l'aggiornamento della password"
+  },
   "map": {
     "title": "Mappa Prenotazioni",
     "subtitle": "{{restaurantName}}",
@@ -238,6 +258,10 @@
     "all": "Tutti",
     "loading": "Caricamento...",
     "noTable": "Nessun tavolo",
+    "reservation": "prenotazione",
+    "reservations": "prenotazioni",
+    "guest": "ospite",
+    "guests": "ospiti",
     "table": "Tavolo",
     "switchMode": "Modalità Spostamento",
     "selectTable": "Seleziona tavolo",

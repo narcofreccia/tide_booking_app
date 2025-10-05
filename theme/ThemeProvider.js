@@ -4,9 +4,9 @@ import darkTheme from './darkTheme';
 import lightTheme from './lightTheme';
 
 // Create Theme Contexts
-const ThemeContext = createContext(darkTheme);
+const ThemeContext = createContext(lightTheme);
 const ThemeModeContext = createContext({
-  themeMode: 'dark',
+  themeMode: 'light',
   toggleTheme: () => {},
   setThemeMode: () => {},
 });
@@ -18,7 +18,7 @@ const THEME_STORAGE_KEY = '@theme_mode';
  * Provides theme configuration and theme switching to all child components
  */
 export const ThemeProvider = ({ children }) => {
-  const [themeMode, setThemeMode] = useState('dark');
+  const [themeMode, setThemeMode] = useState('light');
   const [isLoading, setIsLoading] = useState(true);
 
   // Load theme preference from storage on mount

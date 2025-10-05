@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from '../hooks/useTranslation'
 import { DateSelector } from '../components/DateSelector'
 import { SectionIntervalBar } from '../components/booking_manager/SectionIntervalBar'
+import { BookingSummaryBar } from '../components/booking_manager/BookingSummaryBar'
 import { BookingsCanvas } from '../components/booking_manager/BookingsCanvas'
 import { SwitchBookingPositionDrawer } from '../components/booking_manager/SwitchBookingPositionDrawer'
 import { TideLogo } from '../components/TideLogo'
@@ -128,17 +129,26 @@ export default function BookingsMapScreen() {
         />
       </View>
 
-      {/* Section and Interval Selectors */}
+      {/* Section and Interval Selectors with Summary */}
       {restaurantId && (
         <View style={styles.selectorsContainer}>
-          <SectionIntervalBar
-            restaurantId={restaurantId}
-            date={dateStr}
-            selectedSectionId={selectedSectionId}
-            selectedIntervalIndex={selectedIntervalIndex}
-            onSectionChange={handleSectionChange}
-            onIntervalChange={handleIntervalChange}
-          />
+          <View style={styles.selectorsRow}>
+            <View style={styles.selectorsLeft}>
+              <SectionIntervalBar
+                restaurantId={restaurantId}
+                date={dateStr}
+                selectedSectionId={selectedSectionId}
+                selectedIntervalIndex={selectedIntervalIndex}
+                onSectionChange={handleSectionChange}
+                onIntervalChange={handleIntervalChange}
+              />
+            </View>
+            <BookingSummaryBar
+              restaurantId={restaurantId}
+              date={dateStr}
+              interval={selectedInterval}
+            />
+          </View>
         </View>
       )}
 
@@ -214,6 +224,15 @@ const createStyles = (theme) => StyleSheet.create({
     backgroundColor: 'transparent',
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider
+  },
+  selectorsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: theme.spacing.md,
+  },
+  selectorsLeft: {
+    flex: 1,
   },
   canvasContainer: {
     flex: 1,

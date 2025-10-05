@@ -5,11 +5,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useQuery } from '@tanstack/react-query';
-import { listBookings } from '../services/api';
+import { getBookingsByDate } from '../services/api';
 import { DateSelector } from '../components/DateSelector';
+import { IntervalSelector } from '../components/booking_manager/IntervalSelector';
 import { Pagination } from '../components/Pagination';
 import { TideLogo } from '../components/TideLogo';
 import { BookingRow } from '../components/bookings/BookingRow';
+import { BookingSummaryBar } from '../components/booking_manager/BookingSummaryBar';
 import { getIcon, getIconSize } from '../config/icons';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -23,6 +25,8 @@ export default function BookingsScreen() {
   const [selectedDate, setSelectedDate] = useState(selectedBookingDate || new Date());
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedInterval, setSelectedInterval] = useState(null);
+  const [selectedIntervalIndex, setSelectedIntervalIndex] = useState(null);
   const limit = 20;
 
   // Format date to YYYY-MM-DD
@@ -30,27 +34,48 @@ export default function BookingsScreen() {
     return date.toISOString().split('T')[0];
   };
   const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id;
-  // Fetch bookings
-  const { data, isLoading, error, refetch, isRefetching } = useQuery({
-    queryKey: ['bookings', restaurantId , formatDate(selectedDate), searchQuery, currentPage],
-    queryFn: () => listBookings({
-      restaurant_id: restaurantId,
-      startDate: formatDate(selectedDate),
-      endDate: formatDate(selectedDate),
-      search: searchQuery,
-      page: currentPage - 1, // Backend uses 0-indexed pages
-      limit: limit,
+  const dateStr = formatDate(selectedDate);
+
+  // Fetch bookings with section and interval filters
+  const { data: bookings = [], isLoading, error, refetch, isRefetching } = useQuery({
+    queryKey: ['bookings', restaurantId, dateStr, selectedInterval?.start_time, selectedInterval?.end_time, searchQuery],
+    queryFn: () => getBookingsByDate(restaurantId, {
+      reservation_date: dateStr,
+      start_time: selectedInterval?.start_time,
+      end_time: selectedInterval?.end_time,
     }),
     enabled: !!restaurantId,
   });
 
-  const bookings = data?.bookings || [];
-  const totalCount = data?.bookingsCount || 0;
-  const totalPages = data?.pageCount || 1;
+  // Filter bookings by search query (client-side)
+  const filteredBookings = searchQuery
+    ? bookings.filter(booking => {
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          booking.name?.toLowerCase().includes(searchLower) ||
+          booking.surname?.toLowerCase().includes(searchLower) ||
+          booking.phone?.toLowerCase().includes(searchLower) ||
+          booking.email?.toLowerCase().includes(searchLower)
+        );
+      })
+    : bookings;
+
+  // Pagination (client-side)
+  const totalCount = filteredBookings.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (currentPage - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
 
   const handleBookingPress = (booking) => {
     // TODO: Navigate to booking details or open edit modal
     console.log('Booking pressed:', booking);
+  };
+
+  const handleIntervalChange = (interval, index) => {
+    setSelectedInterval(interval);
+    setSelectedIntervalIndex(index);
+    setCurrentPage(1); // Reset to first page on interval change
   };
 
   return (
@@ -78,36 +103,57 @@ export default function BookingsScreen() {
         />
       </View>
 
-      {/* Search Bar */}
+      {/* Interval Selector */}
+      {restaurantId && (
+        <View style={styles.selectorsContainer}>
+          <IntervalSelector
+            restaurantId={restaurantId}
+            date={dateStr}
+            selectedIntervalIndex={selectedIntervalIndex}
+            onIntervalChange={handleIntervalChange}
+          />
+        </View>
+      )}
+
+      {/* Search Bar and Summary */}
       <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <MaterialCommunityIcons
-            name={getIcon('search')}
-            size={getIconSize('md')}
-            color={theme.palette.text.secondary}
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t('bookings.searchPlaceholder')}
-            placeholderTextColor={theme.palette.text.disabled}
-            value={searchQuery}
-            onChangeText={(text) => {
-              setSearchQuery(text);
-              setCurrentPage(1); // Reset to first page on search
-            }}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => {
-              setSearchQuery('');
-              setCurrentPage(1);
-            }}>
-              <MaterialCommunityIcons
-                name={getIcon('close')}
-                size={getIconSize('md')}
-                color={theme.palette.text.secondary}
-              />
-            </TouchableOpacity>
+        <View style={styles.searchRow}>
+          <View style={styles.searchInputContainer}>
+            <MaterialCommunityIcons
+              name={getIcon('search')}
+              size={getIconSize('md')}
+              color={theme.palette.text.secondary}
+              style={styles.searchIcon}
+            />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t('bookings.searchPlaceholder')}
+              placeholderTextColor={theme.palette.text.disabled}
+              value={searchQuery}
+              onChangeText={(text) => {
+                setSearchQuery(text);
+                setCurrentPage(1); // Reset to first page on search
+              }}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => {
+                setSearchQuery('');
+                setCurrentPage(1);
+              }}>
+                <MaterialCommunityIcons
+                  name={getIcon('close')}
+                  size={getIconSize('md')}
+                  color={theme.palette.text.secondary}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+          {restaurantId && !searchQuery && (
+            <BookingSummaryBar
+              restaurantId={restaurantId}
+              date={dateStr}
+              interval={selectedInterval}
+            />
           )}
         </View>
       </View>
@@ -147,7 +193,7 @@ export default function BookingsScreen() {
               />
             }
           >
-            {bookings.map((booking) => (
+            {paginatedBookings.map((booking) => (
               <BookingRow 
                 key={booking.id} 
                 booking={booking} 
@@ -204,13 +250,25 @@ const createStyles = (theme) => StyleSheet.create({
     padding: theme.spacing.md,
     backgroundColor: 'transparent',
   },
+  selectorsContainer: {
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.xs,
+    paddingBottom: theme.spacing.sm,
+    backgroundColor: 'transparent',
+  },
   searchContainer: {
     padding: theme.spacing.md,
     backgroundColor: 'transparent',
     borderBottomWidth: 1,
     borderBottomColor: theme.palette.divider
   },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
   searchInputContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.palette.background.elevated,

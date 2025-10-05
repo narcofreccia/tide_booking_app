@@ -10,6 +10,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { getIcon, getIconSize } from '../config/icons';
 import CustomersScreen from './CustomersScreen';
+import PasswordChangeScreen from './PasswordChangeScreen';
 import { useTranslation } from '../hooks/useTranslation';
 
 export default function SettingsScreen() {
@@ -18,6 +19,7 @@ export default function SettingsScreen() {
   const dispatch = useDispatchContext();
   const logoutMutation = useLogout();
   const [showCustomers, setShowCustomers] = useState(false);
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
   const styles = createStyles(theme);
   const { t } = useTranslation();
 
@@ -77,6 +79,11 @@ export default function SettingsScreen() {
   // If showing customers, render CustomersScreen instead
   if (showCustomers) {
     return <CustomersScreen onBack={() => setShowCustomers(false)} />;
+  }
+
+  // If showing password change, render PasswordChangeScreen instead
+  if (showPasswordChange) {
+    return <PasswordChangeScreen onBack={() => setShowPasswordChange(false)} />;
   }
 
   return (
@@ -188,6 +195,7 @@ export default function SettingsScreen() {
             iconKey="lock"
             title={t('settings.changePassword')}
             subtitle={t('settings.changePasswordSubtitle')}
+            onPress={() => setShowPasswordChange(true)}
           />
           <SettingItem
             iconKey="team"

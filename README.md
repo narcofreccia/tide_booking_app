@@ -34,9 +34,12 @@ The app includes an interactive map view of tables with live booking overlays an
 - **Core components**:
   - `components/booking_manager/BookingsCanvas.js`
   - `components/booking_manager/TablesMapReadOnly.js` (SVG-based)
-  - `components/booking_manager/SectionIntervalBar.js` (compact Section/Interval pickers)
+  - `components/booking_manager/SectionIntervalBar.js` (Section + Interval pickers for Map)
+  - `components/booking_manager/IntervalSelector.js` (Interval-only picker for Bookings)
+  - `components/booking_manager/BookingSummaryBar.js` (Reservation/guest count display)
   - `components/booking_manager/BookingDetailsModal.js`
-  - `components/booking_manager/SwitchBookingPositionDrawer.js` (NEW)
+  - `components/booking_manager/SwitchBookingPositionDrawer.js`
+  - `components/booking_manager/WalkInModal.js`
 
 ### Features
 - **Interactive Table Map**: Fetches floor, tables, and bookings via React Query
@@ -52,6 +55,12 @@ The app includes an interactive map view of tables with live booking overlays an
 - **Color-Coded Overlays**: Visual status indicators (see `constants/bookingStatusColors.js`)
 - **Multi-Booking Support**: Diagonal split overlay for tables with multiple bookings
 - **Compact Controls**: Section and Interval pickers as themed chips
+- **Booking Summary**: Real-time reservation and guest counts
+  - Shows total reservations and pax for selected date/interval
+  - Compact icon-only pills for minimal space usage
+  - Inline with search bar in BookingsScreen
+- **Smart Customer Name Display**: Combines surname and name intelligently on table labels
+- **Time Interval Filtering**: Filter bookings by service time (lunch, dinner, etc.)
 
 ### Navigation changes
 - Bottom tabs: `Bookings | Map | Create | Calendar | Settings`.
@@ -240,6 +249,8 @@ npm start
 - **Role-based permissions** (Delete only for Admin/Owner)
 - **Booking management**: Create, Edit, Delete, Change Status
 - Real-time bookings list with date selector, search, and pagination
+- **Time interval filtering** on BookingsScreen - Filter by lunch, dinner, or all times
+- **Inline booking summary** - Reservation and guest counts next to search bar
 - **Persistent booking date selection** across app sessions
 - Full booking creation form with validation and API integration
 - Available times fetched from backend calendar rules
@@ -269,6 +280,13 @@ npm start
 - **Search functionality** for customers by name, email, or phone
 - **Sortable customer list** by bookings, no-shows, cancellations, or last booking
 - **Paginated customer list** with 20 customers per page
+- **Password Change** - Secure password update with validation
+  - React Hook Form with Yup validation
+  - Password strength requirements (8+ chars, uppercase, lowercase, number)
+  - Show/hide password toggle
+  - Confirm password matching
+  - Real-time validation feedback
+  - Success/error notifications
  - **Pull-to-refresh** on data screens (Bookings, Calendar, Customers) using native RefreshControl integrated with React Query `refetch()`
 - **API Service** (`services/api.js`)
   - Axios client with request/response interceptors
@@ -321,6 +339,7 @@ npm start
   - **CreateBookingScreen**: Full booking form with validation, date/time selection, guest management, accessibility options
   - **CustomersScreen**: Customer database with search
   - **SettingsScreen**: Restaurant selection, user profile with features/business ID, app settings
+  - **PasswordChangeScreen**: Secure password update with validation and requirements display
   - All screens use theme system for consistent styling
 
 🚧 **In Progress / TODO**
@@ -350,6 +369,7 @@ npm start
 │   ├── LoadingState.js    # Animated loading dots
 │   ├── SelectRestaurant.js # Restaurant selection dropdown
 │   ├── LanguageSelector.js # Language selection dropdown
+│   ├── ThemeToggle.js     # Dark/Light theme toggle
 │   ├── DateSelector.js    # Date navigation with arrows
 │   ├── Pagination.js      # Reusable pagination controls
 │   ├── SimpleField.js     # Reusable form input field
@@ -369,10 +389,14 @@ npm start
 │   ├── booking_manager/   # Map view components
 │   │   ├── BookingsCanvas.js
 │   │   ├── TablesMapReadOnly.js
-│   │   ├── SectionIntervalBar.js
+│   │   ├── SectionIntervalBar.js # Section + Interval selectors (Map)
+│   │   ├── IntervalSelector.js   # Interval-only selector (Bookings)
+│   │   ├── BookingSummaryBar.js  # Reservation/guest count display
 │   │   ├── BookingDetailsModal.js
 │   │   ├── SwitchBookingPositionDrawer.js
 │   │   └── WalkInModal.js
+│   ├── password_change/   # Password change components
+│   │   └── PasswordField.js      # Password input with show/hide toggle
 │   └── calendar/          # Calendar components
 │       ├── MonthSelector.js
 │       ├── DayCard.js
@@ -394,6 +418,7 @@ npm start
 │   ├── authApi.js         # Authentication endpoints
 │   ├── restaurantApi.js   # Restaurant endpoints
 │   ├── bookingApi.js      # Booking & availability endpoints
+│   ├── userApi.js         # User management endpoints (password update)
 │   └── getUserRole.js     # User role utilities (isAdmin, isOwner, etc.)
 ├── utils/
 │   ├── storage.js         # Auth & data persistence utilities
@@ -405,15 +430,18 @@ npm start
 ├── scripts/
 │   └── translate-missing.mjs # Auto-translation script using OpenAI
 ├── validation/
-│   └── bookingValidation.js # Booking form validation schema
+│   ├── bookingValidation.js # Booking form validation schema
+│   └── passwordValidation.js # Password change validation schema
 ├── screens/
 │   ├── LoginScreen.js         # Login with form validation
 │   ├── HomeScreen.js          # Main app with bottom navigation
 │   ├── BookingsScreen.js      # Bookings list and management
+│   ├── BookingsMapScreen.js   # Interactive table map view
 │   ├── CalendarScreen.js      # Calendar view
 │   ├── CreateBookingScreen.js # Create new booking form
 │   ├── CustomersScreen.js     # Customer database
-│   └── SettingsScreen.js      # Settings and profile
+│   ├── SettingsScreen.js      # Settings and profile
+│   └── PasswordChangeScreen.js # Password change form
 └── README.md              # This file
 ```
 
