@@ -173,3 +173,9 @@ export const switchTablePosition = async (payload) => {
   const response = await ApiClient.post('/booking/switch_table_position', payload)
   return response.data
 };
+
+
+export const updateBooking = async (booking_id, updates) => {
+  const response = await ApiClient.put(`/booking/${booking_id}`, updates)
+  return response.data
+}
