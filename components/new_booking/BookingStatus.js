@@ -9,9 +9,9 @@ const BOOKING_STATUSES = [
   { value: 'confirmed', labelKey: 'bookingStatus.confirmed', color: '#66BB6A' },
   { value: 'seated', labelKey: 'bookingStatus.seated', color: '#42A5F5' },
   { value: 'completed', labelKey: 'bookingStatus.completed', color: '#26A69A' },
-  { value: 'cancelled_by_user', labelKey: 'bookingStatus.cancelledByUser', color: '#EF5350' },
-  { value: 'cancelled_by_restaurant', labelKey: 'bookingStatus.cancelledByRestaurant', color: '#EC407A' },
-  { value: 'no_show', labelKey: 'bookingStatus.noShow', color: '#AB47BC' },
+  { value: 'cancelled_by_user', labelKey: 'bookingStatus.cancelled_by_user', color: '#EF5350' },
+  { value: 'cancelled_by_restaurant', labelKey: 'bookingStatus.cancelled_by_restaurant', color: '#EC407A' },
+  { value: 'no_show', labelKey: 'bookingStatus.no_show', color: '#AB47BC' },
 ];
 
 export const BookingStatus = ({ name = 'status', label = 'Status' }) => {

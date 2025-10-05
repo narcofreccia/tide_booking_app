@@ -31,9 +31,12 @@ export default function BookingsScreen() {
   const [showCustomers, setShowCustomers] = useState(false);
   const limit = 20;
 
-  // Format date to YYYY-MM-DD
+  // Format date to YYYY-MM-DD in local timezone
   const formatDate = (date) => {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
   const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id;
   const dateStr = formatDate(selectedDate);

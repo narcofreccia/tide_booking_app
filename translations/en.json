@@ -73,7 +73,16 @@
     "spanish": "Spanish",
     "theme": "Theme",
     "darkMode": "Dark Mode",
-    "lightMode": "Light Mode"
+    "lightMode": "Light Mode",
+    "languageChanged": "Language changed successfully",
+    "languageChangedMessage": "The language has been changed successfully. Do you want to exit the app and restart it?",
+    "support": {
+      "title": "Support and Assistance",
+      "description": "Do you need help? Our support team is here to assist you with any questions or issues.",
+      "emailInfo": "We respond within 24 hours",
+      "hoursInfo": "Mon-Fri: 9:00-18:00",
+      "openSupportPage": "Open Support Page"
+    }
   },
   "restaurant": {
     "selectRestaurant": "Select Restaurant",
@@ -135,9 +144,9 @@
     "errorUpdatingMessage": "Error during the update of the booking",
     "statusPending": "Pending",
     "statusConfirmed": "Confirmed",
-    "statusCancelledByUser": "Cancelled by User",
-    "statusCancelledByRestaurant": "Cancelled by Restaurant",
-    "statusNoShow": "No Show",
+    "statuscancelled_by_user": "Cancelled by User",
+    "statuscancelled_by_restaurant": "Cancelled by Restaurant",
+    "statusno_show": "No Show",
     "statusArrived": "Arrived",
     "statusSeated": "Seated",
     "statusCompleted": "Completed"
@@ -154,9 +163,9 @@
     "confirmed": "Confirmed",
     "seated": "Seated",
     "completed": "Completed",
-    "cancelledByUser": "Cancelled by User",
-    "cancelledByRestaurant": "Cancelled by Restaurant",
-    "noShow": "No Show",
+    "cancelled_by_user": "Cancelled by User",
+    "cancelled_by_restaurant": "Cancelled by Restaurant",
+    "no_show": "No Show",
     "selectStatus": "Select status",
     "selectStatusTitle": "Select Status"
   },
@@ -245,6 +254,28 @@
     "confirmSwitch": "Confirm Move",
     "bookingsSwitched": "Bookings switched successfully",
     "bookingMoved": "Booking moved successfully",
-    "errorSwitching": "Error while moving the booking"
+    "errorSwitching": "Error while moving the booking",
+    "reservation": "reservation",
+    "reservations": "reservations",
+    "guest": "guest",
+    "guests": "guests"
+  },
+  "passwordChange": {
+    "title": "Change Password",
+    "subtitle": "Update your password",
+    "infoText": "For your security, make sure to choose a strong and unique password.",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter the current password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter the new password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm the new password",
+    "requirements": "Password Requirements:",
+    "requirement1": "At least 8 characters",
+    "requirement2": "At least one uppercase letter and one lowercase letter",
+    "requirement3": "At least one number",
+    "submit": "Update Password",
+    "successMessage": "Password updated successfully",
+    "errorMessage": "Error updating the password"
   }
 }

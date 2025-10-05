@@ -73,7 +73,16 @@
     "spanish": "Español",
     "theme": "Tema",
     "darkMode": "Modo Oscuro",
-    "lightMode": "Modo Claro"
+    "lightMode": "Modo Claro",
+    "languageChanged": "Idioma cambiado con éxito",
+    "languageChangedMessage": "El idioma ha sido cambiado con éxito. ¿Quieres salir de la aplicación y reiniciarla?",
+    "support": {
+      "title": "Soporte y Asistencia",
+      "description": "¿Necesitas ayuda? Nuestro equipo de soporte está aquí para asistirte con cualquier pregunta o problema.",
+      "emailInfo": "Respondemos en un plazo de 24 horas",
+      "hoursInfo": "Lun-Vie: 9:00-18:00",
+      "openSupportPage": "Abrir Página de Soporte"
+    }
   },
   "restaurant": {
     "selectRestaurant": "Seleccionar Restaurante",
@@ -135,9 +144,9 @@
     "errorUpdatingMessage": "Error durante la actualización de la reserva",
     "statusPending": "En Espera",
     "statusConfirmed": "Confirmada",
-    "statusCancelledByUser": "Cancelada por el Usuario",
-    "statusCancelledByRestaurant": "Cancelada por el Restaurante",
-    "statusNoShow": "No Presentado",
+    "statuscancelled_by_user": "Cancelada por el Usuario",
+    "statuscancelled_by_restaurant": "Cancelada por el Restaurante",
+    "statusno_show": "No Presentado",
     "statusArrived": "Llegado",
     "statusSeated": "Sentado",
     "statusCompleted": "Completada"
@@ -154,9 +163,9 @@
     "confirmed": "Confirmada",
     "seated": "Sentado",
     "completed": "Completado",
-    "cancelledByUser": "Cancelada por el Usuario",
-    "cancelledByRestaurant": "Cancelada por el Restaurante",
-    "noShow": "No Presentado",
+    "cancelled_by_user": "Cancelada por el Usuario",
+    "cancelled_by_restaurant": "Cancelada por el Restaurante",
+    "no_show": "No Presentado",
     "selectStatus": "Selecciona estado",
     "selectStatusTitle": "Selecciona Estado"
   },
@@ -245,6 +254,28 @@
     "confirmSwitch": "Confirma Cambio",
     "bookingsSwitched": "Reservas intercambiadas con éxito",
     "bookingMoved": "Reserva movida con éxito",
-    "errorSwitching": "Error al mover la reserva"
+    "errorSwitching": "Error al mover la reserva",
+    "reservation": "reserva",
+    "reservations": "reservas",
+    "guest": "invitado",
+    "guests": "invitados"
+  },
+  "passwordChange": {
+    "title": "Cambia Contraseña",
+    "subtitle": "Actualiza tu contraseña",
+    "infoText": "Por tu seguridad, asegúrate de elegir una contraseña fuerte y única.",
+    "currentPassword": "Contraseña Actual",
+    "currentPasswordPlaceholder": "Introduce la contraseña actual",
+    "newPassword": "Nueva Contraseña",
+    "newPasswordPlaceholder": "Introduce la nueva contraseña",
+    "confirmPassword": "Confirma la Contraseña",
+    "confirmPasswordPlaceholder": "Confirma la nueva contraseña",
+    "requirements": "Requisitos de la contraseña:",
+    "requirement1": "Al menos 8 caracteres",
+    "requirement2": "Al menos una letra mayúscula y una minúscula",
+    "requirement3": "Al menos un número",
+    "submit": "Actualizar Contraseña",
+    "successMessage": "Contraseña actualizada con éxito",
+    "errorMessage": "Error al actualizar la contraseña"
   }
 }

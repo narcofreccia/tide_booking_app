@@ -37,39 +37,26 @@ export const ScreenWrapper = ({
     <>
       {/* Status bar configuration */}
       <StatusBar 
-        barStyle="light-content" 
+        barStyle={theme.mode === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
         translucent
       />
       
-      {/* Gradient background - covers entire screen including status bar */}
-      <LinearGradient
-        colors={gradientColors}
-        style={styles.gradientBackground}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-      />
+      {/* Simple background - no gradient */}
+      <View style={[styles.background, { backgroundColor: mainColor }]} />
       
       {/* Main content */}
       <SafeAreaView style={styles.container}>
         {children}
       </SafeAreaView>
-      
-      {/* Bottom background for navigation bar area */}
-      <LinearGradient
-        colors={[btmColor, theme.palette.background.backdrop || '#0A0F1A']}
-        style={styles.bottomBackground}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-      />
     </>
   )
 }
 
 const styles = StyleSheet.create({
-  gradientBackground: {
+  background: {
     position: 'absolute',
-    top: -100, // Extend above to cover status bar area
+    top: 0,
     left: 0,
     right: 0,
     bottom: 0,
@@ -78,13 +65,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
-  },
-  bottomBackground: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 50,
-    zIndex: -1,
   },
 })
