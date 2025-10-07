@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useQuery } from '@tanstack/react-query';
-import { getBookingsByDate } from '../services/api';
+import { getBookingsByDate, getAllTablesByRestaurantId } from '../services/api';
 import { DateSelector } from '../components/DateSelector';
 import { IntervalSelector } from '../components/booking_manager/IntervalSelector';
 import { Pagination } from '../components/Pagination';
@@ -50,6 +50,17 @@ export default function BookingsScreen() {
       end_time: selectedInterval?.end_time,
     }),
     enabled: !!restaurantId,
+  });
+
+  // Fetch all tables for the restaurant to map table IDs to numbers
+  const { data: tables = [] } = useQuery({
+    queryKey: ['tables-by-restaurant', restaurantId, dateStr],
+    queryFn: () => getAllTablesByRestaurantId(restaurantId, {
+      date: dateStr,
+      start_time: selectedInterval?.start_time,
+      end_time: selectedInterval?.end_time,
+    }),
+    enabled: !!restaurantId && !!dateStr,
   });
 
   // Filter bookings by search query (client-side)
@@ -219,6 +230,7 @@ export default function BookingsScreen() {
               <BookingRow 
                 key={booking.id} 
                 booking={booking} 
+                tables={tables}
                 onPress={handleBookingPress}
               />
             ))}

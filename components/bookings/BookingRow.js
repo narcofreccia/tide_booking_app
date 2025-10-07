@@ -7,11 +7,25 @@ import { BookingRowActions } from './BookingRowActions';
 import { getIcon, getIconSize } from '../../config/icons';
 import { useTranslation } from '../../hooks/useTranslation';  
 
-export const BookingRow = ({ booking, onPress }) => {
+export const BookingRow = ({ booking, tables = [], onPress }) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const styles = createStyles(theme);
   const swipeableRef = useRef(null);
+
+  // Helper function to get table numbers from table IDs
+  const getTableNumbers = (tableIds) => {
+    if (!tableIds || !Array.isArray(tableIds) || tableIds.length === 0) {
+      return '';
+    }
+    
+    return tableIds
+      .map(id => {
+        const table = tables.find(t => t.id === id);
+        return table ? table.number : id;
+      })
+      .join(', ');
+  };
 
   const getStatusColor = (status) => {
     const statusColors = {
@@ -86,7 +100,7 @@ export const BookingRow = ({ booking, onPress }) => {
           <View style={styles.detailItem}>
             <MaterialCommunityIcons name={getIcon('table')} size={getIconSize('sm')} color={theme.palette.text.secondary} />
             <Text style={styles.detailText}>
-              {t('bookings.table')} {booking.table_ids.join(', ')}
+              {t('bookings.table')} {getTableNumbers(booking.table_ids)}
             </Text>
           </View>
         )}
