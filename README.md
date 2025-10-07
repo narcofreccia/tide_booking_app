@@ -92,6 +92,12 @@ The app includes an interactive map view of tables with live booking overlays an
 - **Modal management**: Sequential modal transitions prevent crashes
   - Child modals (WalkIn, Edit, Status) don't auto-close parent modal
   - Prevents double-close race conditions on mobile
+- **Interval state management**: Proper handling of time ranges across date changes
+  - `BookingsMapScreen` resets interval selection when date changes
+  - `SectionIntervalBar` auto-resets interval to null when no time ranges available
+  - `BookingsCanvas` closes modal and resets state on date/interval changes
+  - `BookingDetailsModal` conditionally shows action buttons only when valid interval exists
+  - Prevents stale interval state from persisting across days with/without time ranges
 - **Phone validation**: International format with country code enforcement
   - Minimum 7 digits, maximum 15 digits (E.164 standard)
   - Auto-formats with `+` prefix and spaces allowed

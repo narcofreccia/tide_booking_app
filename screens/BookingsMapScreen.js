@@ -49,9 +49,17 @@ export default function BookingsMapScreen() {
   }
 
   const handleIntervalChange = (interval, index) => {
+    console.log('🔍 BookingsMapScreen - Interval changed to:', JSON.stringify(interval), 'index:', index)
     setSelectedInterval(interval)
     setSelectedIntervalIndex(index)
   }
+
+  // Reset interval selection when date changes
+  React.useEffect(() => {
+    console.log('🔍 BookingsMapScreen - Date changed, resetting interval selection')
+    setSelectedInterval(null)
+    setSelectedIntervalIndex(null)
+  }, [selectedDate])
 
   // Handle switching booking position
   const handleSwitchBooking = (booking) => {

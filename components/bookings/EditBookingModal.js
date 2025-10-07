@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import CreateBookingScreen from '../../screens/CreateBookingScreen';
 
-export const EditBookingModal = ({ booking, visible, onClose }) => {
+export const EditBookingModal = ({ booking, visible, onClose, tableIds, date }) => {
   const theme = useTheme();
   const styles = createStyles(theme);
 
@@ -22,7 +22,7 @@ export const EditBookingModal = ({ booking, visible, onClose }) => {
           </TouchableOpacity>
         </View>
         <CreateBookingScreen 
-          route={{ params: { booking } }} 
+          route={{ params: { booking, tableIds, date } }} 
           onSuccess={onClose}
         />
       </View>

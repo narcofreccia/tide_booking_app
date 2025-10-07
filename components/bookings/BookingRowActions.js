@@ -5,7 +5,7 @@ import { useTheme } from '../../theme';
 import { useStateContext, useDispatchContext } from '../../context/ContextProvider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteBooking } from '../../services/api';
-import { isAdmin, isOwner } from '../../services/getUserRole';
+import { isAdmin, isOwner, isManager } from '../../services/getUserRole';
 import { ChangeBookingStatus } from './ChangeBookingStatus';
 import { EditBookingModal } from './EditBookingModal';
 
@@ -19,7 +19,8 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
   const isUserAdminOrOwner = isAdmin(currentUser) || isOwner(currentUser);
-
+  const isUserManager = isManager(currentUser);
+  console.log(currentUser.role)
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: () => deleteBooking({ id: booking.id }),
@@ -113,6 +114,7 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
       </TouchableOpacity>
 
       {/* Edit */}
+      {(isUserManager || isUserAdminOrOwner) && (
       <TouchableOpacity 
         style={[styles.actionButton, styles.editButton]} 
         onPress={handleEdit}
@@ -120,6 +122,7 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
       >
         <MaterialCommunityIcons name="pencil" size={18} color="#FFFFFF" />
       </TouchableOpacity>
+      )}
 
       {/* Delete - Only for admin/owner */}
       {isUserAdminOrOwner && (
@@ -139,7 +142,7 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
         visible={showStatusModal}
         onClose={handleStatusModalClose}
       />
-
+   
       <EditBookingModal
         booking={booking}
         visible={showEditModal}

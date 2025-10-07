@@ -10,6 +10,8 @@ import { ChangeBookingStatus } from '../bookings/ChangeBookingStatus'
 import { EditBookingModal } from '../bookings/EditBookingModal'
 import { WalkInModal } from './WalkInModal'
 
+import { isAdmin, isOwner, isManager } from '../../services/getUserRole'
+
 /**
  * BookingDetailsModal
  * Bottom sheet modal showing booking details when a table is clicked
@@ -18,15 +20,21 @@ import { WalkInModal } from './WalkInModal'
  * - bookings: Array of booking objects
  * - tableName: string
  * - onClose: () => void
+ * - interval: object with start_time and end_time (optional)
  */
-export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId, onClose, onSwitchBooking, restaurantId, date }) => {
+export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId, onClose, onSwitchBooking, restaurantId, date, interval }) => {
   const theme = useTheme()
   const { t } = useTranslation()
-  const { language } = useStateContext()
+  const { language, currentUser } = useStateContext()
   const [changeStatusModalVisible, setChangeStatusModalVisible] = useState(false)
   const [editModalVisible, setEditModalVisible] = useState(false)
   const [walkInModalVisible, setWalkInModalVisible] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState(null)
+  const [isCreateMode, setIsCreateMode] = useState(false)
+
+  const isUserAdmin = isAdmin(currentUser)
+  const isUserOwner = isOwner(currentUser)
+  const isUserManager = isManager(currentUser)
 
   const formatTime = (timeStr) => {
     if (!timeStr) return '-'
@@ -44,8 +52,43 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
     })
   }
 
+  // Check if the selected date is today
+  const isToday = React.useMemo(() => {
+    if (!date) return false
+    const today = new Date()
+    const selectedDate = new Date(date)
+    return (
+      today.getFullYear() === selectedDate.getFullYear() &&
+      today.getMonth() === selectedDate.getMonth() &&
+      today.getDate() === selectedDate.getDate()
+    )
+  }, [date])
+
+  // Check if we should show action buttons
+  const showActionButtons = React.useMemo(() => {
+    const shouldShow = !!(interval && interval.start_time && interval.end_time)
+    return shouldShow
+  }, [interval, date, visible])
+
+  // Reset modal state when it closes
+  React.useEffect(() => {
+    if (!visible) {
+      setChangeStatusModalVisible(false)
+      setEditModalVisible(false)
+      setWalkInModalVisible(false)
+      setSelectedBooking(null)
+      setIsCreateMode(false)
+    }
+  }, [visible, interval, date])
+
+  // Create a unique key based on interval state to force remount
+  const modalKey = React.useMemo(() => {
+    return `${date}-${interval?.start_time || 'none'}-${interval?.end_time || 'none'}`
+  }, [date, interval])
+
   return (
     <Modal
+      key={modalKey}
       visible={visible}
       transparent
       animationType="slide"
@@ -92,27 +135,53 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                   </Text>
                 </View>
                 
-                {/* Walk-In button for empty table */}
-                <View style={styles.emptyActions}>
-                  <TouchableOpacity
-                    style={[styles.actionButton, { 
-                      backgroundColor: theme.palette.success?.main || '#4caf50',
-                      borderColor: theme.palette.success?.main || '#4caf50'
-                    }]}
-                    onPress={() => {
-                      setWalkInModalVisible(true)
-                    }}
-                  >
-                    <MaterialCommunityIcons 
-                      name="walk" 
-                      size={16} 
-                      color="#FFFFFF" 
-                    />
-                    <Text style={styles.actionButtonText}>
-                      {t('bookingDetails.createWalkIn')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                {/* Action buttons for empty table - only show if interval has valid time ranges */}
+                {showActionButtons && (
+                  <View style={styles.emptyActions}>
+                    <TouchableOpacity
+                      style={[styles.actionButton, isToday ? styles.actionButtonHalf : { flex: 1 }, { 
+                        backgroundColor: theme.palette.primary.main,
+                        borderColor: theme.palette.primary.main
+                      }]}
+                      onPress={() => {
+                        setIsCreateMode(true)
+                        setSelectedBooking(null)
+                        setEditModalVisible(true)
+                      }}
+                    >
+                      <MaterialCommunityIcons 
+                        name="plus-circle" 
+                        size={16} 
+                        color="#FFFFFF" 
+                      />
+                      <Text style={styles.actionButtonText}>
+                        {t('bookings.createNewBooking')}
+                      </Text>
+                    </TouchableOpacity>
+                    
+                    {/* Walk-In button - only show if date is today */}
+                    {isToday && (
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.actionButtonHalf, { 
+                          backgroundColor: theme.palette.success?.main || '#4caf50',
+                          borderColor: theme.palette.success?.main || '#4caf50'
+                        }]}
+                        onPress={() => {
+                          setWalkInModalVisible(true)
+                        }}
+                      >
+                        <MaterialCommunityIcons 
+                          name="walk" 
+                          size={16} 
+                          color="#FFFFFF" 
+                        />
+                        <Text style={styles.actionButtonText}>
+                          {t('bookingDetails.createWalkIn')}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
               </>
             ) : (
               bookings.map((booking, index) => (
@@ -268,6 +337,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
 
                     {/* Second Row */}
                     <View style={styles.actionRow}>
+                      {(isUserManager || isUserAdmin || isUserOwner) && (
                       <TouchableOpacity
                         style={[styles.actionButton, styles.actionButtonHalf, { 
                           backgroundColor: theme.palette.warning?.main || '#ff9800',
@@ -287,7 +357,7 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
                           {t('bookingDetails.edit')}
                         </Text>
                       </TouchableOpacity>
-                      
+                      )}
                       <TouchableOpacity
                         style={[styles.actionButton, styles.actionButtonHalf, { 
                           backgroundColor: theme.palette.success?.main || '#4caf50',
@@ -350,21 +420,22 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
         />
       )}
 
-      {/* Edit Booking Modal */}
-      {selectedBooking && (
-        <EditBookingModal
-          booking={selectedBooking}
-          visible={editModalVisible}
-          onClose={() => {
-            setEditModalVisible(false)
-            setSelectedBooking(null)
-            // Close the parent BookingDetailsModal after a delay to let EditModal close first
-            setTimeout(() => {
-              onClose()
-            }, 200)
-          }}
-        />
-      )}
+      {/* Edit/Create Booking Modal */}
+      <EditBookingModal
+        booking={isCreateMode ? null : selectedBooking}
+        visible={editModalVisible}
+        tableIds={isCreateMode ? [tableId] : undefined}
+        date={isCreateMode ? date : undefined}
+        onClose={() => {
+          setEditModalVisible(false)
+          setSelectedBooking(null)
+          setIsCreateMode(false)
+          // Close the parent BookingDetailsModal after a delay to let EditModal close first
+          setTimeout(() => {
+            onClose()
+          }, 200)
+        }}
+      />
 
       {/* Walk-In Modal */}
       <WalkInModal
@@ -434,6 +505,8 @@ const styles = StyleSheet.create({
   emptyActions: {
     paddingHorizontal: 16,
     paddingBottom: 16,
+    flexDirection: 'row',
+    gap: 8,
   },
   bookingCard: {
     borderRadius: 12,

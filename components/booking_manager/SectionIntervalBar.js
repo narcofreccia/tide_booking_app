@@ -63,6 +63,14 @@ export const SectionIntervalBar = ({
     }
   }, [sections, selectedSectionId, onSectionChange])
 
+  // Reset interval when date changes or there are no time ranges
+  React.useEffect(() => {
+    if (timeRanges.length === 0) {
+      console.log('🔍 SectionIntervalBar - No time ranges, resetting interval to null')
+      onIntervalChange?.(null, -1)
+    }
+  }, [date, timeRanges.length, onIntervalChange])
+
   // Auto-select appropriate interval based on current time
   React.useEffect(() => {
     if (selectedIntervalIndex != null || !timeRanges || timeRanges.length === 0) {

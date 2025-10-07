@@ -30,6 +30,8 @@ export default function CreateBookingScreen({ route, onSuccess }) {
 
   // Get booking from route params if editing
   const editingBooking = route?.params?.booking;
+  const preselectedTableIds = route?.params?.tableIds;
+  const preselectedDate = route?.params?.date;
   const isEditMode = !!editingBooking;
 
   const defaultValues = useMemo(() => {
@@ -60,10 +62,13 @@ export default function CreateBookingScreen({ route, onSuccess }) {
       };
     }
     
+    // Parse preselected date if provided
+    const reservationDate = preselectedDate ? new Date(preselectedDate) : new Date();
+    
     return ({
     restaurant_id: selectedRestaurant?.id,
-    auto_table_selection: true,
-    table_ids: [],
+    auto_table_selection: preselectedTableIds ? false : true,
+    table_ids: preselectedTableIds || [],
     user_id: null,
     name: '',
     surname: '',
@@ -71,7 +76,7 @@ export default function CreateBookingScreen({ route, onSuccess }) {
     email: '',
     arrival_time: '',
     status: 'confirmed',
-    reservation_date: new Date(),
+    reservation_date: reservationDate,
     adults: 2,
     children: 0,
     highchair_number: 0,
@@ -79,7 +84,7 @@ export default function CreateBookingScreen({ route, onSuccess }) {
     costumer_notes: '',
     restaurant_notes: '',
   });
-  }, [selectedRestaurant?.id, isEditMode, editingBooking]);
+  }, [selectedRestaurant?.id, isEditMode, editingBooking, preselectedTableIds, preselectedDate]);
 
   const methods = useForm({
     mode: 'onChange',
