@@ -41,13 +41,14 @@ export const BookingRow = ({ booking, onPress }) => {
     return (
       <BookingRowActions 
         booking={booking} 
-        onActionComplete={() => swipeableRef.current?.close()}
+        onActionComplete={() => {
+          // Close swipeable after a small delay to ensure modal is fully closed
+          setTimeout(() => {
+            swipeableRef.current?.close();
+          }, 100);
+        }}
       />
     );
-  };
-
-  const handleActionComplete = () => {
-    swipeableRef.current?.close();
   };
 
   return (

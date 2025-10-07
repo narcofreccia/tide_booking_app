@@ -358,6 +358,10 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
           onClose={() => {
             setEditModalVisible(false)
             setSelectedBooking(null)
+            // Close the parent BookingDetailsModal after a delay to let EditModal close first
+            setTimeout(() => {
+              onClose()
+            }, 200)
           }}
         />
       )}
@@ -367,6 +371,10 @@ export const BookingDetailsModal = ({ visible, bookings = [], tableName, tableId
         visible={walkInModalVisible}
         onClose={() => {
           setWalkInModalVisible(false)
+          // Close the parent BookingDetailsModal after walk-in is created
+          setTimeout(() => {
+            onClose()
+          }, 200)
         }}
         tableId={tableId}
         tableName={tableName}

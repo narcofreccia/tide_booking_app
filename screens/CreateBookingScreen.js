@@ -112,28 +112,32 @@ export default function CreateBookingScreen({ route, onSuccess }) {
       dispatch({ type: 'END_LOADING' });
     },
     onSuccess: () => {
-      dispatch({
-        type: 'UPDATE_ALERT',
-        payload: {
-          open: true,
-          severity: 'success',
-          message: t(isEditMode ? 'bookings.bookingUpdated' : 'bookings.bookingCreated'),
-        },
-      });
-      dispatch({ type: 'END_LOADING' });
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      
-      // Update the selected booking date to the booking's date
-      if (lastBookingDate) {
-        dispatch({ type: 'UPDATE_SELECTED_BOOKING_DATE', payload: lastBookingDate });
-      }
-      
-      if (!isEditMode) {
-        methods.reset(defaultValues);
-      }
-      
-      // Close modal/screen after successful create or update
+      // Close modal FIRST
       onSuccess?.();
+      
+      // Then invalidate queries after modal starts closing
+      // This prevents parent component from unmounting while modal is closing
+      setTimeout(() => {
+        dispatch({
+          type: 'UPDATE_ALERT',
+          payload: {
+            open: true,
+            severity: 'success',
+            message: t(isEditMode ? 'bookings.bookingUpdated' : 'bookings.bookingCreated'),
+          },
+        });
+        dispatch({ type: 'END_LOADING' });
+        queryClient.invalidateQueries({ queryKey: ['bookings'] });
+        queryClient.invalidateQueries({ queryKey: ['bookings-by-date'] });
+        
+        if (lastBookingDate) {
+          dispatch({ type: 'UPDATE_SELECTED_BOOKING_DATE', payload: lastBookingDate });
+        }
+        
+        if (!isEditMode) {
+          methods.reset(defaultValues);
+        }
+      }, 500);
     },
   });
 

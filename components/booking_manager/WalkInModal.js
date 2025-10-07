@@ -31,24 +31,27 @@ export const WalkInModal = ({ visible, onClose, tableId, tableName, restaurantId
   const mutation = useMutation({
     mutationFn: (payload) => createWalkInBooking(restaurantId, payload),
     onSuccess: () => {
-      dispatch({
-        type: 'UPDATE_ALERT',
-        payload: {
-          open: true,
-          severity: 'success',
-          message: t('walkIn.successMessage'),
-        },
-      })
-      
-      // Invalidate queries to refresh the map and bookings list
-      queryClient.invalidateQueries({ queryKey: ['bookings'] })
-      queryClient.invalidateQueries({ queryKey: ['bookings-by-date'] })
-      queryClient.invalidateQueries({ queryKey: ['tables-by-restaurant'] })
-      
-      // Reset form and close
+      // Reset form and close modal FIRST
       setPax('2')
       setNotes('')
       onClose()
+      
+      // Then invalidate queries after modal starts closing
+      setTimeout(() => {
+        dispatch({
+          type: 'UPDATE_ALERT',
+          payload: {
+            open: true,
+            severity: 'success',
+            message: t('walkIn.successMessage'),
+          },
+        })
+        
+        // Invalidate queries to refresh the map and bookings list
+        queryClient.invalidateQueries({ queryKey: ['bookings'] })
+        queryClient.invalidateQueries({ queryKey: ['bookings-by-date'] })
+        queryClient.invalidateQueries({ queryKey: ['tables-by-restaurant'] })
+      }, 500)
     },
     onError: (error) => {
       dispatch({
