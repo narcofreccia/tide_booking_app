@@ -37,13 +37,4 @@ const config = {
   tideSupportPage: TIDE_SUPPORT_PAGE,
 };
 
-// Debug log to verify which URL is being used
-console.log('🌐 Environment Config:', {
-  environment: config.environment,
-  apiUrl: config.apiUrl,
-  tideSupportPage: config.tideSupportPage,
-  appOwnership: APP_OWNERSHIP,
-  isExpoGo: APP_OWNERSHIP === 'expo',
-});
-
 export default config;

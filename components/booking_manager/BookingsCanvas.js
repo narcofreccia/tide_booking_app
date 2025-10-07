@@ -92,8 +92,6 @@ export const BookingsCanvas = ({
     }
     
     // Otherwise, show the booking details modal
-    console.log('🔍 BookingsCanvas - Opening modal with interval:', JSON.stringify(interval))
-    console.log('🔍 BookingsCanvas - date:', date)
     const table = tables.find(t => t.id === tableId)
     setSelectedTable(table)
     setSelectedTableIdLocal(tableId)
@@ -110,8 +108,6 @@ export const BookingsCanvas = ({
 
   // Close modal and reset state when date or interval changes
   React.useEffect(() => {
-    console.log('🔍 BookingsCanvas useEffect - date changed to:', date)
-    console.log('🔍 BookingsCanvas useEffect - interval changed to:', JSON.stringify(interval))
     setModalVisible(false)
     setSelectedTable(null)
     setSelectedTableIdLocal(null)

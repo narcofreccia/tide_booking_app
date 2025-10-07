@@ -64,7 +64,6 @@ export default function CustomersScreen({ onBack }) {
 
   const handleCustomerPress = (customer) => {
     // TODO: Navigate to customer details or show modal
-    console.log('Customer pressed:', customer);
   };
   return (
     <View style={styles.outerContainer}>
@@ -161,7 +160,7 @@ export default function CustomersScreen({ onBack }) {
                 <CustomerRow
                   key={customer.phone}
                   customer={customer}
-                  onPress={() => handleCustomerPress(customer)}
+                  //onPress={() => handleCustomerPress(customer)}
                 />
               ))}
 

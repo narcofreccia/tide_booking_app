@@ -20,7 +20,7 @@ export const BookingRowActions = ({ booking, onActionComplete }) => {
 
   const isUserAdminOrOwner = isAdmin(currentUser) || isOwner(currentUser);
   const isUserManager = isManager(currentUser);
-  console.log(currentUser.role)
+  
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: () => deleteBooking({ id: booking.id }),

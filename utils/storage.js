@@ -53,7 +53,6 @@ export const getAuthToken = async () => {
  * Remove auth token
  */
 export const removeAuthToken = async () => {
-  console.log('Removing auth token');
   try {
     if (Platform.OS === 'web') {
       await AsyncStorage.removeItem(KEYS.AUTH_TOKEN);
@@ -107,7 +106,6 @@ export const getRefreshToken = async () => {
  * Remove refresh token
  */
 export const removeRefreshToken = async () => {
-  console.log('Removing refresh token');
   try {
     if (Platform.OS === 'web') {
       await AsyncStorage.removeItem(KEYS.REFRESH_TOKEN);

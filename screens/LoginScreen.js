@@ -58,7 +58,6 @@ export default function LoginScreen({ navigation }) {
       },
       {
         onSuccess: (response) => {
-          console.log('Login successful:', response);
           // Navigation will happen automatically when token is detected
         },
         onError: (error) => {
