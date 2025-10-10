@@ -65,6 +65,13 @@ export const BookingRow = ({ booking, tables = [], onPress }) => {
     );
   };
 
+  // Check booking source
+  const isVoiceBooking = booking.restaurant_notes && 
+                         typeof booking.restaurant_notes === 'string' && 
+                         booking.restaurant_notes.includes('[AI]');
+  
+  const isOnlineBooking = booking.temp_id !== null && booking.temp_id !== undefined;
+
   return (
     <Swipeable
       ref={swipeableRef}
@@ -77,9 +84,29 @@ export const BookingRow = ({ booking, tables = [], onPress }) => {
         onPress={() => onPress?.(booking)}
       >
       <View style={styles.bookingHeader}>
-        <Text style={styles.customerName}>
-          {booking.name} {booking.surname || ''}
-        </Text>
+        <View style={styles.nameContainer}>
+          <Text style={styles.customerName}>
+            {booking.name} {booking.surname || ''}
+          </Text>
+          {/* Voice booking indicator */}
+          {isVoiceBooking && (
+            <MaterialCommunityIcons 
+              name="microphone" 
+              size={14} 
+              color={theme.palette.primary.main} 
+              style={styles.sourceIcon}
+            />
+          )}
+          {/* Online booking indicator */}
+          {isOnlineBooking && (
+            <MaterialCommunityIcons 
+              name="web" 
+              size={14} 
+              color={theme.palette.info.main} 
+              style={styles.sourceIcon}
+            />
+          )}
+        </View>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
           <Text style={styles.statusText}>{formatStatus(t('bookingStatus.' + booking.status))}</Text>
         </View>
@@ -152,11 +179,19 @@ const createStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     marginBottom: theme.spacing.sm,
   },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flex: 1,
+  },
   customerName: {
     fontSize: theme.typography.fontSize.lg,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.palette.text.primary,
-    flex: 1,
+  },
+  sourceIcon: {
+    marginLeft: 2,
   },
   statusBadge: {
     paddingHorizontal: theme.spacing.sm,

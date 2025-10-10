@@ -49,6 +49,8 @@ export default {
           speechRecognitionPermission: "This app needs access to speech recognition to transcribe your voice bookings."
         }
       ],
+      "./plugins/androidManifestPlugin.js",
+      "./plugins/androidGradlePlugin.js",
       [
         "expo-build-properties",
         {
@@ -58,8 +60,22 @@ export default {
             compileSdkVersion: 36,
             targetSdkVersion: 36,
             minSdkVersion: 24,
+            enableJetifier: true,
             packagingOptions: {
-              pickFirst: ['**/libc++_shared.so']
+              pickFirst: ['**/libc++_shared.so'],
+              exclude: [
+                '**/META-INF/androidx.*.version',
+                '**/META-INF/com.android.support*.version'
+              ]
+            },
+            extraProguardRules: "",
+            extraMavenRepos: [],
+            // Force exclude old support libraries
+            buildscriptDependencies: [],
+            // Add resolution strategy to exclude old support libs
+            gradleProperties: {
+              "android.useAndroidX": "true",
+              "android.enableJetifier": "true"
             }
           }
         }

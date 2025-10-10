@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -29,7 +29,6 @@ export const VoiceRecorder = ({
   const dispatch = useDispatchContext();
   
   const [lastResult, setLastResult] = useState(null);
-  const [showTips, setShowTips] = useState(false);
   const [booking, setBooking] = useState(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   
@@ -46,6 +45,7 @@ export const VoiceRecorder = ({
     startRecording,
     stopRecording,
     requestPermission,
+    resetTranscript,
     submitToBackend
   } = useVoiceRecording({
     locale,
@@ -72,6 +72,8 @@ export const VoiceRecorder = ({
             message: t('voice_booking.failedToProcess')
           }
         });
+        // Clear transcript on submission error so user can try again
+        resetTranscript();
       }
       
       // Also call parent callback if provided
@@ -121,6 +123,8 @@ export const VoiceRecorder = ({
               message: response.message || t('voice_booking.couldNotCreateAtThisTime'),
             },
           });
+          // Clear transcript so user can try again later
+          resetTranscript();
         }
         break;
         
@@ -137,6 +141,8 @@ export const VoiceRecorder = ({
             message: t('voice_booking.couldNotCreateBooking').replace('{fields}', missingFields),
           },
         });
+        // Clear transcript so user can record again with missing info
+        resetTranscript();
         break;
         
       case 'error':
@@ -173,6 +179,8 @@ export const VoiceRecorder = ({
             },
           });
         }
+        // Clear transcript so user can try again
+        resetTranscript();
         break;
         
       default:
@@ -184,6 +192,8 @@ export const VoiceRecorder = ({
             message: t('voice_booking.unexpectedResponse'),
           },
         });
+        // Clear transcript on unexpected response
+        resetTranscript();
     }
   };
   
@@ -201,6 +211,8 @@ export const VoiceRecorder = ({
     setBooking(null);
     setLastResult(null);
     setShowConfirmationModal(false);
+    // Clear transcript to prevent re-submission
+    resetTranscript();
   };
   
   // Handle booking cancellation
@@ -217,6 +229,8 @@ export const VoiceRecorder = ({
     setBooking(null);
     setLastResult(null);
     setShowConfirmationModal(false);
+    // Clear transcript to prevent re-submission
+    resetTranscript();
   };
   
   // Handle permission request
@@ -225,206 +239,91 @@ export const VoiceRecorder = ({
   };
   
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: theme.palette.background.default }]}
-      contentContainerStyle={styles.content}
-    >
+    <View style={[styles.container, { backgroundColor: theme.palette.background.default }]}>
       {/* Header */}
       <View style={styles.header}>
         <MaterialCommunityIcons
           name="microphone-variant"
-          size={32}
+          size={28}
           color={theme.palette.primary.main}
         />
         <Text style={[styles.title, { color: theme.palette.text.primary }]}>
           {t('voice_booking.voiceBooking')}
         </Text>
-        <Text style={[styles.subtitle, { color: theme.palette.text.secondary }]}>
-          {t('voice_booking.pressAndHold')}
-        </Text>
       </View>
       
-      {/* Permission warning */}
+      {/* Error/Warning messages - compact */}
       {!hasPermission && (
-        <View style={[styles.warningBox, { backgroundColor: theme.palette.warning.light }]}>
-          <MaterialCommunityIcons
-            name="alert-circle"
-            size={20}
-            color={theme.palette.warning.dark}
-          />
-          <View style={styles.warningContent}>
-            <Text style={[styles.warningTitle, { color: theme.palette.warning.dark }]}>
-              {t('voice_booking.microphonePermissionRequired')}
-            </Text>
-            <Text style={[styles.warningText, { color: theme.palette.warning.dark }]}>
-              {t('voice_booking.grantMicrophoneAccess')}
-            </Text>
-          </View>
+        <View style={[styles.alert, { backgroundColor: theme.palette.warning.light }]}>
+          <MaterialCommunityIcons name="alert-circle" size={16} color={theme.palette.warning.dark} />
+          <Text style={[styles.alertText, { color: theme.palette.warning.dark }]}>
+            {t('voice_booking.microphonePermissionRequired')}
+          </Text>
         </View>
       )}
       
-      {/* Error display - Fixed height container to prevent layout shift */}
-      <View style={styles.errorContainer}>
-        {error && (
-          <View style={[styles.errorBox, { backgroundColor: theme.palette.error.light }]}>
-            <MaterialCommunityIcons
-              name="alert-circle"
-              size={20}
-              color={theme.palette.error.dark}
-            />
-            <Text style={[styles.errorText, { color: theme.palette.error.dark }]}>
-              {error}
-            </Text>
-          </View>
-        )}
-      </View>
+      {error && (
+        <View style={[styles.alert, { backgroundColor: theme.palette.error.light }]}>
+          <MaterialCommunityIcons name="alert-circle" size={16} color={theme.palette.error.dark} />
+          <Text style={[styles.alertText, { color: theme.palette.error.dark }]}>{error}</Text>
+        </View>
+      )}
       
-      {/* Audio visualizer */}
-      {showVisualizer && (
-        <View style={styles.visualizerContainer}>
+      {/* Main content area */}
+      <View style={styles.mainContent}>
+        {/* Visualizer */}
+        {showVisualizer && (
           <AudioVisualizer
             audioLevel={audioLevel}
             isRecording={isRecording}
           />
-        </View>
-      )}
-      
-      {/* Recording button with timer overlay */}
-      <View style={styles.buttonContainer}>
-        {/* Recording duration - positioned above button */}
-        {isRecording && (
-          <View style={styles.durationContainer}>
-            <MaterialCommunityIcons
-              name="timer-outline"
-              size={20}
-              color={theme.palette.text.secondary}
-            />
-            <Text style={[styles.durationText, { color: theme.palette.text.secondary }]}>
-              {durationFormatted}
-            </Text>
-          </View>
         )}
         
-        <RecordingButton
-          isRecording={isRecording}
-          isProcessing={isProcessing}
-          onPressIn={startRecording}
-          onPressOut={stopRecording}
-          disabled={!hasPermission}
-        />
-      </View>
-      
-      {/* Transcript display */}
-      <View style={styles.transcriptContainer}>
-        <TranscriptDisplay
-          transcript={transcript}
-          partialTranscript={partialTranscript}
-          isRecording={isRecording}
-          confidenceScore={lastResult?.confidenceScore}
-          validation={lastResult?.validation}
-        />
-      </View>
-      
-      {/* Result info */}
-      {lastResult && (
-        <View style={styles.resultContainer}>
-          {/* Needs recheck warning */}
-          {lastResult.needsServerRecheck && (
-            <View style={[styles.infoBox, { backgroundColor: theme.palette.info.light }]}>
-              <MaterialCommunityIcons
-                name="information"
-                size={18}
-                color={theme.palette.info.dark}
-              />
-              <Text style={[styles.infoText, { color: theme.palette.info.dark }]}>
-                {t('voice_booking.lowConfidenceWarning')}
+        {/* Recording button with timer */}
+        <View style={styles.recordingSection}>
+          {isRecording && (
+            <View style={styles.timerBadge}>
+              <View style={[styles.recordingDot, { backgroundColor: theme.palette.error.main }]} />
+              <Text style={[styles.timerText, { color: theme.palette.text.primary }]}>
+                {durationFormatted}
               </Text>
             </View>
           )}
           
-          {/* Extracted tokens */}
-          {lastResult.tokens && (
-            <View style={styles.tokensContainer}>
-              <Text style={[styles.tokensTitle, { color: theme.palette.text.secondary }]}>
-                {t('voice_booking.detectedInformation')}
-              </Text>
-              
-              {lastResult.tokens.partySize && (
-                <View style={styles.tokenRow}>
-                  <MaterialCommunityIcons
-                    name="account-group"
-                    size={16}
-                    color={theme.palette.text.secondary}
-                  />
-                  <Text style={[styles.tokenText, { color: theme.palette.text.primary }]}>
-                    {t('voice_booking.partySize')}: {lastResult.tokens.partySize}
-                  </Text>
-                </View>
-              )}
-              
-              {lastResult.tokens.timeSlot && (
-                <View style={styles.tokenRow}>
-                  <MaterialCommunityIcons
-                    name="clock-outline"
-                    size={16}
-                    color={theme.palette.text.secondary}
-                  />
-                  <Text style={[styles.tokenText, { color: theme.palette.text.primary }]}>
-                    {t('voice_booking.time')}: {lastResult.tokens.timeSlot}
-                  </Text>
-                </View>
-              )}
-              
-              {lastResult.tokens.names && lastResult.tokens.names.length > 0 && (
-                <View style={styles.tokenRow}>
-                  <MaterialCommunityIcons
-                    name="account"
-                    size={16}
-                    color={theme.palette.text.secondary}
-                  />
-                  <Text style={[styles.tokenText, { color: theme.palette.text.primary }]}>
-                    {t('voice_booking.name')}: {lastResult.tokens.names.join(', ')}
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
+          <RecordingButton
+            isRecording={isRecording}
+            isProcessing={isProcessing}
+            onPressIn={startRecording}
+            onPressOut={stopRecording}
+            disabled={!hasPermission}
+          />
+          
+          <Text style={[styles.instruction, { color: theme.palette.text.secondary }]}>
+            {t('voice_booking.pressAndHold')}
+          </Text>
+        </View>
+        
+        {/* Transcript area - flex to fill remaining space */}
+        <View style={styles.transcriptSection}>
+          <TranscriptDisplay
+            transcript={transcript}
+            partialTranscript={partialTranscript}
+            isRecording={isRecording}
+            confidenceScore={lastResult?.confidenceScore}
+            validation={lastResult?.validation}
+          />
+        </View>
+      </View>
+      
+      {/* Bottom info bar - only show when needed */}
+      {lastResult?.needsServerRecheck && (
+        <View style={[styles.bottomInfo, { backgroundColor: theme.palette.info.light }]}>
+          <MaterialCommunityIcons name="information" size={14} color={theme.palette.info.dark} />
+          <Text style={[styles.bottomInfoText, { color: theme.palette.info.dark }]}>
+            {t('voice_booking.lowConfidenceWarning')}
+          </Text>
         </View>
       )}
-      
-      {/* Help text - Collapsible */}
-      <View style={styles.helpContainer}>
-        <TouchableOpacity 
-          style={styles.helpHeader}
-          onPress={() => setShowTips(!showTips)}
-        >
-          <Text style={[styles.helpTitle, { color: theme.palette.text.secondary }]}>
-            {t('voice_booking.tipsForBestResults')}
-          </Text>
-          <MaterialCommunityIcons
-            name={showTips ? "chevron-up" : "chevron-down"}
-            size={20}
-            color={theme.palette.text.secondary}
-          />
-        </TouchableOpacity>
-        
-        {showTips && (
-          <View style={styles.helpContent}>
-            <Text style={[styles.helpText, { color: theme.palette.text.secondary }]}>
-              • {t('voice_booking.tipSpeakClearly')}
-            </Text>
-            <Text style={[styles.helpText, { color: theme.palette.text.secondary }]}>
-              • {t('voice_booking.tipIncludeDetails')}
-            </Text>
-            <Text style={[styles.helpText, { color: theme.palette.text.secondary }]}>
-              • {t('voice_booking.tipMinimizeNoise')}
-            </Text>
-            <Text style={[styles.helpText, { color: theme.palette.text.secondary }]}>
-              • {t('voice_booking.tipExample')}
-            </Text>
-          </View>
-        )}
-      </View>
       
       {/* Booking Confirmation Modal */}
       <VoiceBookingConfirmationModal
@@ -434,144 +333,86 @@ export const VoiceRecorder = ({
         onCancel={handleBookingCancelled}
         onClose={() => setShowConfirmationModal(false)}
       />
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
-  },
-  content: {
-    padding: 20,
-    gap: 20
+    flex: 1,
+    padding: 16
   },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8
+    gap: 12,
+    marginBottom: 16
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold'
+    fontSize: 20,
+    fontWeight: '700'
   },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center'
-  },
-  warningBox: {
+  alert: {
     flexDirection: 'row',
-    padding: 12,
+    alignItems: 'center',
+    padding: 10,
     borderRadius: 8,
-    gap: 12,
-    alignItems: 'flex-start'
+    gap: 8,
+    marginBottom: 12
   },
-  warningContent: {
+  alertText: {
     flex: 1,
-    gap: 4
-  },
-  warningTitle: {
-    fontSize: 14,
-    fontWeight: '600'
-  },
-  warningText: {
-    fontSize: 12
-  },
-  errorContainer: {
-    minHeight: 60, // Fixed height to prevent layout shift when error appears/disappears
-    marginBottom: 8
-  },
-  errorBox: {
-    flexDirection: 'row',
-    padding: 12,
-    borderRadius: 8,
-    gap: 12,
-    alignItems: 'center'
-  },
-  errorText: {
-    flex: 1,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500'
   },
-  visualizerContainer: {
-    marginVertical: 10
+  mainContent: {
+    flex: 1,
+    justifyContent: 'space-between'
   },
-  buttonContainer: {
-    position: 'relative',
+  recordingSection: {
     alignItems: 'center',
-    minHeight: 200, // Fixed height to prevent layout shift
-    justifyContent: 'center'
+    paddingVertical: 20
   },
-  durationContainer: {
-    position: 'absolute',
-    top: 0,
+  timerBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    zIndex: 10
+    gap: 8,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)'
   },
-  durationText: {
-    fontSize: 18,
-    fontWeight: '600',
+  recordingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4
+  },
+  timerText: {
+    fontSize: 16,
+    fontWeight: '700',
     fontVariant: ['tabular-nums']
   },
-  transcriptContainer: {
-    marginTop: 10
+  instruction: {
+    fontSize: 12,
+    marginTop: 12,
+    textAlign: 'center'
   },
-  resultContainer: {
-    gap: 12
-  },
-  infoBox: {
-    flexDirection: 'row',
-    padding: 12,
-    borderRadius: 8,
-    gap: 12,
-    alignItems: 'center'
-  },
-  infoText: {
+  transcriptSection: {
     flex: 1,
-    fontSize: 12,
+    marginTop: 16
+  },
+  bottomInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    gap: 8,
+    borderRadius: 8,
+    marginTop: 12
+  },
+  bottomInfoText: {
+    flex: 1,
+    fontSize: 11,
     fontWeight: '500'
-  },
-  tokensContainer: {
-    gap: 8
-  },
-  tokensTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5
-  },
-  tokenRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8
-  },
-  tokenText: {
-    fontSize: 14
-  },
-  helpContainer: {
-    marginTop: 10
-  },
-  helpHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8
-  },
-  helpTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5
-  },
-  helpContent: {
-    gap: 6,
-    marginTop: 4,
-    paddingTop: 8
-  },
-  helpText: {
-    fontSize: 12,
-    lineHeight: 18
   }
 });

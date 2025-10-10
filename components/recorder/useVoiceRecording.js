@@ -476,6 +476,18 @@ export const useVoiceRecording = ({
   };
   
   /**
+   * Reset transcript and related state
+   * Useful after booking confirmation/cancellation
+   */
+  const resetTranscript = () => {
+    setTranscript('');
+    setPartialTranscript('');
+    setDuration(0);
+    setAudioLevel(0);
+    setError(null);
+  };
+  
+  /**
    * Submit voice intent to backend
    * @param {Object} result - Result from processRecording
    * @returns {Promise} Backend response with booking data
@@ -551,6 +563,7 @@ export const useVoiceRecording = ({
     startRecording,
     stopRecording,
     cancelRecording,
+    resetTranscript,
     requestPermission,
     checkPermissions,
     

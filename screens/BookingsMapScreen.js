@@ -311,7 +311,7 @@ const createStyles = (theme) => StyleSheet.create({
     gap: theme.spacing.md,
   },
   voiceButton: {
-    padding: theme.spacing.sm,
+    padding: theme.spacing.xs,
   },
   voiceRecorderContainer: {
     flex: 1,

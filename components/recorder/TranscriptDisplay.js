@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -23,7 +23,12 @@ export const TranscriptDisplay = ({
   const theme = useTheme();
   const { t } = useTranslation();
   
-  const hasContent = transcript || partialTranscript;
+  // Only show partial text if it's DIFFERENT from final transcript
+  const showPartial = partialTranscript && 
+                      partialTranscript !== transcript && 
+                      !transcript?.includes(partialTranscript);
+  
+  const hasContent = transcript || showPartial;
   
   const getConfidenceColor = (score) => {
     if (score >= 80) return theme.palette.success.main;
@@ -33,18 +38,18 @@ export const TranscriptDisplay = ({
   
   return (
     <View style={[styles.container, { backgroundColor: theme.palette.background.paper }]}>
-      {/* Header */}
+      {/* Header with recording indicator */}
       <View style={styles.header}>
         <MaterialCommunityIcons
           name="text-box-outline"
-          size={20}
+          size={18}
           color={theme.palette.text.secondary}
         />
         <Text style={[styles.headerText, { color: theme.palette.text.secondary }]}>
           {t('voice_booking.transcript')}
         </Text>
         {isRecording && (
-          <View style={styles.recordingIndicator}>
+          <View style={styles.recordingBadge}>
             <View style={[styles.recordingDot, { backgroundColor: theme.palette.error.main }]} />
             <Text style={[styles.recordingText, { color: theme.palette.error.main }]}>
               {t('voice_booking.recording')}
@@ -53,79 +58,83 @@ export const TranscriptDisplay = ({
         )}
       </View>
       
-      {/* Transcript content */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-      >
+      {/* Transcript content - no ScrollView, uses flex */}
+      <View style={styles.content}>
         {hasContent ? (
-          <View>
+          <>
             {/* Final transcript */}
-            {transcript && transcript.trim() !== '' && (
+            {transcript && (
               <Text style={[styles.transcriptText, { color: theme.palette.text.primary }]}>
                 {transcript}
               </Text>
             )}
             
-            {/* Partial transcript (grayed out) */}
-            {partialTranscript && partialTranscript.trim() !== '' && (
+            {/* Partial transcript (only if different from final) */}
+            {showPartial && (
               <Text style={[styles.partialText, { color: theme.palette.text.disabled }]}>
                 {partialTranscript}
               </Text>
             )}
-          </View>
+          </>
         ) : (
           <Text style={[styles.placeholderText, { color: theme.palette.text.disabled }]}>
             {isRecording ? t('voice_booking.listening') : t('voice_booking.pressAndHoldToStart')}
           </Text>
         )}
-      </ScrollView>
+      </View>
       
-      {/* Confidence and validation info */}
-      {transcript && confidenceScore !== undefined && (
+      {/* Compact footer with validation badges */}
+      {transcript && (
         <View style={styles.footer}>
-          {/* Confidence score */}
-          <View style={styles.confidenceContainer}>
-            <MaterialCommunityIcons
-              name="chart-line"
-              size={16}
-              color={getConfidenceColor(confidenceScore)}
-            />
-            <Text style={[styles.confidenceText, { color: getConfidenceColor(confidenceScore) }]}>
-              {t('voice_booking.confidence')}: {confidenceScore}%
-            </Text>
+          {/* Confidence + Validation badges in one row */}
+          <View style={styles.footerRow}>
+            {confidenceScore !== undefined && (
+              <View style={[styles.badge, { backgroundColor: getConfidenceColor(confidenceScore) + '20' }]}>
+                <MaterialCommunityIcons
+                  name="chart-line"
+                  size={12}
+                  color={getConfidenceColor(confidenceScore)}
+                />
+                <Text style={[styles.badgeText, { color: getConfidenceColor(confidenceScore) }]}>
+                  {confidenceScore}%
+                </Text>
+              </View>
+            )}
+            
+            {validation?.hasPartySize && (
+              <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
+                <MaterialCommunityIcons name="account-group" size={12} color={theme.palette.success.dark} />
+                <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>
+                  {t('voice_booking.pax')}
+                </Text>
+              </View>
+            )}
+            
+            {validation?.hasTimeSlot && (
+              <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
+                <MaterialCommunityIcons name="clock-outline" size={12} color={theme.palette.success.dark} />
+                <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>
+                  {t('voice_booking.time')}
+                </Text>
+              </View>
+            )}
+            
+            {validation?.hasName && (
+              <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
+                <MaterialCommunityIcons name="account" size={12} color={theme.palette.success.dark} />
+                <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>
+                  {t('voice_booking.name')}
+                </Text>
+              </View>
+            )}
           </View>
           
-          {/* Validation badges */}
-          {validation && (
-            <View style={styles.badgesContainer}>
-              {validation.hasPartySize && (
-                <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
-                  <MaterialCommunityIcons name="account-group" size={12} color={theme.palette.success.dark} />
-                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>{t('voice_booking.pax')}</Text>
-                </View>
-              )}
-              {validation.hasTimeSlot && (
-                <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
-                  <MaterialCommunityIcons name="clock-outline" size={12} color={theme.palette.success.dark} />
-                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>{t('voice_booking.time')}</Text>
-                </View>
-              )}
-              {validation.hasName && (
-                <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
-                  <MaterialCommunityIcons name="account" size={12} color={theme.palette.success.dark} />
-                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>{t('voice_booking.name')}</Text>
-                </View>
-              )}
-            </View>
-          )}
-          
           {/* Missing fields warning */}
-          {validation && validation.missingFields && validation.missingFields.length > 0 && (
-            <View style={styles.warningContainer}>
+          {validation?.missingFields?.length > 0 && (
+            <View style={styles.warningRow}>
               <MaterialCommunityIcons
                 name="alert-circle-outline"
-                size={14}
+                size={12}
                 color={theme.palette.warning.main}
               />
               <Text style={[styles.warningText, { color: theme.palette.warning.main }]}>
@@ -141,99 +150,94 @@ export const TranscriptDisplay = ({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     borderRadius: 12,
-    padding: 16,
-    minHeight: 150,
-    maxHeight: 300
+    padding: 14,
+    justifyContent: 'space-between'
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    gap: 8
+    gap: 8,
+    marginBottom: 12
   },
   headerText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     flex: 1
   },
-  recordingIndicator: {
+  recordingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 0, 0, 0.1)'
   },
   recordingDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4
+    width: 6,
+    height: 6,
+    borderRadius: 3
   },
   recordingText: {
-    fontSize: 12,
-    fontWeight: '600'
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5
   },
-  scrollView: {
-    maxHeight: 150
-  },
-  scrollContent: {
-    paddingBottom: 8
+  content: {
+    flex: 1,
+    justifyContent: 'center'
   },
   transcriptText: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 4
+    fontSize: 15,
+    lineHeight: 22
   },
   partialText: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontStyle: 'italic'
+    fontSize: 15,
+    lineHeight: 22,
+    fontStyle: 'italic',
+    marginTop: 4
   },
   placeholderText: {
-    fontSize: 14,
+    fontSize: 13,
     fontStyle: 'italic',
     textAlign: 'center',
-    marginTop: 20
+    opacity: 0.6
   },
   footer: {
     marginTop: 12,
-    paddingTop: 12,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)'
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 8
   },
-  confidenceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 8
-  },
-  confidenceText: {
-    fontSize: 12,
-    fontWeight: '600'
-  },
-  badgesContainer: {
+  footerRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 8
+    gap: 6
   },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 10,
     gap: 4
   },
   badgeText: {
     fontSize: 10,
     fontWeight: '600'
   },
-  warningContainer: {
+  warningRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6
   },
   warningText: {
-    fontSize: 11,
+    flex: 1,
+    fontSize: 10,
     fontWeight: '500'
   }
 });
