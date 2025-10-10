@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme';
 import { useStateContext, useDispatchContext } from '../context/ContextProvider';
 import { useQuery } from '@tanstack/react-query';
 import { getBookingsByDate, getAllTablesByRestaurantId } from '../services/api';
+import { getLocale } from '../utils/localeUtils';
 import { DateSelector } from '../components/DateSelector';
 import { IntervalSelector } from '../components/booking_manager/IntervalSelector';
 import { Pagination } from '../components/Pagination';
@@ -13,12 +15,13 @@ import { TideLogo } from '../components/TideLogo';
 import { BookingRow } from '../components/bookings/BookingRow';
 import { BookingSummaryBar } from '../components/booking_manager/BookingSummaryBar';
 import CustomersScreen from './CustomersScreen';
+import { VoiceRecorder } from '../components/recorder/VoiceRecorder';
 import { getIcon, getIconSize } from '../config/icons';
 import { useTranslation } from '../hooks/useTranslation';
 
 export default function BookingsScreen() {
   const theme = useTheme();
-  const { selectedRestaurant, currentUser, selectedBookingDate } = useStateContext();
+  const { selectedRestaurant, currentUser, selectedBookingDate, language } = useStateContext();
   const dispatch = useDispatchContext();
   const { t } = useTranslation();
   const styles = createStyles(theme);
@@ -29,7 +32,23 @@ export default function BookingsScreen() {
   const [selectedInterval, setSelectedInterval] = useState(null);
   const [selectedIntervalIndex, setSelectedIntervalIndex] = useState(null);
   const [showCustomers, setShowCustomers] = useState(false);
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [voiceLocale, setVoiceLocale] = useState(null);
   const limit = 20;
+  
+  // Load voice recording locale from AsyncStorage or use app language
+  useEffect(() => {
+    const loadVoiceLocale = async () => {
+      try {
+        const savedLocale = await AsyncStorage.getItem('@voice_recording_locale');
+        setVoiceLocale(savedLocale || getLocale(language));
+      } catch (error) {
+        console.error('Failed to load voice locale:', error);
+        setVoiceLocale(getLocale(language));
+      }
+    };
+    loadVoiceLocale();
+  }, [language]);
 
   // Format date to YYYY-MM-DD in local timezone
   const formatDate = (date) => {
@@ -99,6 +118,53 @@ export default function BookingsScreen() {
     return <CustomersScreen onBack={() => setShowCustomers(false)} />;
   }
 
+  // If showing voice recorder, render VoiceRecorder instead
+  if (showVoiceRecorder) {
+    return (
+      <View style={[styles.voiceRecorderContainer, { backgroundColor: theme.palette.background.default }]}>
+        <View style={[styles.voiceRecorderHeader, { borderBottomColor: theme.palette.divider }]}>
+          <TouchableOpacity onPress={() => setShowVoiceRecorder(false)} style={styles.backButton}>
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={24}
+              color={theme.palette.text.primary}
+            />
+            <Text style={[styles.backText, { color: theme.palette.text.primary }]}>
+              Bookings
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <VoiceRecorder
+          locale={voiceLocale || 'en-US'}
+          onTranscriptComplete={(result) => {
+            console.log('Voice booking transcript:', result);
+            // TODO: Process the transcript and create booking
+            const transcriptText = result.transcript || 'No transcript';
+            dispatch({
+              type: 'UPDATE_ALERT',
+              payload: {
+                open: true,
+                severity: 'info',
+                message: `Transcript received: ${transcriptText}`,
+              },
+            });
+          }}
+          onError={(error) => {
+            console.error('Voice recording error:', error);
+            dispatch({
+              type: 'UPDATE_ALERT',
+              payload: {
+                open: true,
+                severity: 'error',
+                message: 'Voice recording failed. Please try again.',
+              },
+            });
+          }}
+        />
+      </View>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={styles.gestureContainer}>
         <View style={styles.header}>
@@ -116,6 +182,16 @@ export default function BookingsScreen() {
             >
               <MaterialCommunityIcons
                 name={getIcon('customers')}
+                size={getIconSize('lg')}
+                color={theme.palette.primary.main}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.voiceButton}
+              onPress={() => setShowVoiceRecorder(true)}
+            >
+              <MaterialCommunityIcons
+                name="microphone"
                 size={getIconSize('lg')}
                 color={theme.palette.primary.main}
               />
@@ -280,6 +356,27 @@ const createStyles = (theme) => StyleSheet.create({
   },
   customersButton: {
     padding: theme.spacing.xs,
+  },
+  voiceButton: {
+    padding: theme.spacing.xs,
+  },
+  voiceRecorderContainer: {
+    flex: 1,
+  },
+  voiceRecorderHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  backText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
   title: {
     fontSize: theme.typography.fontSize.xxl,

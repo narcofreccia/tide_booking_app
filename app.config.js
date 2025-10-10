@@ -19,18 +19,32 @@ export default {
       bundleIdentifier: "com.tideexperience.bookingapp",
       buildNumber: "3",
       infoPlist: {
-        ITSAppUsesNonExemptEncryption: false
+        ITSAppUsesNonExemptEncryption: false,
+        NSMicrophoneUsageDescription: "This app needs access to your microphone to record voice bookings.",
+        NSSpeechRecognitionUsageDescription: "This app needs access to speech recognition to transcribe your voice bookings."
       }
     },
     android: {
       package: "com.tideexperience.bookingapp",
-      versionCode: 3
+      versionCode: 3,
+      permissions: [
+        "RECORD_AUDIO",
+        "INTERNET"
+      ]
     },
     web: {
       favicon: "./assets/tide_favicon_apple.png"
     },
     plugins: [
       "expo-secure-store"
+      // NOTE: Uncomment when ready for production build with real speech-to-text
+      // [
+      //   "@react-native-voice/voice",
+      //   {
+      //     microphonePermission: "This app needs access to your microphone to record voice bookings.",
+      //     speechRecognitionPermission: "This app needs access to speech recognition to transcribe your voice bookings."
+      //   }
+      // ]
     ],
     extra: {
       // Use environment variables from eas.json or .env (local dev)

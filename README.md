@@ -179,6 +179,134 @@ Centralized locale mapping in `utils/localeUtils.js`:
 - `getLocale(language)` - Get locale string (e.g., 'it-IT')
 - `formatDateWithLocale(date, language, options)` - Format dates with locale support
 
+## 🎤 Voice Recording & Transcription
+
+The app includes a sophisticated voice booking feature with on-device speech-to-text transcription, multi-language support, and **full backend integration with AI-powered booking creation**.
+
+### Features
+- **Push-to-Talk Interface**: Press and hold to record, release to stop
+- **Real-Time Transcription**: On-device speech-to-text with partial results
+- **Audio Visualization**: Animated 5-bar visualizer showing audio levels
+- **Confidence Scoring**: Intelligent quality assessment (typically 85-100%)
+- **Backend Integration**: ✅ **COMPLETE** - Automatic booking creation via AI
+  - Submits transcript to backend API
+  - AI extracts booking information (GPT-4o-mini)
+  - Creates PENDING booking automatically
+  - Shows confirmation modal for staff review
+  - Supports editing and confirming bookings
+- **Multi-Language Detection**: Automatically detects Italian, English, and Spanish
+  - Supports number words (due/two/dos, quattro/four/cuatro, etc.)
+  - Context-aware party size extraction ("per 2", "for four", "para 6")
+  - Time detection in all languages ("alle 20:00", "at 8 PM", "a las 20:00")
+  - Smart name filtering (excludes common words like "Voglio", "Prenotazione", "Table")
+- **Smart Token Extraction**: Extracts party size, time, and customer names
+- **Quality Heuristics**: Flags low-confidence recordings for server verification
+- **Language-Agnostic**: Detects all supported languages regardless of app language setting
+- **Booking Confirmation Modal**: Full-featured modal with edit capabilities
+- **Collapsible Tips**: Space-saving UI with expandable help section
+- **Privacy-Focused**: On-device processing with optional server fallback
+- **Demo Mode**: Works in Expo Go with realistic multi-language test transcripts
+
+### Components
+```
+components/recorder/
+├── VoiceRecorder.js                    # Main component with full UI
+├── RecordingButton.js                  # Push-to-talk button with animations
+├── TranscriptDisplay.js                # Real-time transcript viewer
+├── AudioVisualizer.js                  # Audio level visualization
+├── VoiceBookingConfirmationModal.js    # Booking review & confirmation modal
+└── useVoiceRecording.js                # Custom hook for recording logic
+
+components/settings/
+└── VoiceRecordingSettings.js           # Settings UI for voice feature
+
+services/
+└── voiceApi.js                         # API service for voice intents
+
+utils/
+├── audioUtils.js                       # Audio processing & quality heuristics
+└── permissionUtils.js                  # Permission handling
+```
+
+### Usage
+```javascript
+import { VoiceRecorder } from '../components/recorder/VoiceRecorder';
+
+function BookingScreen() {
+  return (
+    <VoiceRecorder
+      locale="it-IT"
+      onTranscriptComplete={(result) => {
+        // Optional: Handle transcript locally
+        console.log('Transcript:', result.transcript);
+        console.log('Confidence:', result.confidenceScore);
+        // Note: Backend submission happens automatically!
+      }}
+      onError={(error) => console.error(error)}
+    />
+  );
+}
+```
+
+**Note**: The component now **automatically submits to backend** after recording. When successful, a confirmation modal appears for staff to review and confirm the booking.
+
+### Settings Configuration
+Access via **Settings → Voice Recording**:
+- **Enable/Disable**: Toggle voice booking feature
+- **Permissions**: View and request microphone/speech recognition access
+- **Default Language**: Select speech recognition locale (auto-syncs with app language)
+  - 🇺🇸 English (US), 🇬🇧 English (UK)
+  - 🇮🇹 Italiano (Italia)
+  - 🇪🇸 Español (España), 🇲🇽 Español (México)
+- **Confidence Threshold**: Adjust sensitivity (60%, 70%, 80%)
+
+### Permissions Required
+- **iOS**: `NSMicrophoneUsageDescription`, `NSSpeechRecognitionUsageDescription`
+- **Android**: `RECORD_AUDIO`, `INTERNET`
+
+### Quality Heuristics
+The system evaluates transcription quality based on:
+- Recording duration (optimal: 0.8-15 seconds)
+- Word count (minimum: 2 words, optimal: 4-40 words)
+- Presence of numbers in any language (party size indicators)
+- Time references in any language (booking time)
+- Real names (excludes 40+ common words across languages)
+- Transcript length and completeness
+
+**Typical confidence scores**: 85-100% for good recordings. Transcripts below the threshold are flagged for server verification with audio upload.
+
+### Platform Support
+- **Web**: Uses Web Speech API (Chrome, Edge) - **Production Ready**
+- **iOS/Android (Expo Go)**: Demo mode with realistic multi-language transcripts
+- **iOS/Android (Production)**: Requires `@react-native-voice/voice` and custom development build
+  - iOS: Native Speech Framework
+  - Android: Google Speech Recognition
+  - See `VOICE_RECORDING_DEPLOYMENT.md` for deployment guide
+
+### Backend Integration Flow
+1. **Staff speaks** → "Tavolo per 4 alle 20:00 per Mario Rossi"
+2. **Recording stops** → Client processes transcript
+3. **Auto-submits** → `POST /voice-intents/` to backend
+4. **AI extracts** → Party size, time, date, name (GPT-4o-mini)
+5. **Booking created** → Status: PENDING
+6. **Modal appears** → Staff reviews booking details
+7. **Staff confirms** → `PATCH /booking/{id}` → Status: CONFIRMED
+8. **Success!** → Booking complete
+
+### Demo Mode
+When running in Expo Go, the feature generates realistic test transcripts in random languages:
+- Italian: "Tavolo per 4 alle 20:00 per Mario Rossi"
+- English: "Table for 2 at 19:30 for Emma Davis"
+- Spanish: "Mesa para 6 a las 21:00 para Carlos García"
+
+Perfect for testing UI/UX without needing a production build!
+
+### API Documentation
+For complete API integration details, see:
+- `components/recorder/FRONTEND_INTEGRATION.md` - Full API documentation
+- `components/recorder/INTEGRATION_COMPLETE.md` - Testing guide
+- `components/recorder/FRONTEND_HANDOFF.md` - Quick start guide
+
 ## 🔧 Icon Mapping
 
 All icons are centrally declared in `config/icons.js`. The Map tab uses:
@@ -330,8 +458,20 @@ npm start
 - **Streamlined Settings Screen**
   - Removed clutter: Restaurant Details, Table Management, Email Notifications, Team Members, Billing, Terms & Privacy
   - Role-based visibility for Operating Hours (Admin/Owner/Manager only)
-  - Focus on essential settings: Language, Theme, Password, Support
- - **Pull-to-refresh** on data screens (Bookings, Calendar, Customers) using native RefreshControl integrated with React Query `refetch()`
+  - Focus on essential settings: Language, Theme, Voice Recording, Password, Support
+- **Voice Recording & Transcription** - Push-to-talk voice booking feature
+  - On-device speech-to-text transcription
+  - Real-time partial transcript display
+  - Audio level visualization with animated bars
+  - Confidence scoring and quality heuristics
+  - Automatic detection of party size, time, and customer name
+  - Low-confidence flagging for server verification
+  - Configurable settings (locale, confidence threshold)
+  - Platform-specific permissions (iOS/Android)
+  - Privacy-focused with temporary audio storage
+  - Haptic feedback for recording start/stop
+  - Visual recording indicator with pulse animation
+- **Pull-to-refresh** on data screens (Bookings, Calendar, Customers) using native RefreshControl integrated with React Query `refetch()`
 - **API Service** (`services/api.js`)
   - Axios client with request/response interceptors
   - Login endpoint with OAuth2PasswordRequestForm support
@@ -442,7 +582,14 @@ npm start
 │   ├── password_change/   # Password change components
 │   │   └── PasswordField.js      # Password input with show/hide toggle
 │   ├── settings/          # Settings components
-│   │   └── SupportModal.js       # Support information modal
+│   │   ├── SupportModal.js       # Support information modal
+│   │   └── VoiceRecordingSettings.js # Voice recording configuration
+│   ├── recorder/          # Voice recording components
+│   │   ├── VoiceRecorder.js      # Main voice recording component
+│   │   ├── RecordingButton.js    # Push-to-talk button
+│   │   ├── TranscriptDisplay.js  # Transcript viewer
+│   │   ├── AudioVisualizer.js    # Audio level visualization
+│   │   └── useVoiceRecording.js  # Recording hook
 │   └── calendar/          # Calendar components
 │       ├── MonthSelector.js
 │       ├── DayCard.js
@@ -468,7 +615,9 @@ npm start
 │   └── getUserRole.js     # User role utilities (isAdmin, isOwner, etc.)
 ├── utils/
 │   ├── storage.js         # Auth & data persistence utilities
-│   └── localeUtils.js     # Centralized locale mapping and formatting
+│   ├── localeUtils.js     # Centralized locale mapping and formatting
+│   ├── audioUtils.js      # Audio processing & quality heuristics
+│   └── permissionUtils.js # Permission handling utilities
 ├── translations/
 │   ├── it.json            # Italian translations (source)
 │   ├── en.json            # English translations (auto-translated)

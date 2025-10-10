@@ -11,6 +11,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { getIcon, getIconSize } from '../config/icons';
 import PasswordChangeScreen from './PasswordChangeScreen';
 import { SupportModal } from '../components/settings/SupportModal';
+import { VoiceRecordingSettings } from '../components/settings/VoiceRecordingSettings';
 import { isAdmin, isOwner, isManager } from '../services/getUserRole';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -21,6 +22,7 @@ export default function SettingsScreen() {
   const logoutMutation = useLogout();
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const styles = createStyles(theme);
   const { t } = useTranslation();
 
@@ -83,6 +85,11 @@ export default function SettingsScreen() {
   // If showing password change, render PasswordChangeScreen instead
   if (showPasswordChange) {
     return <PasswordChangeScreen onBack={() => setShowPasswordChange(false)} />;
+  }
+
+  // If showing voice settings, render VoiceRecordingSettings instead
+  if (showVoiceSettings) {
+    return <VoiceRecordingSettings onBack={() => setShowVoiceSettings(false)} />;
   }
 
   return (
@@ -149,6 +156,12 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>{t('settings.general')}</Text>
           <LanguageSelector />
           <ThemeToggle />
+          <SettingItem
+            iconKey="microphone"
+            title="Voice Recording"
+            subtitle="Configure voice booking settings"
+            onPress={() => setShowVoiceSettings(true)}
+          />
           {canManageRestaurant && (
             <SettingItem
               iconKey="clock"

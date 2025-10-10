@@ -85,7 +85,9 @@ export const deleteBooking = async ({ id }) => {
 export const changeBookingStatus = async (payload) => {
   if (!payload.reservation_id) throw new Error('reservation_id is required');
   if (!payload.status) throw new Error('status is required');
-  const response = await ApiClient.post('/booking/change_reservation_status', payload);
+  const response = await ApiClient.patch(`/booking/${payload.reservation_id}/status`, {
+    status: payload.status
+  });
   return response.data;
 };
 
