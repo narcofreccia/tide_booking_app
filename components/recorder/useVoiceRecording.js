@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
+import ENV from '../../config/env';
 
 // Conditionally import Voice for native platforms
 let Voice = null;
@@ -351,8 +352,10 @@ export const useVoiceRecording = ({
     try {
       let finalTranscript = transcript.trim();
       
-      // DEMO MODE: If no transcript (native platform), generate a demo one in random language
-      if (!finalTranscript && Platform.OS !== 'web') {
+      // DEMO MODE: Only trigger in development when Voice is NOT available (Expo Go)
+      // NEVER trigger in production, even if Voice fails
+      const isDevelopment = ENV.environment === 'development';
+      if (!finalTranscript && Platform.OS !== 'web' && !Voice && isDevelopment && duration > 500) {
         const demoTranscripts = [
           // Italian - mix of words and numbers
           'Tavolo per quattro persone alle 20:00 per Mario Rossi',

@@ -263,19 +263,21 @@ export const VoiceRecorder = ({
         </View>
       )}
       
-      {/* Error display */}
-      {error && (
-        <View style={[styles.errorBox, { backgroundColor: theme.palette.error.light }]}>
-          <MaterialCommunityIcons
-            name="alert-circle"
-            size={20}
-            color={theme.palette.error.dark}
-          />
-          <Text style={[styles.errorText, { color: theme.palette.error.dark }]}>
-            {error}
-          </Text>
-        </View>
-      )}
+      {/* Error display - Fixed height container to prevent layout shift */}
+      <View style={styles.errorContainer}>
+        {error && (
+          <View style={[styles.errorBox, { backgroundColor: theme.palette.error.light }]}>
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.palette.error.dark}
+            />
+            <Text style={[styles.errorText, { color: theme.palette.error.dark }]}>
+              {error}
+            </Text>
+          </View>
+        )}
+      </View>
       
       {/* Audio visualizer */}
       {showVisualizer && (
@@ -473,6 +475,10 @@ const styles = StyleSheet.create({
   },
   warningText: {
     fontSize: 12
+  },
+  errorContainer: {
+    minHeight: 60, // Fixed height to prevent layout shift when error appears/disappears
+    marginBottom: 8
   },
   errorBox: {
     flexDirection: 'row',

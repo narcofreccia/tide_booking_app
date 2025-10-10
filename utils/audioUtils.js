@@ -210,6 +210,38 @@ export const extractCriticalTokens = (transcript) => {
     tokens.timeSlot = timeMatches[0];
   }
   
+  // Also check for time words like "alle otto" (at eight), "at eight", "a las ocho"
+  if (!tokens.timeSlot) {
+    const timeWordPatterns = [
+      // Italian: "alle otto" = 20:00, "alle nove" = 21:00, etc.
+      /(?:alle|all')\s+(otto|nove|dieci|undici|dodici|tredici|quattordici|quindici|sedici|diciassette|diciotto|diciannove|venti|ventuno|ventidue|ventitre|ventitré)/i,
+      // English: "at eight" = 20:00, "at nine" = 21:00, etc.
+      /(?:at)\s+(eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|twenty-one|twenty-two|twenty-three)/i,
+      // Spanish: "a las ocho" = 20:00, "a las nueve" = 21:00, etc.
+      /(?:a las)\s+(ocho|nueve|diez|once|doce|trece|catorce|quince|dieciséis|dieciseis|diecisiete|dieciocho|diecinueve|veinte|veintiuno|veintidós|veintidos|veintitrés|veintitres)/i
+    ];
+    
+    for (const pattern of timeWordPatterns) {
+      const match = lowerTranscript.match(pattern);
+      if (match) {
+        const timeWord = match[1].toLowerCase();
+        // Convert time word to 24-hour format (assume dinner time if < 12)
+        let hour = allNumberWords[timeWord] || allNumberWords[timeWord.replace('-', '')];
+        if (hour && hour >= 8 && hour <= 23) {
+          // Already in evening range (8-23)
+          tokens.timeSlot = `${hour}:00`;
+          tokens.times.push(tokens.timeSlot);
+        } else if (hour && hour >= 1 && hour <= 7) {
+          // Morning hours, likely meant evening (add 12)
+          hour += 12;
+          tokens.timeSlot = `${hour}:00`;
+          tokens.times.push(tokens.timeSlot);
+        }
+        break;
+      }
+    }
+  }
+  
   // Extract all numbers from transcript
   const numberMatches = transcript.match(/\d+/g);
   if (numberMatches) {

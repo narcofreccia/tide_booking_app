@@ -21,7 +21,8 @@ export default {
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         NSMicrophoneUsageDescription: "This app needs access to your microphone to record voice bookings.",
-        NSSpeechRecognitionUsageDescription: "This app needs access to speech recognition to transcribe your voice bookings."
+        NSSpeechRecognitionUsageDescription: "This app needs access to speech recognition to transcribe your voice bookings.",
+        NSPhotoLibraryUsageDescription: "This app does not access your photo library. This permission is required by a third-party library."
       }
     },
     android: {
@@ -36,8 +37,7 @@ export default {
       favicon: "./assets/tide_favicon_apple.png"
     },
     plugins: [
-      "expo-secure-store"
-      //NOTE: Uncomment when ready for production build with real speech-to-text
+      "expo-secure-store",
       [
         "@react-native-voice/voice",
         {
