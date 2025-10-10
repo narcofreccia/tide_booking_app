@@ -11,58 +11,34 @@ import { useStateContext, useDispatchContext } from '../context/ContextProvider'
 
 const { width } = Dimensions.get('window');
 
-export const Notification = () => {
-  const { alert } = useStateContext();
-  const dispatch = useDispatchContext();
+const AlertItem = ({ alert, index, onClose }) => {
   const slideAnim = useRef(new Animated.Value(-100)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (alert.open) {
-      // Slide in and fade in
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
+    // Slide in and fade in
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
-      // Auto hide after 6 seconds
-      const timer = setTimeout(() => {
-        handleClose();
-      }, 6000);
+    // Auto hide - longer duration for warnings/errors
+    const duration = alert.severity === 'error' || alert.severity === 'warning' ? 8000 : 6000;
+    const timer = setTimeout(() => {
+      onClose(alert.id);
+    }, duration);
 
-      return () => clearTimeout(timer);
-    } else {
-      // Slide out and fade out
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: -100,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [alert.open]);
+    return () => clearTimeout(timer);
+  }, []);
 
-  const handleClose = () => {
-    dispatch({ type: 'UPDATE_ALERT', payload: { ...alert, open: false } });
-  };
-
-  if (!alert.open && opacityAnim._value === 0) {
-    return null;
-  }
 
   // Get color based on severity
   const getAlertColor = () => {
@@ -97,10 +73,11 @@ export const Notification = () => {
   return (
     <Animated.View
       style={[
-        styles.container,
+        styles.alertContainer,
         {
           transform: [{ translateY: slideAnim }],
           opacity: opacityAnim,
+          top: 60 + (index * 65), // Stack alerts vertically with less spacing
         },
       ]}
     >
@@ -109,7 +86,7 @@ export const Notification = () => {
           <Text style={styles.icon}>{getAlertIcon()}</Text>
         </View>
         <Text style={styles.message}>{alert.message}</Text>
-        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+        <TouchableOpacity onPress={() => onClose(alert.id)} style={styles.closeButton}>
           <Text style={styles.closeText}>✕</Text>
         </TouchableOpacity>
       </View>
@@ -117,13 +94,44 @@ export const Notification = () => {
   );
 };
 
+export const Notification = () => {
+  const state = useStateContext();
+  const dispatch = useDispatchContext();
+
+  // Use new alerts array, fallback to empty array if undefined
+  // Ensure state and alerts exist before accessing
+  const alerts = (state && Array.isArray(state.alerts)) ? state.alerts : [];
+
+  const handleClose = (alertId) => {
+    dispatch({ type: 'REMOVE_ALERT', payload: alertId });
+  };
+
+  if (!alerts || alerts.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {alerts.map((alert, index) => (
+        alert && alert.id ? (
+          <AlertItem
+            key={alert.id}
+            alert={alert}
+            index={index}
+            onClose={handleClose}
+          />
+        ) : null
+      ))}
+    </>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: {
+  alertContainer: {
     position: 'absolute',
-    top: 50,
     left: 20,
     right: 20,
-    zIndex: 9999,
+    zIndex: 99999,
     alignItems: 'center',
   },
   alert: {

@@ -138,7 +138,7 @@ export default function BookingsScreen() {
           locale={voiceLocale || 'en-US'}
           onTranscriptComplete={(result) => {
             console.log('Voice booking transcript:', result);
-            // TODO: Process the transcript and create booking
+            // Show transcript received notification
             const transcriptText = result.transcript || 'No transcript';
             dispatch({
               type: 'UPDATE_ALERT',

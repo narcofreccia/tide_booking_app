@@ -65,9 +65,19 @@ export const useVoiceRecording = ({
   const startTimeRef = useRef(null);
   const isRecordingRef = useRef(false); // Track recording state for callbacks
   
-  // Check permissions on mount
+  // Check permissions on mount and pre-initialize speech recognition
   useEffect(() => {
-    checkPermissions();
+    const init = async () => {
+      const { granted } = await getMicrophonePermissionStatus();
+      setHasPermission(granted);
+      
+      // Pre-initialize speech recognition if permission granted
+      if (granted) {
+        initializeSpeechRecognition();
+      }
+    };
+    
+    init();
     
     return () => {
       // Cleanup on unmount
@@ -76,6 +86,11 @@ export const useVoiceRecording = ({
       }
       if (durationIntervalRef.current) {
         clearInterval(durationIntervalRef.current);
+      }
+      // Cleanup speech recognition
+      if (recognitionRef.current && Platform.OS === 'web') {
+        recognitionRef.current.abort();
+        recognitionRef.current = null;
       }
     };
   }, []);
@@ -97,6 +112,11 @@ export const useVoiceRecording = ({
     
     if (!granted && !canAskAgain) {
       showPermissionDeniedAlert('microphone');
+    }
+    
+    // Initialize speech recognition if permission granted
+    if (granted && !recognitionRef.current) {
+      initializeSpeechRecognition();
     }
     
     return granted;
@@ -231,33 +251,26 @@ export const useVoiceRecording = ({
         }
       }
       
-      // Haptic feedback
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      // Clear previous state and update UI immediately
+      setTranscript('');
+      setPartialTranscript('');
+      setError(null);
+      setIsRecording(true);
+      isRecordingRef.current = true;
       
-      // Configure audio mode
-      await configureAudioMode();
-      
-      // Start audio recording
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      
-      recordingRef.current = recording;
-      
-      // Initialize speech recognition
-      initializeSpeechRecognition();
+      // Start speech recognition IMMEDIATELY (already initialized)
       if (recognitionRef.current) {
         console.log('Starting speech recognition...');
         if (Platform.OS === 'web') {
           recognitionRef.current.start();
         } else if (Voice) {
-          await Voice.start(locale);
+          Voice.start(locale); // Don't await - let it start in background
         }
       } else {
         console.warn('Speech recognition not initialized');
       }
       
-      // Start duration tracking
+      // Start duration tracking immediately
       startTimeRef.current = Date.now();
       durationIntervalRef.current = setInterval(() => {
         const elapsed = Date.now() - startTimeRef.current;
@@ -269,26 +282,32 @@ export const useVoiceRecording = ({
         }
       }, 100);
       
-      // Update state
-      setIsRecording(true);
-      isRecordingRef.current = true; // Update ref for callbacks
-      setTranscript('');
-      setPartialTranscript('');
-      setError(null);
+      // Haptic feedback (non-blocking)
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       
-      // Start monitoring audio levels (if available)
-      recording.setOnRecordingStatusUpdate((status) => {
-        if (status.isRecording && status.metering !== undefined) {
-          // Normalize metering to 0-100 range
-          const normalized = Math.max(0, Math.min(100, (status.metering + 160) / 160 * 100));
-          setAudioLevel(normalized);
-        }
+      // Configure audio and start recording in background
+      configureAudioMode().then(async () => {
+        const { recording } = await Audio.Recording.createAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY
+        );
+        
+        recordingRef.current = recording;
+        
+        // Start monitoring audio levels
+        recording.setOnRecordingStatusUpdate((status) => {
+          if (status.isRecording && status.metering !== undefined) {
+            const normalized = Math.max(0, Math.min(100, (status.metering + 160) / 160 * 100));
+            setAudioLevel(normalized);
+          }
+        });
       });
       
     } catch (err) {
       console.error('Failed to start recording:', err);
       const errorMsg = 'Failed to start recording';
       setError(errorMsg);
+      setIsRecording(false);
+      isRecordingRef.current = false;
       if (onError) onError(err);
     }
   };
@@ -357,34 +376,40 @@ export const useVoiceRecording = ({
       const isDevelopment = ENV.environment === 'development';
       if (!finalTranscript && Platform.OS !== 'web' && !Voice && isDevelopment && duration > 500) {
         const demoTranscripts = [
-          // Italian - mix of words and numbers
-          'Tavolo per quattro persone alle 20:00 per Mario Rossi',
-          'Prenotazione per 2 alle 19:30 nome Giulia Bianchi',
-          'Tavolo per sei persone domani sera alle 21:00 a nome Ferrari',
-          'Per 3 persone alle 20:30 nome Luca Verdi',
-          'Prenotazione per cinque stasera alle 19:00 nome Colombo',
-          'Tavolo per 8 alle 22:00 per la famiglia Bianchi',
-          'Per due persone alle 18:45 nome Andrea Conti',
-          'Tavolo per 4 alle 20:15 per Elena Romano',
-          // English - mix of words and numbers
-          'Table for 4 people at 20:00 for John Smith',
-          'Reservation for two at 19:30 name Sarah Johnson',
-          'Table for 6 people tomorrow evening at 21:00 for Williams',
-          'For three people at 20:30 name Michael Brown',
-          'Booking for 5 tonight at 19:00 name David Miller',
-          'Table for 2 at 18:30 for Emma Davis',
-          'For four at 22:00 name Robert Taylor',
-          'Table for two people at 19:15 for Jennifer Wilson',
-          // Spanish - mix of words and numbers
-          'Mesa para 4 personas a las 20:00 para Carlos García',
-          'Reserva para dos a las 19:30 nombre María López',
-          'Mesa para 6 personas mañana a las 21:00 a nombre de Martínez',
-          'Para tres personas a las 20:30 nombre Juan Rodríguez',
-          'Reserva para 5 esta noche a las 19:00 nombre Ana Fernández',
-          'Mesa para 2 a las 18:30 para Luis Sánchez',
-          'Para cuatro a las 22:00 nombre Isabel Moreno',
-          'Mesa para dos personas a las 19:15 para Pedro Jiménez'
-        ];
+          'Tavolo per quattro persone alle otto',
+          'Stasera 4 persone a nome Maria',
+          "Maria quattro persone più 1 bambino"
+        ]
+
+        // const demoTranscripts = [
+        //   // Italian - mix of words and numbers
+        //   'Tavolo per quattro persone alle 20:00 per Mario Rossi',
+        //   'Prenotazione per 2 alle 19:30 nome Giulia Bianchi',
+        //   'Tavolo per sei persone domani sera alle 21:00 a nome Ferrari',
+        //   'Per 3 persone alle 20:30 nome Luca Verdi',
+        //   'Prenotazione per cinque stasera alle 19:00 nome Colombo',
+        //   'Tavolo per 8 alle 22:00 per la famiglia Bianchi',
+        //   'Per due persone alle 18:45 nome Andrea Conti',
+        //   'Tavolo per 4 alle 20:15 per Elena Romano',
+        //   // English - mix of words and numbers
+        //   'Table for 4 people at 20:00 for John Smith',
+        //   'Reservation for two at 19:30 name Sarah Johnson',
+        //   'Table for 6 people tomorrow evening at 21:00 for Williams',
+        //   'For three people at 20:30 name Michael Brown',
+        //   'Booking for 5 tonight at 19:00 name David Miller',
+        //   'Table for 2 at 18:30 for Emma Davis',
+        //   'For four at 22:00 name Robert Taylor',
+        //   'Table for two people at 19:15 for Jennifer Wilson',
+        //   // Spanish - mix of words and numbers
+        //   'Mesa para 4 personas a las 20:00 para Carlos García',
+        //   'Reserva para dos a las 19:30 nombre María López',
+        //   'Mesa para 6 personas mañana a las 21:00 a nombre de Martínez',
+        //   'Para tres personas a las 20:30 nombre Juan Rodríguez',
+        //   'Reserva para 5 esta noche a las 19:00 nombre Ana Fernández',
+        //   'Mesa para 2 a las 18:30 para Luis Sánchez',
+        //   'Para cuatro a las 22:00 nombre Isabel Moreno',
+        //   'Mesa para dos personas a las 19:15 para Pedro Jiménez'
+        // ];
         finalTranscript = demoTranscripts[Math.floor(Math.random() * demoTranscripts.length)];
         console.log('DEMO MODE: Generated transcript:', finalTranscript);
         setTranscript(finalTranscript);

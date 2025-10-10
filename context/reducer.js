@@ -1,6 +1,7 @@
 const initialState = {
   currentUser: null,
   alert: { open: false, severity: 'info', message: '' },
+  alerts: [], // Array of alerts for stacking multiple notifications
   dialog: { open: false, close: false, title: '', message: '', onSubmit: undefined },
   loading: false,
   selectedRestaurant: { id: null, name: null, public_key: null },
@@ -17,7 +18,23 @@ const reducer = (state = initialState, action) => {
       return { ...state, currentUser: null };
 
     case 'UPDATE_ALERT':
-      return { ...state, alert: action.payload };
+      // Keep for backward compatibility, also add to alerts array
+      const newAlert = { ...action.payload, id: Date.now() + Math.random() };
+      // Ensure alerts array exists (for existing users with persisted state)
+      const currentAlerts = Array.isArray(state.alerts) ? state.alerts : [];
+      return { 
+        ...state, 
+        alert: action.payload,
+        alerts: action.payload.open ? [...currentAlerts, newAlert] : currentAlerts 
+      };
+    
+    case 'REMOVE_ALERT':
+      // Safely filter alerts array
+      const alertsToFilter = Array.isArray(state.alerts) ? state.alerts : [];
+      return { 
+        ...state, 
+        alerts: alertsToFilter.filter(alert => alert.id !== action.payload) 
+      };
     
     case 'OPEN_DIALOG':
       return { ...state, dialog: { open: true, close: false, title: action.payload.title, message: action.payload.message, onSubmit: action.payload.onSubmit } };

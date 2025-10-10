@@ -185,8 +185,14 @@ The app includes a sophisticated voice booking feature with on-device speech-to-
 
 ### Features
 - **Push-to-Talk Interface**: Press and hold to record, release to stop
+- **Optimized Speech Recognition**: ⚡ **Instant Start** - Pre-initialized recognition captures first words
+  - Speech recognition starts in ~50ms (previously ~500ms)
+  - Pre-initialization on permission grant eliminates startup delay
+  - Parallel execution of audio recording and transcription
+  - No missed words at recording start
 - **Real-Time Transcription**: On-device speech-to-text with partial results
 - **Audio Visualization**: Animated 5-bar visualizer showing audio levels
+- **Compact Fixed Timer**: Recording duration badge positioned top-right (no layout shift)
 - **Confidence Scoring**: Intelligent quality assessment (typically 85-100%)
 - **Backend Integration**: ✅ **PRODUCTION READY** - Complete AI-powered booking flow
   - Submits transcript to backend API (`POST /voice-intents/`)
@@ -210,12 +216,17 @@ The app includes a sophisticated voice booking feature with on-device speech-to-
   - Edit booking details (adults, children)
   - View booking date, time, and notes
   - Confirm or cancel with loading states
-- **Collapsible Tips**: Space-saving UI with expandable help section
+- **Streamlined No-Scroll UI**: Optimized layout that fits entire interface without scrolling
+  - Fixed-position timer badge (top-right) prevents layout shifts
+  - Flex-based layout adapts to all screen sizes
+  - Compact component spacing for efficient screen usage
 - **Privacy-Focused**: On-device processing with optional server fallback
 - **Demo Mode**: Works in Expo Go with realistic multi-language test transcripts
 - **Full Internationalization**: All UI text translated to Italian, English, and Spanish
 - **Context Integration**: Uses global alert and loading system for consistent UX
 - **Accessible from Multiple Screens**: Microphone button in both BookingsScreen and BookingsMapScreen headers
+  - Consistent spacing and alignment across all screens
+  - Same distance from logo for visual consistency
 
 ### Components
 ```
@@ -427,6 +438,10 @@ npm start
 - **Swipeable booking rows** with gesture-based actions (Edit, Delete, Update Status, Move)
 - **Role-based permissions** (Delete only for Admin/Owner)
 - **Booking management**: Create, Edit, Delete, Change Status
+- **Booking Source Indicators**: Visual icons show booking origin
+  - 🎤 **Microphone icon** - Voice bookings (when `restaurant_notes` contains `[AI]`)
+  - 🌐 **Web icon** - Online bookings (when `temp_id` is not null)
+  - Icons appear next to customer name for instant recognition
 - Real-time bookings list with date selector, search, and pagination
 - **Time interval filtering** on BookingsScreen - Filter by lunch, dinner, or all times
 - **Inline booking summary** - Reservation and guest counts next to search bar

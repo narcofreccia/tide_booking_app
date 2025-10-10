@@ -64,12 +64,28 @@ export const VoiceRecorder = ({
         dispatch({ type: 'END_LOADING' });
         console.error('Failed to submit to backend (caught error):', err);
         console.error('Error details:', err.response?.data || err.message);
+        
+        // Try to extract detailed error message from backend
+        let errorMessage = t('voice_booking.failedToProcess');
+        
+        if (err.response?.data?.detail) {
+          // FastAPI validation errors
+          if (Array.isArray(err.response.data.detail)) {
+            const errors = err.response.data.detail.map(e => e.msg).join(', ');
+            errorMessage = `${t('voice_booking.failedToProcess')} ${errors}`;
+          } else if (typeof err.response.data.detail === 'string') {
+            errorMessage = err.response.data.detail;
+          }
+        } else if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+        
         dispatch({
           type: 'UPDATE_ALERT',
           payload: {
             open: true,
             severity: 'error',
-            message: t('voice_booking.failedToProcess')
+            message: errorMessage
           }
         });
         // Clear transcript on submission error so user can try again
@@ -98,7 +114,8 @@ export const VoiceRecorder = ({
   
   // Handle backend response
   const handleBackendResponse = (response) => {
-  
+    console.log('Handling backend response status:', response.status);
+    
     switch (response.status) {
       case 'success':
         if (response.booking_id && response.booking) {
@@ -129,16 +146,31 @@ export const VoiceRecorder = ({
         break;
         
       case 'needs_clarification':
-        // Show what's missing
-        const missingFields = response.clarifications_needed
-          .map(c => c.field)
-          .join(', ');
+        // Show clarification messages from backend
+        console.log('Clarifications needed:', response.clarifications_needed);
+        let clarificationMessage = '';
+        
+        if (response.clarifications_needed && response.clarifications_needed.length > 0) {
+          clarificationMessage = response.clarifications_needed
+            .map(c => c.message || c.field)
+            .join(' ');
+        }
+        
+        // Fallback to generic message if no clarifications provided
+        if (!clarificationMessage) {
+          const fields = response.clarifications_needed
+            ?.map(c => c.field)
+            .join(', ') || 'information';
+          clarificationMessage = t('voice_booking.couldNotCreateBooking').replace('{fields}', fields);
+        }
+        
+        console.log('Showing clarification alert:', clarificationMessage);
         dispatch({
           type: 'UPDATE_ALERT',
           payload: {
             open: true,
             severity: 'warning',
-            message: t('voice_booking.couldNotCreateBooking').replace('{fields}', missingFields),
+            message: clarificationMessage,
           },
         });
         // Clear transcript so user can record again with missing info
@@ -269,6 +301,18 @@ export const VoiceRecorder = ({
         </View>
       )}
       
+      {/* Recording timer - fixed position top right */}
+      {isRecording && (
+        <View style={styles.timerContainer}>
+          <View style={styles.timerBadge}>
+            <View style={[styles.recordingDot, { backgroundColor: theme.palette.error.main }]} />
+            <Text style={[styles.timerText, { color: theme.palette.text.primary }]}>
+              {durationFormatted}
+            </Text>
+          </View>
+        </View>
+      )}
+      
       {/* Main content area */}
       <View style={styles.mainContent}>
         {/* Visualizer */}
@@ -279,17 +323,8 @@ export const VoiceRecorder = ({
           />
         )}
         
-        {/* Recording button with timer */}
+        {/* Recording button */}
         <View style={styles.recordingSection}>
-          {isRecording && (
-            <View style={styles.timerBadge}>
-              <View style={[styles.recordingDot, { backgroundColor: theme.palette.error.main }]} />
-              <Text style={[styles.timerText, { color: theme.palette.text.primary }]}>
-                {durationFormatted}
-              </Text>
-            </View>
-          )}
-          
           <RecordingButton
             isRecording={isRecording}
             isProcessing={isProcessing}
@@ -365,6 +400,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500'
   },
+  timerContainer: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10
+  },
+  timerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
   mainContent: {
     flex: 1,
     justifyContent: 'space-between'
@@ -372,16 +427,6 @@ const styles = StyleSheet.create({
   recordingSection: {
     alignItems: 'center',
     paddingVertical: 20
-  },
-  timerBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)'
   },
   recordingDot: {
     width: 8,
