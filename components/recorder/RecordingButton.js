@@ -23,6 +23,8 @@ export const RecordingButton = ({
   const { t } = useTranslation();
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pressTimerRef = useRef(null);
+  const hasStartedRef = useRef(false);
   
   // Pulse animation when recording
   useEffect(() => {
@@ -46,13 +48,29 @@ export const RecordingButton = ({
     }
   }, [isRecording]);
   
-  // Scale animation on press
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (pressTimerRef.current) {
+        clearTimeout(pressTimerRef.current);
+      }
+    };
+  }, []);
+  
+  // Scale animation on press with delay
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
       toValue: 0.95,
       useNativeDriver: true
     }).start();
-    if (onPressIn) onPressIn();
+    
+    hasStartedRef.current = false;
+    
+    // Add 300ms delay before starting recording to prevent accidental taps
+    pressTimerRef.current = setTimeout(() => {
+      hasStartedRef.current = true;
+      if (onPressIn) onPressIn();
+    }, 300);
   };
   
   const handlePressOut = () => {
@@ -60,7 +78,19 @@ export const RecordingButton = ({
       toValue: 1,
       useNativeDriver: true
     }).start();
-    if (onPressOut) onPressOut();
+    
+    // Clear timer if released before delay completes
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
+    }
+    
+    // Only call onPressOut if recording actually started
+    if (hasStartedRef.current && onPressOut) {
+      onPressOut();
+    }
+    
+    hasStartedRef.current = false;
   };
   
   const getButtonColor = () => {

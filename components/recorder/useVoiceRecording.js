@@ -251,26 +251,37 @@ export const useVoiceRecording = ({
         }
       }
       
-      // Clear previous state and update UI immediately
+      // Clear previous state
       setTranscript('');
       setPartialTranscript('');
       setError(null);
-      setIsRecording(true);
-      isRecordingRef.current = true;
       
-      // Start speech recognition IMMEDIATELY (already initialized)
+      // Haptic feedback
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
+      // Configure audio mode
+      await configureAudioMode();
+      
+      // Start audio recording
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      
+      recordingRef.current = recording;
+      
+      // NOW start speech recognition (already pre-initialized, so it's fast)
       if (recognitionRef.current) {
         console.log('Starting speech recognition...');
         if (Platform.OS === 'web') {
           recognitionRef.current.start();
         } else if (Voice) {
-          Voice.start(locale); // Don't await - let it start in background
+          Voice.start(locale); // Non-blocking
         }
       } else {
         console.warn('Speech recognition not initialized');
       }
       
-      // Start duration tracking immediately
+      // Start duration tracking
       startTimeRef.current = Date.now();
       durationIntervalRef.current = setInterval(() => {
         const elapsed = Date.now() - startTimeRef.current;
@@ -282,24 +293,16 @@ export const useVoiceRecording = ({
         }
       }, 100);
       
-      // Haptic feedback (non-blocking)
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      // Update state
+      setIsRecording(true);
+      isRecordingRef.current = true;
       
-      // Configure audio and start recording in background
-      configureAudioMode().then(async () => {
-        const { recording } = await Audio.Recording.createAsync(
-          Audio.RecordingOptionsPresets.HIGH_QUALITY
-        );
-        
-        recordingRef.current = recording;
-        
-        // Start monitoring audio levels
-        recording.setOnRecordingStatusUpdate((status) => {
-          if (status.isRecording && status.metering !== undefined) {
-            const normalized = Math.max(0, Math.min(100, (status.metering + 160) / 160 * 100));
-            setAudioLevel(normalized);
-          }
-        });
+      // Start monitoring audio levels
+      recording.setOnRecordingStatusUpdate((status) => {
+        if (status.isRecording && status.metering !== undefined) {
+          const normalized = Math.max(0, Math.min(100, (status.metering + 160) / 160 * 100));
+          setAudioLevel(normalized);
+        }
       });
       
     } catch (err) {
