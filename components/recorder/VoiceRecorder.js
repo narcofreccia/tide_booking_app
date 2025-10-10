@@ -69,7 +69,7 @@ export const VoiceRecorder = ({
           payload: {
             open: true,
             severity: 'error',
-            message: t('Failed to process voice booking. Please try again or create booking manually.')
+            message: t('voice_booking.failedToProcess')
           }
         });
       }
@@ -85,7 +85,7 @@ export const VoiceRecorder = ({
         payload: {
           open: true,
           severity: 'error',
-          message: err.message || t('Recording error')
+          message: err.message || t('voice_booking.recordingError')
         }
       });
       if (onError) {
@@ -96,10 +96,7 @@ export const VoiceRecorder = ({
   
   // Handle backend response
   const handleBackendResponse = (response) => {
-    console.log('Backend response:', JSON.stringify(response, null, 2));
-    console.log('Response status:', response.status);
-    console.log('Response error_code:', response.error_code);
-    
+  
     switch (response.status) {
       case 'success':
         if (response.booking_id && response.booking) {
@@ -111,18 +108,17 @@ export const VoiceRecorder = ({
             payload: {
               open: true,
               severity: 'success',
-              message: t('Booking created! Please review and confirm.'),
+              message: t('voice_booking.bookingCreated'),
             },
           });
         } else {
           // Success status but no booking - might be closed or unavailable
-          console.log('Success but no booking created');
           dispatch({
             type: 'UPDATE_ALERT',
             payload: {
               open: true,
               severity: 'warning',
-              message: response.message || t('Could not create booking at this time.'),
+              message: response.message || t('voice_booking.couldNotCreateAtThisTime'),
             },
           });
         }
@@ -138,15 +134,13 @@ export const VoiceRecorder = ({
           payload: {
             open: true,
             severity: 'warning',
-            message: t(`Could not create booking. Missing: ${missingFields}. Please create booking manually.`),
+            message: t('voice_booking.couldNotCreateBooking').replace('{fields}', missingFields),
           },
         });
         break;
         
       case 'error':
-        console.log('Error case - error_code:', response.error_code);
-        console.log('Error message:', response.message);
-        console.log('Suggested alternatives:', response.suggested_alternatives);
+       
         
         if (response.error_code === 'NO_TABLES_AVAILABLE') {
           // Show alternative times if available
@@ -154,14 +148,8 @@ export const VoiceRecorder = ({
             ?.map(alt => alt.time)
             .join(', ');
           const message = alternatives
-            ? t(`No tables available at requested time. Try: ${alternatives}`)
-            : t('No tables available at requested time.');
-          console.log('Dispatching NO_TABLES_AVAILABLE alert:', message);
-          console.log('About to dispatch UPDATE_ALERT with payload:', {
-            open: true,
-            severity: 'warning',
-            message: message,
-          });
+            ? t('voice_booking.noTablesAvailableTry').replace('{alternatives}', alternatives)
+            : t('voice_booking.noTablesAvailable');
           
           // Use setTimeout to ensure dispatch happens after any other state updates
           setTimeout(() => {
@@ -173,29 +161,27 @@ export const VoiceRecorder = ({
                 message: message,
               },
             });
-            console.log('UPDATE_ALERT dispatched');
+    
           }, 100);
         } else {
-          console.log('Other error, dispatching generic error alert');
           dispatch({
             type: 'UPDATE_ALERT',
             payload: {
               open: true,
               severity: 'error',
-              message: response.message || t('An error occurred'),
+              message: response.message || t('voice_booking.errorOccurred'),
             },
           });
         }
         break;
         
       default:
-        console.log('Unknown response status:', response.status);
         dispatch({
           type: 'UPDATE_ALERT',
           payload: {
             open: true,
             severity: 'error',
-            message: t('Unexpected response from server'),
+            message: t('voice_booking.unexpectedResponse'),
           },
         });
     }
@@ -208,7 +194,7 @@ export const VoiceRecorder = ({
       payload: {
         open: true,
         severity: 'success',
-        message: t('Booking confirmed successfully!')
+        message: t('voice_booking.bookingConfirmedSuccess')
       }
     });
     // Reset state
@@ -224,7 +210,7 @@ export const VoiceRecorder = ({
       payload: {
         open: true,
         severity: 'info',
-        message: t('Booking has been cancelled.')
+        message: t('voice_booking.bookingCancelled')
       }
     });
     // Reset state
@@ -251,10 +237,10 @@ export const VoiceRecorder = ({
           color={theme.palette.primary.main}
         />
         <Text style={[styles.title, { color: theme.palette.text.primary }]}>
-          Voice Booking
+          {t('voice_booking.voiceBooking')}
         </Text>
         <Text style={[styles.subtitle, { color: theme.palette.text.secondary }]}>
-          Press and hold to record your booking request
+          {t('voice_booking.pressAndHold')}
         </Text>
       </View>
       
@@ -268,10 +254,10 @@ export const VoiceRecorder = ({
           />
           <View style={styles.warningContent}>
             <Text style={[styles.warningTitle, { color: theme.palette.warning.dark }]}>
-              Microphone Permission Required
+              {t('voice_booking.microphonePermissionRequired')}
             </Text>
             <Text style={[styles.warningText, { color: theme.palette.warning.dark }]}>
-              Please grant microphone access to use voice booking.
+              {t('voice_booking.grantMicrophoneAccess')}
             </Text>
           </View>
         </View>
@@ -349,7 +335,7 @@ export const VoiceRecorder = ({
                 color={theme.palette.info.dark}
               />
               <Text style={[styles.infoText, { color: theme.palette.info.dark }]}>
-                Low confidence detected. Audio will be sent to server for verification.
+                {t('voice_booking.lowConfidenceWarning')}
               </Text>
             </View>
           )}
@@ -358,7 +344,7 @@ export const VoiceRecorder = ({
           {lastResult.tokens && (
             <View style={styles.tokensContainer}>
               <Text style={[styles.tokensTitle, { color: theme.palette.text.secondary }]}>
-                Detected Information:
+                {t('voice_booking.detectedInformation')}
               </Text>
               
               {lastResult.tokens.partySize && (
@@ -369,7 +355,7 @@ export const VoiceRecorder = ({
                     color={theme.palette.text.secondary}
                   />
                   <Text style={[styles.tokenText, { color: theme.palette.text.primary }]}>
-                    Party Size: {lastResult.tokens.partySize}
+                    {t('voice_booking.partySize')}: {lastResult.tokens.partySize}
                   </Text>
                 </View>
               )}
@@ -382,7 +368,7 @@ export const VoiceRecorder = ({
                     color={theme.palette.text.secondary}
                   />
                   <Text style={[styles.tokenText, { color: theme.palette.text.primary }]}>
-                    Time: {lastResult.tokens.timeSlot}
+                    {t('voice_booking.time')}: {lastResult.tokens.timeSlot}
                   </Text>
                 </View>
               )}
@@ -395,7 +381,7 @@ export const VoiceRecorder = ({
                     color={theme.palette.text.secondary}
                   />
                   <Text style={[styles.tokenText, { color: theme.palette.text.primary }]}>
-                    Name: {lastResult.tokens.names.join(', ')}
+                    {t('voice_booking.name')}: {lastResult.tokens.names.join(', ')}
                   </Text>
                 </View>
               )}
@@ -411,7 +397,7 @@ export const VoiceRecorder = ({
           onPress={() => setShowTips(!showTips)}
         >
           <Text style={[styles.helpTitle, { color: theme.palette.text.secondary }]}>
-            Tips for best results
+            {t('voice_booking.tipsForBestResults')}
           </Text>
           <MaterialCommunityIcons
             name={showTips ? "chevron-up" : "chevron-down"}
@@ -423,16 +409,16 @@ export const VoiceRecorder = ({
         {showTips && (
           <View style={styles.helpContent}>
             <Text style={[styles.helpText, { color: theme.palette.text.secondary }]}>
-              • Speak clearly and at a normal pace
+              • {t('voice_booking.tipSpeakClearly')}
             </Text>
             <Text style={[styles.helpText, { color: theme.palette.text.secondary }]}>
-              • Include party size, time, and customer name
+              • {t('voice_booking.tipIncludeDetails')}
             </Text>
             <Text style={[styles.helpText, { color: theme.palette.text.secondary }]}>
-              • Minimize background noise
+              • {t('voice_booking.tipMinimizeNoise')}
             </Text>
             <Text style={[styles.helpText, { color: theme.palette.text.secondary }]}>
-              • Example: "Table for 4 at 8 PM for Mario Rossi"
+              • {t('voice_booking.tipExample')}
             </Text>
           </View>
         )}

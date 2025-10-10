@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
+import { useTranslation } from '../../hooks/useTranslation';
 
 /**
  * Display for real-time transcript with partial results
@@ -20,6 +21,7 @@ export const TranscriptDisplay = ({
   validation
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   
   const hasContent = transcript || partialTranscript;
   
@@ -39,13 +41,13 @@ export const TranscriptDisplay = ({
           color={theme.palette.text.secondary}
         />
         <Text style={[styles.headerText, { color: theme.palette.text.secondary }]}>
-          Transcript
+          {t('voice_booking.transcript')}
         </Text>
         {isRecording && (
           <View style={styles.recordingIndicator}>
             <View style={[styles.recordingDot, { backgroundColor: theme.palette.error.main }]} />
             <Text style={[styles.recordingText, { color: theme.palette.error.main }]}>
-              Recording
+              {t('voice_booking.recording')}
             </Text>
           </View>
         )}
@@ -74,7 +76,7 @@ export const TranscriptDisplay = ({
           </View>
         ) : (
           <Text style={[styles.placeholderText, { color: theme.palette.text.disabled }]}>
-            {isRecording ? 'Listening...' : 'Press and hold the button to start recording'}
+            {isRecording ? t('voice_booking.listening') : t('voice_booking.pressAndHoldToStart')}
           </Text>
         )}
       </ScrollView>
@@ -90,7 +92,7 @@ export const TranscriptDisplay = ({
               color={getConfidenceColor(confidenceScore)}
             />
             <Text style={[styles.confidenceText, { color: getConfidenceColor(confidenceScore) }]}>
-              Confidence: {confidenceScore}%
+              {t('voice_booking.confidence')}: {confidenceScore}%
             </Text>
           </View>
           
@@ -100,19 +102,19 @@ export const TranscriptDisplay = ({
               {validation.hasPartySize && (
                 <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
                   <MaterialCommunityIcons name="account-group" size={12} color={theme.palette.success.dark} />
-                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>PAX</Text>
+                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>{t('voice_booking.pax')}</Text>
                 </View>
               )}
               {validation.hasTimeSlot && (
                 <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
                   <MaterialCommunityIcons name="clock-outline" size={12} color={theme.palette.success.dark} />
-                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>Time</Text>
+                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>{t('voice_booking.time')}</Text>
                 </View>
               )}
               {validation.hasName && (
                 <View style={[styles.badge, { backgroundColor: theme.palette.success.light }]}>
                   <MaterialCommunityIcons name="account" size={12} color={theme.palette.success.dark} />
-                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>Name</Text>
+                  <Text style={[styles.badgeText, { color: theme.palette.success.dark }]}>{t('voice_booking.name')}</Text>
                 </View>
               )}
             </View>
@@ -127,7 +129,7 @@ export const TranscriptDisplay = ({
                 color={theme.palette.warning.main}
               />
               <Text style={[styles.warningText, { color: theme.palette.warning.main }]}>
-                Missing: {validation.missingFields.join(', ')}
+                {t('voice_booking.missing')}: {validation.missingFields.join(', ')}
               </Text>
             </View>
           )}

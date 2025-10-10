@@ -56,7 +56,7 @@ export const VoiceBookingConfirmationModal = ({
         payload: {
           open: true,
           severity: 'error',
-          message: t('Failed to confirm booking. Please try again.')
+          message: t('voice_booking.failedToConfirm')
         }
       });
     }
@@ -83,7 +83,7 @@ export const VoiceBookingConfirmationModal = ({
         payload: {
           open: true,
           severity: 'error',
-          message: t('Failed to cancel booking. Please try again.')
+          message: t('voice_booking.failedToCancel')
         }
       });
     }
@@ -115,7 +115,7 @@ export const VoiceBookingConfirmationModal = ({
                 color={theme.palette.primary.main}
               />
               <Text style={[styles.title, { color: theme.palette.text.primary }]}>
-                {t('Voice Booking')}
+                {t('voice_booking.voiceBooking')}
               </Text>
             </View>
             <TouchableOpacity onPress={onClose} disabled={loading}>
@@ -135,7 +135,7 @@ export const VoiceBookingConfirmationModal = ({
               color={theme.palette.warning.dark}
             />
             <Text style={[styles.statusText, { color: theme.palette.warning.dark }]}>
-              {t('Pending Confirmation')}
+              {t('voice_booking.pendingConfirmation')}
             </Text>
           </View>
           
@@ -144,12 +144,12 @@ export const VoiceBookingConfirmationModal = ({
             {/* Customer Info */}
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.palette.text.secondary }]}>
-                {t('Customer Information')}
+                {t('voice_booking.customerInformation')}
               </Text>
               
               <View style={styles.field}>
                 <Text style={[styles.label, { color: theme.palette.text.secondary }]}>
-                  {t('Name')}
+                  {t('voice_booking.firstName')}
                 </Text>
                 {editing ? (
                   <View style={styles.nameRow}>
@@ -161,7 +161,7 @@ export const VoiceBookingConfirmationModal = ({
                       }]}
                       value={getValue('name')}
                       onChangeText={(text) => setValue('name', text)}
-                      placeholder={t('First name')}
+                      placeholder={t('voice_booking.firstName')}
                       placeholderTextColor={theme.palette.text.disabled}
                     />
                     <TextInput
@@ -172,7 +172,7 @@ export const VoiceBookingConfirmationModal = ({
                       }]}
                       value={getValue('surname')}
                       onChangeText={(text) => setValue('surname', text)}
-                      placeholder={t('Last name')}
+                      placeholder={t('voice_booking.lastName')}
                       placeholderTextColor={theme.palette.text.disabled}
                     />
                   </View>
@@ -185,7 +185,7 @@ export const VoiceBookingConfirmationModal = ({
               
               <View style={styles.field}>
                 <Text style={[styles.label, { color: theme.palette.text.secondary }]}>
-                  {t('Phone')}
+                  {t('voice_booking.phoneNumber')}
                 </Text>
                 {editing ? (
                   <TextInput
@@ -196,20 +196,20 @@ export const VoiceBookingConfirmationModal = ({
                     }]}
                     value={getValue('phone')}
                     onChangeText={(text) => setValue('phone', text)}
-                    placeholder={t('Phone number')}
+                    placeholder={t('voice_booking.phoneNumber')}
                     placeholderTextColor={theme.palette.text.disabled}
                     keyboardType="phone-pad"
                   />
                 ) : (
                   <Text style={[styles.value, { color: theme.palette.text.primary }]}>
-                    {booking.phone || t('Not provided')}
+                    {booking.phone || t('voice_booking.notProvided')}
                   </Text>
                 )}
               </View>
               
               <View style={styles.field}>
                 <Text style={[styles.label, { color: theme.palette.text.secondary }]}>
-                  {t('Email')}
+                  {t('voice_booking.emailAddress')}
                 </Text>
                 {editing ? (
                   <TextInput
@@ -220,14 +220,14 @@ export const VoiceBookingConfirmationModal = ({
                     }]}
                     value={getValue('email')}
                     onChangeText={(text) => setValue('email', text)}
-                    placeholder={t('Email address')}
+                    placeholder={t('voice_booking.emailAddress')}
                     placeholderTextColor={theme.palette.text.disabled}
                     keyboardType="email-address"
                     autoCapitalize="none"
                   />
                 ) : (
                   <Text style={[styles.value, { color: theme.palette.text.primary }]}>
-                    {booking.email || t('Not provided')}
+                    {booking.email || t('voice_booking.notProvided')}
                   </Text>
                 )}
               </View>
@@ -236,13 +236,13 @@ export const VoiceBookingConfirmationModal = ({
             {/* Booking Details */}
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.palette.text.secondary }]}>
-                {t('Booking Details')}
+                {t('voice_booking.bookingDetails')}
               </Text>
               
               <View style={styles.row}>
                 <View style={styles.field}>
                   <Text style={[styles.label, { color: theme.palette.text.secondary }]}>
-                    {t('Date')}
+                    {t('voice_booking.date')}
                   </Text>
                   <Text style={[styles.value, { color: theme.palette.text.primary }]}>
                     {booking.reservation_date}
@@ -251,7 +251,7 @@ export const VoiceBookingConfirmationModal = ({
                 
                 <View style={styles.field}>
                   <Text style={[styles.label, { color: theme.palette.text.secondary }]}>
-                    {t('Time')}
+                    {t('voice_booking.time')}
                   </Text>
                   <Text style={[styles.value, { color: theme.palette.text.primary }]}>
                     {booking.arrival_time}
@@ -262,7 +262,7 @@ export const VoiceBookingConfirmationModal = ({
               <View style={styles.row}>
                 <View style={styles.field}>
                   <Text style={[styles.label, { color: theme.palette.text.secondary }]}>
-                    {t('Adults')}
+                    {t('voice_booking.adults')}
                   </Text>
                   {editing ? (
                     <TextInput
@@ -284,7 +284,7 @@ export const VoiceBookingConfirmationModal = ({
                 
                 <View style={styles.field}>
                   <Text style={[styles.label, { color: theme.palette.text.secondary }]}>
-                    {t('Children')}
+                    {t('voice_booking.children')}
                   </Text>
                   {editing ? (
                     <TextInput
@@ -308,7 +308,7 @@ export const VoiceBookingConfirmationModal = ({
               {booking.restaurant_notes && (
                 <View style={styles.field}>
                   <Text style={[styles.label, { color: theme.palette.text.secondary }]}>
-                    {t('Notes')}
+                    {t('voice_booking.notes')}
                   </Text>
                   <Text style={[styles.value, styles.notes, { color: theme.palette.text.secondary }]}>
                     {booking.restaurant_notes}
@@ -332,7 +332,7 @@ export const VoiceBookingConfirmationModal = ({
                   color={theme.palette.primary.main}
                 />
                 <Text style={[styles.buttonText, { color: theme.palette.primary.main }]}>
-                  {t('Edit')}
+                  {t('voice_booking.edit')}
                 </Text>
               </TouchableOpacity>
             )}
@@ -352,7 +352,7 @@ export const VoiceBookingConfirmationModal = ({
                   color={theme.palette.text.secondary}
                 />
                 <Text style={[styles.buttonText, { color: theme.palette.text.secondary }]}>
-                  {t('Cancel Edit')}
+                  {t('voice_booking.cancelEdit')}
                 </Text>
               </TouchableOpacity>
             )}
@@ -368,7 +368,7 @@ export const VoiceBookingConfirmationModal = ({
                 color="#FFFFFF"
               />
               <Text style={[styles.buttonText, styles.cancelButtonText]}>
-                {t('Cancel Booking')}
+                {t('voice_booking.cancelBooking')}
               </Text>
             </TouchableOpacity>
             
@@ -383,7 +383,7 @@ export const VoiceBookingConfirmationModal = ({
                 color="#FFFFFF"
               />
               <Text style={[styles.buttonText, styles.confirmButtonText]}>
-                {loading ? t('Confirming...') : t('Confirm Booking')}
+                {loading ? t('voice_booking.confirming') : t('voice_booking.confirmBooking')}
               </Text>
             </TouchableOpacity>
           </View>

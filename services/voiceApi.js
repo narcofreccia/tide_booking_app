@@ -63,7 +63,7 @@ export const submitVoiceIntent = async (data) => {
 export const confirmVoiceBooking = async (bookingId, updates = {}) => {
   // If there are field updates beyond status, update the full booking first
   if (Object.keys(updates).length > 0) {
-    await ApiClient.patch(`/booking/${bookingId}`, updates);
+    await ApiClient.put(`/booking/${bookingId}`, updates);
   }
   
   // Then update status using the status endpoint

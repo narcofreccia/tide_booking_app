@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
+import { useTranslation } from '../../hooks/useTranslation';
 
 /**
  * Push-to-talk recording button with animated feedback
  * @param {Object} props
  * @param {boolean} props.isRecording - Whether recording is active
- * @param {boolean} props.isProcessing - Whether processing is active
  * @param {Function} props.onPressIn - Callback when button is pressed
  * @param {Function} props.onPressOut - Callback when button is released
  * @param {boolean} props.disabled - Whether button is disabled
@@ -20,8 +20,9 @@ export const RecordingButton = ({
   disabled = false
 }) => {
   const theme = useTheme();
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const { t } = useTranslation();
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
   
   // Pulse animation when recording
   useEffect(() => {
@@ -69,9 +70,9 @@ export const RecordingButton = ({
   };
   
   const getButtonText = () => {
-    if (isProcessing) return 'Processing...';
-    if (isRecording) return 'Release to Stop';
-    return 'Hold to Speak';
+    if (isProcessing) return t('voice_booking.processing');
+    if (isRecording) return t('voice_booking.releaseToStop');
+    return t('voice_booking.holdToSpeak');
   };
   
   const getIcon = () => {
