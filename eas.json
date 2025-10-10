@@ -33,6 +33,9 @@
         "APP_ENV": "production",
         "DEV_SERVER_URL": "http://localhost:8000",
         "PROD_SERVER_URL": "https://westpiersrl-a6a9f5c00dd1.herokuapp.com/"
+      },
+      "android": {
+        "gradleCommand": ":app:bundleRelease"
       }
     }
   },

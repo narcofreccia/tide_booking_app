@@ -31,7 +31,11 @@ export default {
       permissions: [
         "RECORD_AUDIO",
         "INTERNET"
-      ]
+      ],
+      adaptiveIcon: {
+        foregroundImage: "./assets/tide_favicon_apple.png",
+        backgroundColor: "#ffffff"
+      }
     },
     web: {
       favicon: "./assets/tide_favicon_apple.png"
@@ -43,6 +47,15 @@ export default {
         {
           microphonePermission: "This app needs access to your microphone to record voice bookings.",
           speechRecognitionPermission: "This app needs access to speech recognition to transcribe your voice bookings."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          android: {
+            useAndroidX: true,
+            enableProguardInReleaseBuilds: true
+          }
         }
       ]
     ],
