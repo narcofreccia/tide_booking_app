@@ -269,6 +269,12 @@ export const useVoiceRecording = ({
       
       recordingRef.current = recording;
       
+      // Ensure speech recognition is initialized (reinitialize if needed)
+      if (!recognitionRef.current) {
+        console.log('Speech recognition not initialized, initializing now...');
+        initializeSpeechRecognition();
+      }
+      
       // NOW start speech recognition (already pre-initialized, so it's fast)
       if (recognitionRef.current) {
         console.log('Starting speech recognition...');
@@ -278,7 +284,7 @@ export const useVoiceRecording = ({
           Voice.start(locale); // Non-blocking
         }
       } else {
-        console.warn('Speech recognition not initialized');
+        console.warn('Speech recognition failed to initialize');
       }
       
       // Start duration tracking
@@ -334,12 +340,15 @@ export const useVoiceRecording = ({
       // Stop speech recognition
       if (recognitionRef.current) {
         if (Platform.OS === 'web') {
+          // For web, just stop - keep the instance for reuse
           recognitionRef.current.stop();
         } else if (Voice) {
+          // For native, stop and destroy
           await Voice.stop();
           await Voice.destroy();
+          // Set to null so it gets reinitialized next time
+          recognitionRef.current = null;
         }
-        recognitionRef.current = null;
       }
       
       // Stop audio recording
@@ -479,8 +488,16 @@ export const useVoiceRecording = ({
       }
       
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
-        recognitionRef.current = null;
+        if (Platform.OS === 'web') {
+          // For web, just stop - keep the instance for reuse
+          recognitionRef.current.stop();
+        } else if (Voice) {
+          // For native, stop and destroy
+          Voice.stop();
+          Voice.destroy();
+          // Set to null so it gets reinitialized next time
+          recognitionRef.current = null;
+        }
       }
       
       if (recordingRef.current) {
