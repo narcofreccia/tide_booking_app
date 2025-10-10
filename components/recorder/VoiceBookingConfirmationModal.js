@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, Modal, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '../../theme';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useStateContext, useDispatchContext } from '../../context/ContextProvider';
 import { confirmVoiceBooking, cancelVoiceBooking } from '../../services/voiceApi';
 
 /**
@@ -23,62 +25,68 @@ export const VoiceBookingConfirmationModal = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const dispatch = useDispatchContext();
+  const { loading } = useStateContext();
+  const queryClient = useQueryClient();
   
-  const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedData, setEditedData] = useState({});
   
   if (!booking) return null;
   
   const handleConfirm = async () => {
-    setLoading(true);
+    dispatch({ type: 'START_LOADING' });
     try {
       const updates = editing ? editedData : {};
       await confirmVoiceBooking(booking.id, updates);
+      
+      // Invalidate all booking-related queries
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings-by-date'] });
+      queryClient.invalidateQueries({ queryKey: ['tables-by-restaurant'] });
+      
+      dispatch({ type: 'END_LOADING' });
       onConfirm?.(booking.id);
       onClose();
     } catch (error) {
+      dispatch({ type: 'END_LOADING' });
       console.error('Failed to confirm booking:', error);
-      Alert.alert(
-        t('error'),
-        t('Failed to confirm booking. Please try again.')
-      );
-    } finally {
-      setLoading(false);
+      dispatch({
+        type: 'UPDATE_ALERT',
+        payload: {
+          open: true,
+          severity: 'error',
+          message: t('Failed to confirm booking. Please try again.')
+        }
+      });
     }
   };
   
   const handleCancel = async () => {
-    Alert.alert(
-      t('Cancel Booking'),
-      t('Are you sure you want to cancel this booking?'),
-      [
-        {
-          text: t('No'),
-          style: 'cancel'
-        },
-        {
-          text: t('Yes'),
-          style: 'destructive',
-          onPress: async () => {
-            setLoading(true);
-            try {
-              await cancelVoiceBooking(booking.id);
-              onCancel?.(booking.id);
-              onClose();
-            } catch (error) {
-              console.error('Failed to cancel booking:', error);
-              Alert.alert(
-                t('error'),
-                t('Failed to cancel booking. Please try again.')
-              );
-            } finally {
-              setLoading(false);
-            }
-          }
+    dispatch({ type: 'START_LOADING' });
+    try {
+      await cancelVoiceBooking(booking.id);
+      
+      // Invalidate all booking-related queries
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings-by-date'] });
+      queryClient.invalidateQueries({ queryKey: ['tables-by-restaurant'] });
+      
+      dispatch({ type: 'END_LOADING' });
+      onCancel?.(booking.id);
+      onClose();
+    } catch (error) {
+      dispatch({ type: 'END_LOADING' });
+      console.error('Failed to cancel booking:', error);
+      dispatch({
+        type: 'UPDATE_ALERT',
+        payload: {
+          open: true,
+          severity: 'error',
+          message: t('Failed to cancel booking. Please try again.')
         }
-      ]
-    );
+      });
+    }
   };
   
   const getValue = (field) => {

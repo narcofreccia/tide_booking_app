@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useStateContext, useDispatchContext } from '../../context/ContextProvider';
 import { useVoiceRecording } from './useVoiceRecording';
 import { RecordingButton } from './RecordingButton';
 import { TranscriptDisplay } from './TranscriptDisplay';
@@ -25,12 +26,12 @@ export const VoiceRecorder = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const dispatch = useDispatchContext();
   
   const [lastResult, setLastResult] = useState(null);
   const [showTips, setShowTips] = useState(false);
   const [booking, setBooking] = useState(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [apiError, setApiError] = useState(null);
   
   const {
     isRecording,
@@ -53,15 +54,24 @@ export const VoiceRecorder = ({
       
       // Automatically submit to backend
       try {
+        dispatch({ type: 'START_LOADING' });
+        console.log('Submitting to backend...');
         const response = await submitToBackend(result);
+        console.log('Backend response received:', response);
+        dispatch({ type: 'END_LOADING' });
         handleBackendResponse(response);
       } catch (err) {
-        console.error('Failed to submit to backend:', err);
-        setApiError(err.message || 'Failed to process voice booking');
-        Alert.alert(
-          t('Error'),
-          t('Failed to process voice booking. Please try again or create booking manually.')
-        );
+        dispatch({ type: 'END_LOADING' });
+        console.error('Failed to submit to backend (caught error):', err);
+        console.error('Error details:', err.response?.data || err.message);
+        dispatch({
+          type: 'UPDATE_ALERT',
+          payload: {
+            open: true,
+            severity: 'error',
+            message: t('Failed to process voice booking. Please try again or create booking manually.')
+          }
+        });
       }
       
       // Also call parent callback if provided
@@ -70,6 +80,14 @@ export const VoiceRecorder = ({
       }
     },
     onError: (err) => {
+      dispatch({
+        type: 'UPDATE_ALERT',
+        payload: {
+          open: true,
+          severity: 'error',
+          message: err.message || t('Recording error')
+        }
+      });
       if (onError) {
         onError(err);
       }
@@ -78,13 +96,35 @@ export const VoiceRecorder = ({
   
   // Handle backend response
   const handleBackendResponse = (response) => {
+    console.log('Backend response:', JSON.stringify(response, null, 2));
+    console.log('Response status:', response.status);
+    console.log('Response error_code:', response.error_code);
+    
     switch (response.status) {
       case 'success':
         if (response.booking_id && response.booking) {
           // Booking was created! Show confirmation modal
           setBooking(response.booking);
           setShowConfirmationModal(true);
-          setApiError(null);
+          dispatch({
+            type: 'UPDATE_ALERT',
+            payload: {
+              open: true,
+              severity: 'success',
+              message: t('Booking created! Please review and confirm.'),
+            },
+          });
+        } else {
+          // Success status but no booking - might be closed or unavailable
+          console.log('Success but no booking created');
+          dispatch({
+            type: 'UPDATE_ALERT',
+            payload: {
+              open: true,
+              severity: 'warning',
+              message: response.message || t('Could not create booking at this time.'),
+            },
+          });
         }
         break;
         
@@ -93,65 +133,104 @@ export const VoiceRecorder = ({
         const missingFields = response.clarifications_needed
           .map(c => c.field)
           .join(', ');
-        Alert.alert(
-          t('Missing Information'),
-          t(`Could not create booking. Missing: ${missingFields}. Please create booking manually.`)
-        );
+        dispatch({
+          type: 'UPDATE_ALERT',
+          payload: {
+            open: true,
+            severity: 'warning',
+            message: t(`Could not create booking. Missing: ${missingFields}. Please create booking manually.`),
+          },
+        });
         break;
         
       case 'error':
+        console.log('Error case - error_code:', response.error_code);
+        console.log('Error message:', response.message);
+        console.log('Suggested alternatives:', response.suggested_alternatives);
+        
         if (response.error_code === 'NO_TABLES_AVAILABLE') {
           // Show alternative times if available
           const alternatives = response.suggested_alternatives
             ?.map(alt => alt.time)
             .join(', ');
-          Alert.alert(
-            t('No Tables Available'),
-            alternatives
-              ? t(`No tables available at requested time. Try: ${alternatives}`)
-              : t('No tables available at requested time.')
-          );
+          const message = alternatives
+            ? t(`No tables available at requested time. Try: ${alternatives}`)
+            : t('No tables available at requested time.');
+          console.log('Dispatching NO_TABLES_AVAILABLE alert:', message);
+          console.log('About to dispatch UPDATE_ALERT with payload:', {
+            open: true,
+            severity: 'warning',
+            message: message,
+          });
+          
+          // Use setTimeout to ensure dispatch happens after any other state updates
+          setTimeout(() => {
+            dispatch({
+              type: 'UPDATE_ALERT',
+              payload: {
+                open: true,
+                severity: 'warning',
+                message: message,
+              },
+            });
+            console.log('UPDATE_ALERT dispatched');
+          }, 100);
         } else {
-          Alert.alert(t('Error'), response.message);
+          console.log('Other error, dispatching generic error alert');
+          dispatch({
+            type: 'UPDATE_ALERT',
+            payload: {
+              open: true,
+              severity: 'error',
+              message: response.message || t('An error occurred'),
+            },
+          });
         }
         break;
+        
+      default:
+        console.log('Unknown response status:', response.status);
+        dispatch({
+          type: 'UPDATE_ALERT',
+          payload: {
+            open: true,
+            severity: 'error',
+            message: t('Unexpected response from server'),
+          },
+        });
     }
   };
   
   // Handle booking confirmation
   const handleBookingConfirmed = (bookingId) => {
-    Alert.alert(
-      t('Success'),
-      t('Booking confirmed successfully!'),
-      [
-        {
-          text: t('OK'),
-          onPress: () => {
-            // Reset state
-            setBooking(null);
-            setLastResult(null);
-          }
-        }
-      ]
-    );
+    dispatch({
+      type: 'UPDATE_ALERT',
+      payload: {
+        open: true,
+        severity: 'success',
+        message: t('Booking confirmed successfully!')
+      }
+    });
+    // Reset state
+    setBooking(null);
+    setLastResult(null);
+    setShowConfirmationModal(false);
   };
   
   // Handle booking cancellation
   const handleBookingCancelled = (bookingId) => {
-    Alert.alert(
-      t('Cancelled'),
-      t('Booking has been cancelled.'),
-      [
-        {
-          text: t('OK'),
-          onPress: () => {
-            // Reset state
-            setBooking(null);
-            setLastResult(null);
-          }
-        }
-      ]
-    );
+    dispatch({
+      type: 'UPDATE_ALERT',
+      payload: {
+        open: true,
+        severity: 'info',
+        message: t('Booking has been cancelled.')
+      }
+    });
+    // Reset state
+    setBooking(null);
+    setLastResult(null);
+    setShowConfirmationModal(false);
   };
   
   // Handle permission request

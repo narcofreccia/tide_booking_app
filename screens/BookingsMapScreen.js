@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useTheme } from '../theme'
 import { useStateContext } from '../context/ContextProvider'
 import { useQueryClient } from '@tanstack/react-query'
@@ -10,6 +11,8 @@ import { BookingSummaryBar } from '../components/booking_manager/BookingSummaryB
 import { BookingsCanvas } from '../components/booking_manager/BookingsCanvas'
 import { SwitchBookingPositionDrawer } from '../components/booking_manager/SwitchBookingPositionDrawer'
 import { TideLogo } from '../components/TideLogo'
+import { VoiceRecorder } from '../components/recorder/VoiceRecorder'
+import { getIcon, getIconSize } from '../config/icons'
 import { switchTablePosition } from '../services/bookingApi'
 
 export default function BookingsMapScreen() {
@@ -31,6 +34,9 @@ export default function BookingsMapScreen() {
   const [selectedTargetTable, setSelectedTargetTable] = useState(null)
   const [selectedTargetTableName, setSelectedTargetTableName] = useState(null)
   const [tables, setTables] = useState([])
+  
+  // Voice recorder state
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false)
 
   const restaurantId = selectedRestaurant?.id || currentUser?.restaurant_id
   
@@ -113,6 +119,35 @@ export default function BookingsMapScreen() {
     setSelectedTargetTable(null)
     setSelectedTargetTableName(null)
   }
+  
+  // If showing voice recorder, render VoiceRecorder instead
+  if (showVoiceRecorder) {
+    return (
+      <View style={[styles.voiceRecorderContainer, { backgroundColor: theme.palette.background.default }]}>
+        <View style={[styles.voiceRecorderHeader, { borderBottomColor: theme.palette.divider }]}>
+          <TouchableOpacity onPress={() => setShowVoiceRecorder(false)} style={styles.backButton}>
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={24}
+              color={theme.palette.text.primary}
+            />
+            <Text style={[styles.backText, { color: theme.palette.text.primary }]}>
+              {t('map.title')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <VoiceRecorder
+          locale="it-IT"
+          onTranscriptComplete={(result) => {
+            console.log('Voice booking transcript:', result);
+          }}
+          onError={(error) => {
+            console.error('Voice recording error:', error);
+          }}
+        />
+      </View>
+    );
+  }
 
   return (
     <>
@@ -125,7 +160,19 @@ export default function BookingsMapScreen() {
               {selectedRestaurant?.name || t('map.selectRestaurantPrompt')}
             </Text>
           </View>
-          <TideLogo size={32} />
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={styles.voiceButton}
+              onPress={() => setShowVoiceRecorder(true)}
+            >
+              <MaterialCommunityIcons
+                name="microphone"
+                size={getIconSize('lg')}
+                color={theme.palette.primary.main}
+              />
+            </TouchableOpacity>
+            <TideLogo size={32} />
+          </View>
         </View>
       </View>
 
@@ -257,5 +304,29 @@ const createStyles = (theme) => StyleSheet.create({
     fontSize: theme.typography.fontSize.md,
     color: theme.palette.text.secondary,
     textAlign: 'center',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  voiceButton: {
+    padding: theme.spacing.sm,
+  },
+  voiceRecorderContainer: {
+    flex: 1,
+  },
+  voiceRecorderHeader: {
+    padding: theme.spacing.md,
+    borderBottomWidth: 1,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  backText: {
+    fontSize: theme.typography.fontSize.md,
+    fontWeight: theme.typography.fontWeight.medium,
   },
 })
