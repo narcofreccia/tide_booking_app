@@ -188,12 +188,15 @@ The app includes a sophisticated voice booking feature with on-device speech-to-
 - **Real-Time Transcription**: On-device speech-to-text with partial results
 - **Audio Visualization**: Animated 5-bar visualizer showing audio levels
 - **Confidence Scoring**: Intelligent quality assessment (typically 85-100%)
-- **Backend Integration**: ✅ **COMPLETE** - Automatic booking creation via AI
-  - Submits transcript to backend API
+- **Backend Integration**: ✅ **PRODUCTION READY** - Complete AI-powered booking flow
+  - Submits transcript to backend API (`POST /voice-intents/`)
   - AI extracts booking information (GPT-4o-mini)
   - Creates PENDING booking automatically
   - Shows confirmation modal for staff review
-  - Supports editing and confirming bookings
+  - **Edit Before Confirm**: Staff can edit name, phone, email, adults, children
+  - **Confirm Booking**: Updates status to CONFIRMED via `PATCH /booking/{id}/status`
+  - **Cancel Booking**: Deletes booking via `DELETE /booking/{id}`
+  - **Query Invalidation**: Auto-refreshes bookings list, calendar, and map after confirm/cancel
 - **Multi-Language Detection**: Automatically detects Italian, English, and Spanish
   - Supports number words (due/two/dos, quattro/four/cuatro, etc.)
   - Context-aware party size extraction ("per 2", "for four", "para 6")
@@ -203,9 +206,16 @@ The app includes a sophisticated voice booking feature with on-device speech-to-
 - **Quality Heuristics**: Flags low-confidence recordings for server verification
 - **Language-Agnostic**: Detects all supported languages regardless of app language setting
 - **Booking Confirmation Modal**: Full-featured modal with edit capabilities
+  - Edit customer information (name, surname, phone, email)
+  - Edit booking details (adults, children)
+  - View booking date, time, and notes
+  - Confirm or cancel with loading states
 - **Collapsible Tips**: Space-saving UI with expandable help section
 - **Privacy-Focused**: On-device processing with optional server fallback
 - **Demo Mode**: Works in Expo Go with realistic multi-language test transcripts
+- **Full Internationalization**: All UI text translated to Italian, English, and Spanish
+- **Context Integration**: Uses global alert and loading system for consistent UX
+- **Accessible from Multiple Screens**: Microphone button in both BookingsScreen and BookingsMapScreen headers
 
 ### Components
 ```
@@ -288,10 +298,16 @@ The system evaluates transcription quality based on:
 2. **Recording stops** → Client processes transcript
 3. **Auto-submits** → `POST /voice-intents/` to backend
 4. **AI extracts** → Party size, time, date, name (GPT-4o-mini)
-5. **Booking created** → Status: PENDING
+5. **Booking created** → Status: PENDING, table auto-assigned
 6. **Modal appears** → Staff reviews booking details
-7. **Staff confirms** → `PATCH /booking/{id}` → Status: CONFIRMED
-8. **Success!** → Booking complete
+7. **Staff edits** (optional) → `PUT /booking/{id}` → Updates fields
+8. **Staff confirms** → `PATCH /booking/{id}/status` → Status: CONFIRMED
+9. **Queries invalidated** → Bookings list, calendar, and map refresh automatically
+10. **Success!** → Booking complete and visible everywhere
+
+**Alternative Flow - Cancel:**
+- **Staff cancels** → `DELETE /booking/{id}` → Booking deleted
+- **Queries invalidated** → UI refreshes automatically
 
 ### Demo Mode
 When running in Expo Go, the feature generates realistic test transcripts in random languages:

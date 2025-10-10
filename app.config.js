@@ -37,14 +37,14 @@ export default {
     },
     plugins: [
       "expo-secure-store"
-      // NOTE: Uncomment when ready for production build with real speech-to-text
-      // [
-      //   "@react-native-voice/voice",
-      //   {
-      //     microphonePermission: "This app needs access to your microphone to record voice bookings.",
-      //     speechRecognitionPermission: "This app needs access to speech recognition to transcribe your voice bookings."
-      //   }
-      // ]
+      //NOTE: Uncomment when ready for production build with real speech-to-text
+      [
+        "@react-native-voice/voice",
+        {
+          microphonePermission: "This app needs access to your microphone to record voice bookings.",
+          speechRecognitionPermission: "This app needs access to speech recognition to transcribe your voice bookings."
+        }
+      ]
     ],
     extra: {
       // Use environment variables from eas.json or .env (local dev)
