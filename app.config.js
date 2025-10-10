@@ -54,7 +54,13 @@ export default {
         {
           android: {
             useAndroidX: true,
-            enableProguardInReleaseBuilds: true
+            enableProguardInReleaseBuilds: true,
+            compileSdkVersion: 36,
+            targetSdkVersion: 36,
+            minSdkVersion: 24,
+            packagingOptions: {
+              pickFirst: ['**/libc++_shared.so']
+            }
           }
         }
       ]
